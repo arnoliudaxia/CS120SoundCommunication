@@ -9,12 +9,6 @@ public class AudioHw implements AsioDriverListener {
     private AsioDriver asioDriver;
     private Set<AsioChannel> activeChannels;
 
-//    private AsioChannel outputChannel;
-
-    private float phase = 0;
-    private float freq = 5000f;  // Hz
-    private float sampleRate = 48000f;
-    private float dphase = (2 * (float) Math.PI * freq) / sampleRate;
 
     public float[] outBuffer;
     private float[] inBuffer;
