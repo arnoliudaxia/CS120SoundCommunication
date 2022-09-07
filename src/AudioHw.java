@@ -1,27 +1,25 @@
 import com.synthbot.jasiohost.*;
+import dataAgent.CallBackStoreData;
+import dataAgent.MemoryData;
 
+import javax.security.auth.callback.Callback;
 import java.io.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class AudioHw implements AsioDriverListener {
+    //驱动层
     private AsioDriver asioDriver;
-    private Set<AsioChannel> activeChannels;
+    //控制区
+    public boolean isPlay = false;
+    public boolean isRecording = false;
 
-
-    public float[] outBuffer;
+    //数据流
     private float[] inBuffer;
-    private int recordBlocks=0;
-
-    boolean isPlay=false;
-    boolean isRecording=false;
-
-    public OutputStream storeStream=null;
-    public InputStream loadStream=null;
+    CallBackStoreData dataagent = new MemoryData();
+    LinkedList<float[]> playQueue = new LinkedList<>();
 
     public void init() {
-        activeChannels = new HashSet<AsioChannel>();  // create a Set of AsioChannels
+        Set<AsioChannel> activeChannels = new HashSet<AsioChannel>();  // create a Set of AsioChannels
 
         if (asioDriver == null) {
             List<String> driverNameList = AsioDriver.getDriverNames();
@@ -35,9 +33,13 @@ public class AudioHw implements AsioDriverListener {
             for (int i = 0; i < asioDriver.getNumChannelsOutput(); i++) {
                 System.out.println(asioDriver.getChannelOutput(i));
             }
+            System.out.println("------------------");
+            System.out.println("Input Channels");
+            for (int i = 0; i < asioDriver.getNumChannelsInput(); i++) {
+                System.out.println(asioDriver.getChannelInput(i));
+            }
+            System.out.println("------------------");
 
-
-            outBuffer = new float[Config.HW_BUFFER_SIZE];
             inBuffer = new float[Config.HW_BUFFER_SIZE];
 
             asioDriver.setSampleRate(Config.PHY_TX_SAMPLING_RATE);
@@ -49,8 +51,8 @@ public class AudioHw implements AsioDriverListener {
              *
              */
 
-            activeChannels.add(asioDriver.getChannelOutput(0) );
-            activeChannels.add(asioDriver.getChannelInput(0) );
+            activeChannels.add(asioDriver.getChannelOutput(0));
+            activeChannels.add(asioDriver.getChannelInput(0));
             asioDriver.createBuffers(activeChannels);  // create the audio buffers and prepare the driver to run
             System.out.println("ASIO buffer created, size: " + asioDriver.getBufferPreferredSize());
 
@@ -72,52 +74,16 @@ public class AudioHw implements AsioDriverListener {
     @Override
     public void bufferSwitch(final long systemTime, final long samplePosition, final Set<AsioChannel> channels) {
 
-        //inject a sin wave into the output buffer
-//		for (int i = 0; i < Config.HW_BUFFER_SIZE; i++) {
-//			phase = phase + dphase;
-//			output[i] = (float) (Math.sin((double)phase));  // sine wave
-//		}
-
         for (AsioChannel channelInfo : channels) {
-            if (isPlay&&!channelInfo.isInput()) {
-                if(loadStream!=null&&recordBlocks>0){
-                    try (ObjectInputStream input = new ObjectInputStream(loadStream)) {
-                        float MaxPower=0;
-
-                        for(int i=0;i<Config.HW_BUFFER_SIZE;i++)
-                        {
-                            outBuffer[i]=input.readFloat();
-                            MaxPower=Math.max(MaxPower,Math.abs(outBuffer[i]));
-                        }
-                        //声音放大增益
-                        System.out.println("MaxPower:"+MaxPower);
-                        for(int i=0;i<Config.HW_BUFFER_SIZE;i++)
-                        {
-                            outBuffer[i]*=0.7/MaxPower;
-                        }
-                        channelInfo.write(outBuffer);
-                        recordBlocks--;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-
+            if (isPlay && !channelInfo.isInput()) {
+                if (playQueue.size() > 0) {
+                    channelInfo.write(playQueue.pop());
                 }
-//                channelInfo.write(outBuffer);
 
             }
-            if(isRecording&&channelInfo.isInput()) {
+            if (isRecording && channelInfo.isInput()) {
                 channelInfo.read(inBuffer);
-                if(storeStream!=null) {
-                    try (ObjectOutputStream outputS = new ObjectOutputStream(storeStream)) {
-//                        outputS.writeObject(inBuffer);
-                        for (float datum : inBuffer) {
-                            outputS.writeFloat(datum);
-                        }
-                        recordBlocks++;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+                dataagent.storeData(inBuffer);
             }
         }
 

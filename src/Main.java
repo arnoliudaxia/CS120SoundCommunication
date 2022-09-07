@@ -17,8 +17,6 @@ public class Main {
 
         final AudioHw audiohw = new AudioHw();
         audiohw.init();
-        ByteArrayOutputStream tempBufferInMemory = new ByteArrayOutputStream();
-        audiohw.storeStream = tempBufferInMemory;
         audiohw.start();
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
@@ -26,15 +24,13 @@ public class Main {
         //#endregion
         if (taskchoice == 1) {
             //record 10s，然后回放
-            final int recordTime=10;
+            final int recordTime=5;
             System.out.println("Recording 10s...");
             audiohw.isRecording = true;
             threadBlockTime(recordTime*1000);
-            System.out.println("播放录音");
             audiohw.isRecording = false;
-            byte[] tempBuffer = tempBufferInMemory.toByteArray();
-
-            audiohw.loadStream = new ByteArrayInputStream(tempBuffer);
+            System.out.println("播放录音");
+            audiohw.playQueue=audiohw.dataagent.retriveData(Config.HW_BUFFER_SIZE);
             audiohw.isPlay = true;
             threadBlockTime(recordTime*1000);
             audiohw.isPlay = false;
@@ -44,19 +40,6 @@ public class Main {
         {
             //同时放声音和录音10s，然后回放
             //TODO 放歌
-            final int recordTime=10;
-            System.out.println("Recording 10s...");
-            audiohw.isRecording = true;
-            threadBlockTime(recordTime*1000);
-            System.out.println("播放录音");
-            audiohw.isRecording = false;
-            byte[] tempBuffer = tempBufferInMemory.toByteArray();
-            audiohw.loadStream = new ByteArrayInputStream(tempBuffer);
-            audiohw.isPlay = true;
-            threadBlockTime(recordTime*1000);
-            audiohw.isPlay = false;
-
-
         }
         audiohw.stop();
 
