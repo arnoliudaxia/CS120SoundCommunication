@@ -1,6 +1,8 @@
 import com.synthbot.jasiohost.*;
 import dataAgent.CallBackStoreData;
+import dataAgent.LocalTempFile;
 import dataAgent.MemoryData;
+import dataAgent.StorgePolicy;
 
 import javax.security.auth.callback.Callback;
 import java.io.*;
@@ -71,6 +73,8 @@ public class AudioHw implements AsioDriverListener {
         asioDriver.shutdownAndUnloadDriver();  // tear everything down
     }
 
+
+
     @Override
     public void bufferSwitch(final long systemTime, final long samplePosition, final Set<AsioChannel> channels) {
 
@@ -122,6 +126,13 @@ public class AudioHw implements AsioDriverListener {
     @Override
     public void sampleRateDidChange(final double sampleRate) {
         System.out.println("sampleRateDidChange() callback received.");
+    }
+
+    public void changeStorgePolicy(StorgePolicy policy){
+        switch (policy) {
+            case MEMORY -> dataagent = new MemoryData();
+            case FILE -> dataagent = new LocalTempFile();
+        }
     }
 
 
