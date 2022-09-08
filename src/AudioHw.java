@@ -83,6 +83,9 @@ public class AudioHw implements AsioDriverListener {
                 if (playQueue.size() > 0) {
                     channelInfo.write(playQueue.pop());
                 }
+                else {
+                    isPlay=false;
+                }
 
             }
             if (isRecording && channelInfo.isInput()) {
@@ -133,6 +136,29 @@ public class AudioHw implements AsioDriverListener {
             case MEMORY -> dataagent = new MemoryData();
             case FILE -> dataagent = new LocalTempFile();
         }
+    }
+
+    public int playRawData(float[] rawdata){
+        if(rawdata.length == Config.HW_BUFFER_SIZE){
+            playQueue.add(rawdata);
+            return 1;
+        }
+        if(rawdata.length< Config.HW_BUFFER_SIZE){
+            float[] temp = new float[Config.HW_BUFFER_SIZE];
+            System.arraycopy(rawdata, 0, temp, 0, rawdata.length);
+            playQueue.add(temp);
+            return 1;
+        }
+        int count = rawdata.length/Config.HW_BUFFER_SIZE;
+        for(int i = 0;i<count;i++){
+            float[] temp = new float[Config.HW_BUFFER_SIZE];
+            System.arraycopy(rawdata, i*Config.HW_BUFFER_SIZE, temp, 0, Config.HW_BUFFER_SIZE);
+            playQueue.add(temp);
+        }
+        return count;
+    }
+    public void playSound(LinkedList<float[]> sound){
+        playQueue = sound;
     }
 
 

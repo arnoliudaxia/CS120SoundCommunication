@@ -43,9 +43,8 @@ public class Main {
         if(taskchoice==2)
         {
             //同时放声音和录音10s，然后回放
-            //TODO 放歌
             final int recordTime=10;
-            audiohw.playQueue=SoundUtil.playsoundFile("res\\cai.dat",Config.HW_BUFFER_SIZE);
+            audiohw.playSound(SoundUtil.playsoundFile("res\\cai.dat",Config.HW_BUFFER_SIZE));
             audiohw.isPlay=true;
             System.out.println("放音乐中...");
             System.out.println("Recording 10s...");
@@ -54,7 +53,7 @@ public class Main {
             audiohw.isPlay= false;
             audiohw.isRecording = false;
             System.out.println("播放录音");
-            audiohw.playQueue=audiohw.dataagent.retriveData(Config.HW_BUFFER_SIZE);
+            audiohw.playSound(audiohw.dataagent.retriveData(Config.HW_BUFFER_SIZE));
             audiohw.isPlay = true;
             threadBlockTime(recordTime*1000);
             audiohw.isPlay = false;
