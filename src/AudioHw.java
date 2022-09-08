@@ -1,8 +1,5 @@
 import com.synthbot.jasiohost.*;
-import dataAgent.CallBackStoreData;
-import dataAgent.LocalTempFile;
-import dataAgent.MemoryData;
-import dataAgent.StorgePolicy;
+import dataAgent.*;
 
 import javax.security.auth.callback.Callback;
 import java.io.*;
@@ -14,6 +11,7 @@ public class AudioHw implements AsioDriverListener {
     //控制区
     public boolean isPlay = false;
     public boolean isRecording = false;
+    public float volume=0.7f;
 
     //数据流
     private float[] inBuffer;
@@ -75,15 +73,17 @@ public class AudioHw implements AsioDriverListener {
 
 
 
+
     @Override
     public void bufferSwitch(final long systemTime, final long samplePosition, final Set<AsioChannel> channels) {
 
         for (AsioChannel channelInfo : channels) {
             if (isPlay && !channelInfo.isInput()) {
                 if (playQueue.size() > 0) {
-                    channelInfo.write(playQueue.pop());
+                    channelInfo.write(SoundUtil.amplify(playQueue.pop(), volume));
                 }
                 else {
+                    System.out.println("播放完成");
                     isPlay=false;
                 }
 
@@ -155,6 +155,8 @@ public class AudioHw implements AsioDriverListener {
             System.arraycopy(rawdata, i*Config.HW_BUFFER_SIZE, temp, 0, Config.HW_BUFFER_SIZE);
             playQueue.add(temp);
         }
+        //处理尾部
+        playRawData(Arrays.copyOfRange(rawdata, count*Config.HW_BUFFER_SIZE, rawdata.length));
         return count;
     }
     public void playSound(LinkedList<float[]> sound){

@@ -1,4 +1,3 @@
-
 import dataAgent.SoundUtil;
 
 import java.io.IOException;
@@ -59,24 +58,19 @@ public class Main {
 
         }
         if (taskchoice == 3) {
-            //生成一个频率为1000Hz的正弦波，采样率是44100Hz
+            //播放两个正弦波1000hz and 10000hz
 
-
-//            audiohw.playRawData(SoundUtil.generateSinwave(1000,2,Config.PHY_TX_SAMPLING_RATE));
-            float phase = 0;
-            float freq = 5000f;  // Hz
-            float sampleRate = 48000f;
-            float dphase = (2 * (float) Math.PI * freq) / sampleRate;
-            float[] soundTemp = new float[Config.HW_BUFFER_SIZE];
-            for (int i = 0; i < Config.HW_BUFFER_SIZE; i++) {
-                phase = phase + dphase;
-                soundTemp[i] = (float) (Math.sin((double) phase));  // sine wave
+            var sin1K=SoundUtil.generateSinwave(1000,4,Config.PHY_TX_SAMPLING_RATE);
+            var sin10K=SoundUtil.generateSinwave(10000,4,Config.PHY_TX_SAMPLING_RATE);
+            for (var i =0;i<sin1K.length;i++)
+            {
+                sin1K[i]+=sin10K[i];
             }
-            audiohw.playRawData(soundTemp);
+
+            audiohw.playRawData(sin1K);
 
             audiohw.isPlay = true;
-            audiohw.isLoop = true;
-            threadBlockTime(1000);
+            threadBlockTime(2000);
             audiohw.isPlay = false;
         }
         audiohw.stop();
