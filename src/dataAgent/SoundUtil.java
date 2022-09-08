@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class SoundUtil {
@@ -58,4 +59,13 @@ public class SoundUtil {
         }
         return null;
     }
+
+    public static float[] generateSinwave(int hz,int duration,int sampleRate){
+        float[] result=new float[duration*sampleRate];
+        float phase=0;
+        float dphase = (2 * (float) Math.PI * 1000) / sampleRate;
+        Arrays.fill(result, (float) (Math.sin((double) phase)));
+        return result;
+    }
+
 }
