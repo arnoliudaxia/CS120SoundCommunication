@@ -1,3 +1,5 @@
+package OSI.Physic;
+
 import com.synthbot.jasiohost.AsioChannel;
 import com.synthbot.jasiohost.AsioDriver;
 import com.synthbot.jasiohost.AsioDriverListener;
@@ -9,19 +11,23 @@ import java.util.*;
 
 
 public class AudioHw implements AsioDriverListener {
+    public static AudioHw audioHwG;
     //驱动层
     private AsioDriver asioDriver;
     //控制区
     public boolean isPlay = false;
     public boolean isRecording = false;
     public float volume=0.7f;
+    public int sampleFrequency=44100;
 
     //数据流
+    private int bufferSize=512;
     private float[] inBuffer;
-    CallBackStoreData dataagent = new MemoryData();
-    LinkedList<float[]> playQueue = new LinkedList<>();
+    public CallBackStoreData dataagent = new MemoryData();
+    public LinkedList<float[]> playQueue = new LinkedList<>();
 
-    public void init() {
+    public void init(int sampleFre) {
+        sampleFrequency= sampleFre;
         Set<AsioChannel> activeChannels = new HashSet<AsioChannel>();  // create a Set of AsioChannels
 
         if (asioDriver == null) {
@@ -43,13 +49,13 @@ public class AudioHw implements AsioDriverListener {
             }
             System.out.println("------------------");
 
-            inBuffer = new float[Config.HW_BUFFER_SIZE];
+            inBuffer = new float[bufferSize];
 
-            asioDriver.setSampleRate(Config.PHY_TX_SAMPLING_RATE);
+            asioDriver.setSampleRate(sampleFrequency);
             /*
              * buffer size should be set either by modifying the JAsioHost source code or
              * configuring the preferred value in ASIO native window. We choose 128 i.e.,
-             * asioDriver.getBufferPreferredSize() should be equal to Config.HW_BUFFER_SIZE
+             * asioDriver.getBufferPreferredSize() should be equal to sampleFrequency
              * = 128;
              *
              */
@@ -142,25 +148,24 @@ public class AudioHw implements AsioDriverListener {
     }
 
     public int playRawData(float[] rawdata){
-        if(rawdata.length == Config.HW_BUFFER_SIZE){
+        if(rawdata.length == bufferSize){
             playQueue.add(rawdata);
             return 1;
         }
-        if(rawdata.length< Config.HW_BUFFER_SIZE){
-            float[] temp = new float[Config.HW_BUFFER_SIZE];
+        if(rawdata.length< bufferSize){
+            float[] temp = new float[bufferSize];
             System.arraycopy(rawdata, 0, temp, 0, rawdata.length);
             playQueue.add(temp);
             return 1;
         }
-        int count = rawdata.length/Config.HW_BUFFER_SIZE;
+        int count = rawdata.length/bufferSize;
         for(int i = 0;i<count;i++){
-            float[] temp = new float[Config.HW_BUFFER_SIZE];
-            System.arraycopy(rawdata, i*Config.HW_BUFFER_SIZE, temp, 0, Config.HW_BUFFER_SIZE);
+            float[] temp = new float[bufferSize];
+            System.arraycopy(rawdata, i*bufferSize, temp, 0, bufferSize);
             playQueue.add(temp);
         }
         //处理尾部
-        playRawData(Arrays.copyOfRange(rawdata, count*Config.HW_BUFFER_SIZE, rawdata.length));
-        return count;
+        return count+playRawData(Arrays.copyOfRange(rawdata, count*bufferSize, rawdata.length));
     }
 
         public void playSound(LinkedList<float[]> sound){

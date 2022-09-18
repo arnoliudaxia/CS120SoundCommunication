@@ -1,9 +1,9 @@
+import OSI.Link.BitPacker;
+import OSI.Physic.AudioHw;
 import com.github.psambit9791.jdsp.signal.Generate;
-import com.github.psambit9791.wavfile.WavFile;
 import com.github.psambit9791.wavfile.WavFileException;
 import dataAgent.SoundUtil;
 import dataAgent.StorgePolicy;
-import utils.smartConvertor;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,13 +30,11 @@ public class Main {
 //        double[] outarray = cc.crossCorrelate(mode);
 //        System.out.println(outarray);
 //        System.out.println(argmax(outarray,false));
+        AudioHw.audioHwG=new AudioHw();
 
-        final AudioHw audiohw = new AudioHw();
-
-
-        audiohw.init();
-        audiohw.changeStorgePolicy(StorgePolicy.FILE);
-        audiohw.start();
+        AudioHw.audioHwG.init(Config.PHY_TX_SAMPLING_RATE);
+        AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FILE);
+        AudioHw.audioHwG.start();
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
@@ -47,32 +45,32 @@ public class Main {
             //record 10s，然后回放
             final int recordTime = 10;
             System.out.println("Recording 10s...");
-            audiohw.isRecording = true;
+            AudioHw.audioHwG.isRecording = true;
             threadBlockTime(recordTime * 1000);
-            audiohw.isRecording = false;
+            AudioHw.audioHwG.isRecording = false;
             System.out.println("播放录音");
-            audiohw.playQueue = audiohw.dataagent.retriveData(Config.HW_BUFFER_SIZE);
-            audiohw.isPlay = true;
+            AudioHw.audioHwG.playSound(AudioHw.audioHwG.dataagent.retriveData(Config.HW_BUFFER_SIZE));
+            AudioHw.audioHwG.isPlay = true;
             threadBlockTime(recordTime * 1000);
-            audiohw.isPlay = false;
+            AudioHw.audioHwG.isPlay = false;
 
         }
         if (taskchoice == 2) {
             //同时放声音和录音10s，然后回放
             final int recordTime = 10;
-            audiohw.playSound(SoundUtil.playsoundFile("res\\cai.dat", Config.HW_BUFFER_SIZE));
-            audiohw.isPlay = true;
+            AudioHw.audioHwG.playSound(SoundUtil.playsoundFile("res\\cai.dat", Config.HW_BUFFER_SIZE));
+            AudioHw.audioHwG.isPlay = true;
             System.out.println("放音乐中...");
             System.out.println("Recording 10s...");
-            audiohw.isRecording = true;
+            AudioHw.audioHwG.isRecording = true;
             threadBlockTime(recordTime * 1000);
-            audiohw.isPlay = false;
-            audiohw.isRecording = false;
+            AudioHw.audioHwG.isPlay = false;
+            AudioHw.audioHwG.isRecording = false;
             System.out.println("播放录音");
-            audiohw.playSound(audiohw.dataagent.retriveData(Config.HW_BUFFER_SIZE));
-            audiohw.isPlay = true;
+            AudioHw.audioHwG.playSound(AudioHw.audioHwG.dataagent.retriveData(Config.HW_BUFFER_SIZE));
+            AudioHw.audioHwG.isPlay = true;
             threadBlockTime(recordTime * 1000);
-            audiohw.isPlay = false;
+            AudioHw.audioHwG.isPlay = false;
 
 
         }
@@ -87,25 +85,17 @@ public class Main {
                 sin1K[i] += (float) sin10K[i];
             }
 
-            audiohw.playRawData(sin1K);
+            AudioHw.audioHwG.playRawData(sin1K);
 
-            audiohw.isPlay = true;
+            AudioHw.audioHwG.isPlay = true;
             threadBlockTime(2000);
-            audiohw.isPlay = false;
+            AudioHw.audioHwG.isPlay = false;
         }
         if (taskchoice == 4) {
             //一台机子发送数据另一台接受
             //首先采取调频的方式传送
-            final int bitLength=100;
-            float fragmentTime = 0.05f;
-            int fragmentLength = (int) (fragmentTime * Config.PHY_TX_SAMPLING_RATE);
-            var oneSignal = (SoundUtil.generateSinwave(12000, fragmentTime, Config.PHY_TX_SAMPLING_RATE));
-            var zeroSignal = SoundUtil.generateSinwave(8000, fragmentTime, Config.PHY_TX_SAMPLING_RATE);
-            final int headerLength = 15;
-            final List<Integer> headerFrame = List.of(1,0,1,1,0,1,0,1,1,0,1,1,0,1,0);
-            float[] signal = new float[(headerLength+bitLength) * fragmentLength];
+            BitPacker bitPacker = new BitPacker(Config.PHY_TX_SAMPLING_RATE);
             List<Integer> rawdata = new ArrayList<>();
-            rawdata.addAll(headerFrame);
             File f = new File("res\\INPUT.txt");
             Scanner sc = new Scanner(f);
             var rawstring = sc.nextLine();
@@ -114,19 +104,13 @@ public class Main {
                     rawdata.add(Integer.parseInt(String.valueOf(rawstring.charAt(i))));
                 }
             }
-            for (int i = 0; i < rawdata.size(); i++) {
-                System.arraycopy(rawdata.get(i) == 1 ? oneSignal : zeroSignal, 0, signal, i * fragmentLength, fragmentLength);
-            }
-            WavFile objRead1 = WavFile.newWavFile(new File("res\\my.wav"),1,1000,16,Config.PHY_TX_SAMPLING_RATE);
-            objRead1.writeFrames(smartConvertor.floatToDoubleArray(signal),1000);
-            audiohw.playRawData(signal);
-            audiohw.isPlay = true;
-            threadBlockTime(2000);
-            audiohw.isPlay = false;
+            bitPacker.AppendData(rawdata);
+            threadBlockTime(5000);
+            AudioHw.audioHwG.isPlay = false;
 
 
         }
-        audiohw.stop();
+        AudioHw.audioHwG.stop();
 
 
     }
