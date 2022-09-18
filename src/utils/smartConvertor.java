@@ -10,4 +10,13 @@ public class smartConvertor {
         }
         return output;
     }
+    public static double[] floatToDoubleArray(float[] input)
+    {
+        double[] output=new double[input.length];
+        for (var i=0;i<input.length;i++)
+        {
+            output[i]=(double) input[i];
+        }
+        return output;
+    }
 }

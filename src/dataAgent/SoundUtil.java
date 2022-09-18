@@ -59,11 +59,12 @@ public class SoundUtil {
         return null;
     }
 
-    public static float[] generateSinwave(int hz,int duration,int sampleRate){
-        float[] result=new float[duration*sampleRate];
+    public static float[] generateSinwave(int hz,float duration,int sampleRate){
+        int arrayLength=(int)(duration*sampleRate);
+        float[] result=new float[arrayLength];
         float phase=0;
         float dphase = (2 * (float) Math.PI * hz) / sampleRate;
-        for (int i = 0; i < duration*sampleRate; i++) {
+        for (int i = 0; i < arrayLength; i++) {
             phase += dphase;
             result[i] = (float) (Math.sin((double) phase));  // sine wave
         }

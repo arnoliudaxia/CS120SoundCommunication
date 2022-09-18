@@ -162,7 +162,8 @@ public class AudioHw implements AsioDriverListener {
         playRawData(Arrays.copyOfRange(rawdata, count*Config.HW_BUFFER_SIZE, rawdata.length));
         return count;
     }
-    public void playSound(LinkedList<float[]> sound){
+
+        public void playSound(LinkedList<float[]> sound){
         playQueue = sound;
     }
 
