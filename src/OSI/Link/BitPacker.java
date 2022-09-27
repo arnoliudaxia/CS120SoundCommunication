@@ -7,29 +7,28 @@ import java.util.List;
 
 public class BitPacker {
     public BitPacker(int sampleFre) {
+        //定义好信号的频率
         this.oneSignal = SoundUtil.generateSinwave(12000, fragmentTime, sampleFre);
         this.zeroSignal = SoundUtil.generateSinwave(8000, fragmentTime, sampleFre);
-        headerLength = headerFrame.size();
+        //每一个数据包的长度
         frameConfig.fragmentLength= fragmentLength = (int) (fragmentTime * sampleFre);
-        signal = new float[(headerLength + bitLength) * fragmentLength];
-        for (int headindex = 0; headindex < headerLength; headindex++) {
-            System.arraycopy(headerFrame.get(headindex) == 1 ? this.oneSignal : this.zeroSignal, 0, signal, headindex * fragmentLength, fragmentLength);
-//            System.out.println(headerFrame.get(headindex));
-        }
+        signal = new float[headerLength+bitLength * fragmentLength];
+        //把headr放到singal开头
+        System.arraycopy(header, 0, signal, 0, headerLength);
         rawDataIndex = headerLength;
     }
 
 
     public void AppendData(List<Integer> data) {
         for (Integer datum : data) {
-            if(rawDataIndex>=bitLength+headerLength)
+            if(rawDataIndex>=headerLength+(bitLength-1) * fragmentLength)
             {
                 send();
             }
 
             System.arraycopy(datum == 1 ? oneSignal : zeroSignal, 0, signal,
-                    (rawDataIndex) * fragmentLength, fragmentLength);
-            rawDataIndex++;
+                    (rawDataIndex) , fragmentLength);
+            rawDataIndex+=fragmentLength;
         }
 
     }
@@ -43,14 +42,15 @@ public class BitPacker {
 
     private final float[] oneSignal;
     private final float[] zeroSignal;
-    final int headerLength;
-    final List<Integer> headerFrame = List.of(1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0);
+    private final float[] header=frameConfig.header32;
+    final int headerLength=header.length;
     private final int bitLength = frameConfig.bitLength;
     private int rawDataIndex;
 
     final float fragmentTime = frameConfig.fragmentTime;
     final int fragmentLength;
 
+    //singal就是最终的信号
     float[] signal = null;
 
 }

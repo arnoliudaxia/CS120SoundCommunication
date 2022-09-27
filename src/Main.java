@@ -23,13 +23,6 @@ public class Main {
     public static void main(final String[] args) throws IOException, WavFileException {
 
 
-//        double[] signal={2, 8, 0, 4, 1, 9, 9, 0};
-//        double[] kernel={8,0,4,1};
-//        String mode = "valid"; //Can be "valid", "same"
-//        CrossCorrelation cc = new CrossCorrelation(signal, kernel);
-//        double[] outarray = cc.crossCorrelate(mode);
-//        System.out.println(outarray);
-//        System.out.println(argmax(outarray,false));
         AudioHw.audioHwG=new AudioHw();
 
         AudioHw.audioHwG.init(Config.PHY_TX_SAMPLING_RATE);
