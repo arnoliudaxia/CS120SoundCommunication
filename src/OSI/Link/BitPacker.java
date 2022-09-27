@@ -10,7 +10,7 @@ public class BitPacker {
         this.oneSignal = SoundUtil.generateSinwave(12000, fragmentTime, sampleFre);
         this.zeroSignal = SoundUtil.generateSinwave(8000, fragmentTime, sampleFre);
         headerLength = headerFrame.size();
-        fragmentLength = (int) (fragmentTime * sampleFre);
+        frameConfig.fragmentLength= fragmentLength = (int) (fragmentTime * sampleFre);
         signal = new float[(headerLength + bitLength) * fragmentLength];
         for (int headindex = 0; headindex < headerLength; headindex++) {
             System.arraycopy(headerFrame.get(headindex) == 1 ? this.oneSignal : this.zeroSignal, 0, signal, headindex * fragmentLength, fragmentLength);
@@ -45,10 +45,10 @@ public class BitPacker {
     private final float[] zeroSignal;
     final int headerLength;
     final List<Integer> headerFrame = List.of(1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0);
-    private final int bitLength = 50;
+    private final int bitLength = frameConfig.bitLength;
     private int rawDataIndex;
 
-    final float fragmentTime = 0.05f;
+    final float fragmentTime = frameConfig.fragmentTime;
     final int fragmentLength;
 
     float[] signal = null;
