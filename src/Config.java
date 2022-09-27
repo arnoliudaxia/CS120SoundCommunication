@@ -24,8 +24,8 @@ public class Config {
 			
 	
 	// Sampling Rate
-	public final static int PHY_RX_SAMPLING_RATE = 48000;
-	public final static int PHY_TX_SAMPLING_RATE = 48000;
+	public final static int PHY_RX_SAMPLING_RATE = 44100;
+	public final static int PHY_TX_SAMPLING_RATE = 44100;
 	
 	// Carrier Frequency
 	public final static int PHY_CARRIER_FREQ = 10000;
