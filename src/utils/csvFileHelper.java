@@ -4,14 +4,14 @@ import com.github.psambit9791.jdsp.io.CSV;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 public class csvFileHelper {
         CSV writeObj = new CSV(','); //comma is the separator
-    public void saveToCsv(String path, ArrayList<Float> data) throws IOException {
+    public void saveToCsv(String path, List<Float> data) throws IOException {
         HashMap< String, ArrayList< Object>> result = new HashMap<>();
-        result.put("col1", new ArrayList<>(Collections.singletonList(data)));
+        result.put("col1", new ArrayList<>(data));
         writeObj.writeCSV(path, result);
     }
     public float[] readCsv(String path) throws IOException {
