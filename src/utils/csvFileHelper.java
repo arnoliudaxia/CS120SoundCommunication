@@ -8,22 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 
 public class csvFileHelper {
-        CSV writeObj = new CSV(','); //comma is the separator
+        CSV csvobj = new CSV(','); //comma is the separator
     public void saveToCsv(String path, List<Float> data) throws IOException {
         HashMap< String, ArrayList< Object>> result = new HashMap<>();
         result.put("col1", new ArrayList<>(data));
-        writeObj.writeCSV(path, result);
+        csvobj.writeCSV(path, result);
     }
-    public float[] readCsv(String path) throws IOException {
-        CSV readObj = new CSV(',');
-        HashMap< String, ArrayList< Object>> out = readObj.readCSV(path, true);
+    public Float[] readCsv(String path) throws IOException {
+        HashMap< String, ArrayList< Object>> out = csvobj.readCSV(path, true);
 //        return out.get("col1").toArray(float[]::new);
-        var readresult = out.get("col1").toArray(Float[]::new);
-        float[] result=new float[readresult.length];
-        for(int i=0;i<readresult.length;i++)
-        {
-            result[i]=readresult[i];
-        }
-        return result;
+        var readresult = out.get("col1").stream().map(x->Float.parseFloat(x.toString())).toArray(Float[]::new);
+        return readresult;
     }
 }
