@@ -42,7 +42,7 @@ public class BitPacker {
 
     private final float[] oneSignal;
     private final float[] zeroSignal;
-    private final float[] header=frameConfig.header32;
+    private final float[] header=frameConfig.header;
     final int headerLength=header.length;
     private final int bitLength = frameConfig.bitLength;
     private int rawDataIndex;
