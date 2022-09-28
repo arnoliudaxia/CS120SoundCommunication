@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.util.LinkedList;
 
 public class SoundUtil {
+    //调整声音的大小  maxRef是系数
     public static float[] amplify(float[] data, float maxRef) {
         float MaxPower = 0;
 
@@ -59,6 +60,7 @@ public class SoundUtil {
         return null;
     }
 
+    //duration 区间长度
     public static float[] generateSinwave(int hz,float duration,int sampleRate){
         int arrayLength=(int)(duration*sampleRate);
         float[] result=new float[arrayLength];

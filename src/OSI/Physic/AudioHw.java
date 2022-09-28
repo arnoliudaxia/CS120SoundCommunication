@@ -49,9 +49,9 @@ public class AudioHw implements AsioDriverListener {
             }
             System.out.println("------------------");
 
-            inBuffer = new float[bufferSize];
+            inBuffer = new float[bufferSize];//数组长度固定为buffer大小
 
-            asioDriver.setSampleRate(sampleFrequency);
+            asioDriver.setSampleRate(sampleFrequency);//确定采样率
             /*
              * buffer size should be set either by modifying the JAsioHost source code or
              * configuring the preferred value in ASIO native window. We choose 128 i.e.,

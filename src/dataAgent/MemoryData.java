@@ -17,17 +17,17 @@ public class MemoryData implements CallBackStoreData {
         }
     }
 
-
     @Override
     public void storeData(float[] data)  {
         for (float datum : data) {
             try{
             outputS.writeFloat(datum);
-            }catch (IOException e){
+            }catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
 
     @Override
     public LinkedList<float[]> retriveData(int fragmentSize) {
@@ -36,7 +36,7 @@ public class MemoryData implements CallBackStoreData {
         }catch (IOException e){
             e.printStackTrace();
         }
-        return SoundUtil.getSoundFromSerializedByte(tempBufferInMemory.toByteArray(),fragmentSize);
+        return SoundUtil.getSoundFromSerializedByte(tempBufferInMemory.toByteArray(),fragmentSize);//将输出流中的数据转化为Byte数组
 
     }
 
