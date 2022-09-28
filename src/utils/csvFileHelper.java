@@ -14,4 +14,16 @@ public class csvFileHelper {
         result.put("col1", new ArrayList< Object>(Collections.singletonList(data)));
         writeObj.writeCSV(path, result);
     }
+    public float[] readCsv(String path) throws IOException {
+        CSV readObj = new CSV(',');
+        HashMap< String, ArrayList< Object>> out = readObj.readCSV(path, true);
+//        return out.get("col1").toArray(float[]::new);
+        var readresult = out.get("col1").toArray(Float[]::new);
+        float[] result=new float[readresult.length];
+        for(int i=0;i<readresult.length;i++)
+        {
+            result[i]=readresult[i];
+        }
+        return result;
+    }
 }
