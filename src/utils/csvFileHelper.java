@@ -9,9 +9,9 @@ import java.util.HashMap;
 
 public class csvFileHelper {
         CSV writeObj = new CSV(','); //comma is the separator
-    public void saveToCsv(String path, ArrayList<float[]> data) throws IOException {
-        HashMap< String, ArrayList< Object>> result = new HashMap< String, ArrayList< Object>>();
-        result.put("col1", new ArrayList< Object>(Collections.singletonList(data)));
+    public void saveToCsv(String path, ArrayList<Float> data) throws IOException {
+        HashMap< String, ArrayList< Object>> result = new HashMap<>();
+        result.put("col1", new ArrayList<>(Collections.singletonList(data)));
         writeObj.writeCSV(path, result);
     }
     public float[] readCsv(String path) throws IOException {
