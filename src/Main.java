@@ -2,8 +2,11 @@ import OSI.Link.BitPacker;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.jdsp.signal.Generate;
 import com.github.psambit9791.wavfile.WavFileException;
+import dataAgent.ProcessData;
 import dataAgent.SoundUtil;
 import dataAgent.StorgePolicy;
+//import utils.MatlabHelper;
+import utils.csvFileHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +24,10 @@ public class Main {
     }
 
     public static void main(final String[] args) throws IOException, WavFileException {
-
-
+//        MatlabHelper ma=new MatlabHelper("MATLAB_17800");
+//        csvFileHelper csv = new csvFileHelper();
+//        ProcessData pp = new ProcessData(Config.PHY_TX_SAMPLING_RATE);
+//        csv.saveToCsv("D:\\桌面\\data.csv",pp.allData);
         AudioHw.audioHwG=new AudioHw();
 
         AudioHw.audioHwG.init(Config.PHY_TX_SAMPLING_RATE);
@@ -31,7 +36,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 4;
+        int taskchoice = 5;
 
         //#endregion
         if (taskchoice == 1) {
@@ -100,6 +105,19 @@ public class Main {
             bitPacker.AppendData(rawdata);
             threadBlockTime(5000);
             AudioHw.audioHwG.isPlay = false;
+        }
+        if (taskchoice==5){
+            ProcessData processData = new ProcessData(Config.PHY_TX_SAMPLING_RATE);
+            AudioHw.audioHwG.dataagent=processData;
+            final int recordTime = 10;
+            AudioHw.audioHwG.isRecording = true;
+            threadBlockTime(recordTime * 1000);
+            AudioHw.audioHwG.isRecording = false;
+            csvFileHelper csv = new csvFileHelper();
+            csv.saveToCsv("D:\\桌面\\project1_sample\\dataa.csv",processData.timeDomain);
+            csv.saveToCsv("D:\\桌面\\project1_sample\\data.csv",processData.allData);
+            csv.saveToCsv("D:\\桌面\\project1_sample\\fuck.csv",processData.check);
+            //csv.saveToCsv("D:\\桌面\\project1_sample\\fuckyou.csv",processData.fft);
 
 
         }
