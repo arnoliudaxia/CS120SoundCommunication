@@ -116,7 +116,6 @@ public class AudioHw implements AsioDriverListener {
                 if(referenceNoiseMeasureIndex>=10)
                 {
                     SoundUtil.simpleAmplify(inBuffer,inputAmplify);
-//                    dataagent.storeData(inBuffer);
                     dataagent.storeData(inBuffer);
 //                    System.out.println("referenceNoise:"+referenceNoise);
                 }
