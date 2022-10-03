@@ -5,6 +5,8 @@ import com.synthbot.jasiohost.AsioDriver;
 import com.synthbot.jasiohost.AsioDriverListener;
 import com.synthbot.jasiohost.AsioDriverState;
 import dataAgent.*;
+import utils.SoundUtil;
+import utils.smartConvertor;
 
 import java.util.*;
 
@@ -25,6 +27,9 @@ public class AudioHw implements AsioDriverListener {
     private float[] inBuffer;
     public CallBackStoreData dataagent = new MemoryData();
     public LinkedList<float[]> playQueue = new LinkedList<>();
+    private int referenceNoiseMeasureIndex=0;
+    public double referenceNoise=1f;
+    private float inputAmplify=1f;
 
     public void init(int sampleFre) {
         sampleFrequency= sampleFre;
@@ -93,13 +98,29 @@ public class AudioHw implements AsioDriverListener {
                 }
                 else {
                     System.out.println("播放完成");
+                    channelInfo.write(new float[bufferSize]);
                     isPlay=false;
                 }
 
             }
             if (isRecording && channelInfo.isInput()) {
+
                 channelInfo.read(inBuffer);
-                dataagent.storeData(inBuffer);
+                referenceNoiseMeasureIndex++;
+                if(referenceNoiseMeasureIndex>5&&referenceNoiseMeasureIndex<10)
+                {
+                    referenceNoise=(Arrays.stream(smartConvertor.floatToDoubleArray(inBuffer)).map(Math::abs).sum()/inBuffer.length+referenceNoise)/2;
+                    inputAmplify= (float) (1.0f/referenceNoise);
+                }
+//                dataagent.storeData(inBuffer);
+                if(referenceNoiseMeasureIndex>=10)
+                {
+                    SoundUtil.simpleAmplify(inBuffer,inputAmplify);
+//                    dataagent.storeData(inBuffer);
+                    dataagent.storeData(inBuffer);
+//                    System.out.println("referenceNoise:"+referenceNoise);
+                }
+
             }
         }
 
