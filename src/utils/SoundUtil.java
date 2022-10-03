@@ -1,5 +1,7 @@
 package utils;
 
+import com.github.psambit9791.jdsp.filter.Butterworth;
+
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -18,6 +20,11 @@ public class SoundUtil {
             data[i] *= maxRef / MaxPower;
         }
         return data;
+    }
+    public static void simpleAmplify(float[] data, float ratio) {
+        for (int i = 0; i < data.length; i++) {
+            data[i] *= ratio;
+        }
     }
     public static void amplify(LinkedList<float[]> data,float maxRef) {
         for (float[] datum : data) {
@@ -72,6 +79,12 @@ public class SoundUtil {
         }
 //        Arrays.fill(result, (float) (Math.sin((double) phase)));
         return result;
+    }
+    public static double[] bandPassFilter(double[] data,int samplingRate,int lowCut,int hightCut)
+    {
+        int order = 4; //order of the filter
+        Butterworth flt = new Butterworth(samplingRate); //signal is of type double[]
+        return flt.bandPassFilter(data, order, lowCut, hightCut);
     }
 
 }
