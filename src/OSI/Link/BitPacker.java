@@ -35,7 +35,7 @@ public class BitPacker {
 
     public void send() {
         if(rawDataIndex<=headerLength)return;
-        System.out.println(AudioHw.audioHwG.playRawData(signal));
+        System.out.println("发送包数量"+AudioHw.audioHwG.playRawData(signal));
         AudioHw.audioHwG.isPlay = true;
         rawDataIndex = headerLength;
     }

@@ -24,10 +24,8 @@ public class Main {
     }
 
     public static void main(final String[] args) throws IOException, WavFileException {
-//        MatlabHelper ma=new MatlabHelper("MATLAB_17800");
-//        csvFileHelper csv = new csvFileHelper();
-//        ProcessData pp = new ProcessData(Config.PHY_TX_SAMPLING_RATE);
-//        csv.saveToCsv("D:\\桌面\\data.csv",pp.allData);
+
+
         AudioHw.audioHwG=new AudioHw();
 
         AudioHw.audioHwG.init(Config.PHY_TX_SAMPLING_RATE);
@@ -103,7 +101,7 @@ public class Main {
                 }
             }
             bitPacker.AppendData(rawdata);
-            threadBlockTime(5000);
+            threadBlockTime(1000);
             AudioHw.audioHwG.isPlay = false;
         }
         if (taskchoice==5){
