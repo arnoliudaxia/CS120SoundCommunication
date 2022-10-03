@@ -1,13 +1,14 @@
 import OSI.Link.BitPacker;
+import OSI.Link.ProcessData;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.jdsp.signal.Generate;
 import com.github.psambit9791.wavfile.WavFileException;
-import OSI.Link.ProcessData;
-import utils.SoundUtil;
 import dataAgent.StorgePolicy;
+import utils.SoundUtil;
 import utils.csvFileHelper;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,6 +128,12 @@ public class Main {
             csv.saveToCsvD("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\bitwave.csv",processData.bitWave);
             csv.saveToCsv("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\fuck.csv",processData.check);
             //csv.saveToCsv("D:\\桌面\\project1_sample\\fuckyou.csv",processData.fft);
+            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
+                for(var bit:processData.information)
+                {
+                    input.write(bit.toString().getBytes());
+                }
+            } // 编译器在此自动为我们写入finally并调用close()
 
 
         }
