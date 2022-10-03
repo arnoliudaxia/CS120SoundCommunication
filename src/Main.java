@@ -2,7 +2,7 @@ import OSI.Link.BitPacker;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.jdsp.signal.Generate;
 import com.github.psambit9791.wavfile.WavFileException;
-import dataAgent.ProcessData;
+import OSI.Link.ProcessData;
 import utils.SoundUtil;
 import dataAgent.StorgePolicy;
 import utils.csvFileHelper;
@@ -109,20 +109,21 @@ public class Main {
             Float[] debugWave = csv.readCsv("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\wave.csv");
             ProcessData processData = new ProcessData(Config.PHY_TX_SAMPLING_RATE);
 
-//            for(int i=0;i<debugWave.length-512;i+=512){
-//                float[] debugFragment=new float[512];
-//                for(int j=0;j<512;j++){
-//                    debugFragment[j]=debugWave[i+j];
-//                }
-//                processData.storeData(debugFragment);
-//            }
+            for(int i=0;i<debugWave.length-512;i+=512){
+                float[] debugFragment=new float[512];
+                for(int j=0;j<512;j++){
+                    debugFragment[j]=debugWave[i+j];
+                }
+                processData.storeData(debugFragment);
+            }
 //
-            AudioHw.audioHwG.dataagent=processData;
-            final int recordTime = 3;
-            AudioHw.audioHwG.isRecording = true;
-            threadBlockTime(recordTime * 1000);
-            AudioHw.audioHwG.isRecording = false;
-            csv.saveToCsv("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\wave.csv",processData.allData);
+//            AudioHw.audioHwG.dataagent=processData;
+//            final int recordTime = 3;
+//            AudioHw.audioHwG.isRecording = true;
+//            threadBlockTime(recordTime * 1000);
+//            AudioHw.audioHwG.isRecording = false;
+//            csv.saveToCsv("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\wave.csv",processData.allData);
+
             csv.saveToCsvD("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\bitwave.csv",processData.bitWave);
             csv.saveToCsv("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\fuck.csv",processData.check);
             //csv.saveToCsv("D:\\桌面\\project1_sample\\fuckyou.csv",processData.fft);
