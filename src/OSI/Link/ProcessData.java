@@ -124,11 +124,17 @@ public class ProcessData implements CallBackStoreData {
         return Math.abs(freq-realFreq)<150;
     }
     public void demodulation(double[] signalFragment){
+        int n=signalFragment.length;
+        for(int i=0;i<n/3;i++){
+            signalFragment[i]=0.;
+            signalFragment[signalFragment.length-i-1]=0.;
+
+        }
+
         _Fourier dft = new FastFourier(signalFragment); //Works well for longer signals (>200 points)
         dft.transform();
         boolean onlyPositive = true;
         double[] ff = dft.getMagnitude(onlyPositive);
-        int n=signalFragment.length;
         int maxIndex=UtilMethods.argmax(ff,true);
         float realFreq=maxIndex*samplingRate/ff.length/2;
 
