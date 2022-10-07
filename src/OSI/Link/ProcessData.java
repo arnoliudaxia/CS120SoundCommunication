@@ -17,7 +17,7 @@ public class ProcessData implements CallBackStoreData {
     private final float[] header=frameConfig.header;
     private double[] headerD;
     private double[] signals;
-    final private double HEADTHERSHOLD =10;
+    final private double HEADTHERSHOLD =50;
     private int dataBegin;
     private final int bitLength = frameConfig.bitLength;
     private final int headerLength = 440;
@@ -34,6 +34,8 @@ public class ProcessData implements CallBackStoreData {
     private boolean isDatafield =false;
     private int readBitIndex=0;
     public ArrayList<Integer> information=new ArrayList<>();
+
+    private int frameCounter=0;
 
 
     private double[] outt=new double[512];
@@ -59,12 +61,19 @@ public class ProcessData implements CallBackStoreData {
 
         double[] concatenatedWave;
         System.arraycopy(signals,0,outt,0,signals.length);
+
+
+        if(frameCounter>=2)
+        {
+            return;
+        }
+        concatenatedWave = UtilMethods.concatenateArray(outt,signals);
+        CrossCorrelation cc = new CrossCorrelation(concatenatedWave, headerD);
+        double[] out = cc.crossCorrelate("valid");
+        double maxx =Arrays.stream(out).max().getAsDouble();
+        check.add((float)(maxx));
         if(!isDatafield) {
-            concatenatedWave = UtilMethods.concatenateArray(outt,signals);
-            CrossCorrelation cc = new CrossCorrelation(concatenatedWave, headerD);
-            double[] out = cc.crossCorrelate("valid");
-            double maxx =Arrays.stream(out).max().getAsDouble();
-            check.add((float)(maxx));
+
             if (maxx > HEADTHERSHOLD) {
                 for(int i=0;i<out.length;i++){
                     if(Math.abs(out[i]-maxx)<0.01f){
@@ -97,9 +106,16 @@ public class ProcessData implements CallBackStoreData {
 
                     if(howmanyBitsRead>=frameConfig.bitLength)
                     {
-                        isDatafield =false;
+//                        isDatafield =false;
                         System.out.println("读取Frame完毕");
-                        break;
+                        howmanyBitsRead=0;
+                        dataBegin+=440+308;
+                        frameCounter++;
+                        if(frameCounter>=2)
+                        {
+                            return;
+                        }
+                        continue;
                     }
 //                    new Thread(()->{
 //                        demodulation(bit);
@@ -107,7 +123,7 @@ public class ProcessData implements CallBackStoreData {
                     demodulation(bit);
                 }
             }
-            dataBegin=0;
+            dataBegin-=concatenatedWave.length;
         }
 
     }
@@ -121,7 +137,7 @@ public class ProcessData implements CallBackStoreData {
 
     private boolean isFreqPoint(float freq,float realFreq)
     {
-        return Math.abs(freq-realFreq)<150;
+        return Math.abs(freq-realFreq)<300;
     }
     public void demodulation(double[] signalFragment){
         int n=signalFragment.length;
