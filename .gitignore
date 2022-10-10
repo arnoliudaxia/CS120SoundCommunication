@@ -9,3 +9,5 @@
 target/classes/
 
 src/META-INF/MANIFEST.MF
+
+*.txt
