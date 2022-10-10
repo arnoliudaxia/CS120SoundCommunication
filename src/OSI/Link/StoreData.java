@@ -57,8 +57,11 @@ public class StoreData implements CallBackStoreData {
         double maxx = Arrays.stream(out).max().getAsDouble();
         Arrays.stream(out).forEach(x-> check.add((float)x));
         int j=0;
+        int flag=0;
         for(int i=0;i<out.length;i++){
-            if(out[i]>=maxx){
+            if(out[i]>=maxx*0.7){
+                if(Math.abs(flag-i)<3000)continue;
+                flag=i+440;
                 beginIndex.add(i+440);
                 System.out.println(i+440);
             }
@@ -84,6 +87,7 @@ public class StoreData implements CallBackStoreData {
                 double[] ff = dft.getMagnitude(onlyPositive);
                 int maxIndex= UtilMethods.argmax(ff,true);
                 float realFreq=maxIndex*samplingRate/ff.length/2;
+                System.out.println("realFreq"+realFreq);
 
                 if(isFreqPoint(realFreq,8000))
                 {
@@ -98,7 +102,6 @@ public class StoreData implements CallBackStoreData {
                 }
                 else{
                     System.out.println("error:没能找到匹配的频率！");
-                    System.out.println("realFreq"+realFreq);
 
                     information.add(realFreq>10000?1:0);
                 }

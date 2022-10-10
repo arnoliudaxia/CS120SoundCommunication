@@ -108,26 +108,26 @@ public class Main {
             AudioHw.audioHwG.isPlay = false;
         }
         if (taskchoice==5){
-            Float[] debugWave = csv.readCsv("D:\\桌面\\project1_sample\\wave.csv");
+            //Float[] debugWave = csv.readCsv("D:\\桌面\\project1_sample\\wave.csv");
            // ProcessData processData = new ProcessData(Config.PHY_TX_SAMPLING_RATE);
               StoreData s=new StoreData(Config.PHY_TX_SAMPLING_RATE);
-            for(int i=0;i<debugWave.length-512;i+=512){
-                float[] debugFragment=new float[512];
-                for(int j=0;j<512;j++){
-                    debugFragment[j]=debugWave[i+j];
-                }
-                s.storeData(debugFragment);
-            }
+//            for(int i=0;i<debugWave.length-512;i+=512){
+//                float[] debugFragment=new float[512];
+//                for(int j=0;j<512;j++){
+//                    debugFragment[j]=debugWave[i+j];
+//                }
+//                s.storeData(debugFragment);
+//            }
 //
             //AudioHw.audioHwG.dataagent=processData;
-//            AudioHw.audioHwG.dataagent= s;
-//            final int recordTime = 7;
-//            AudioHw.audioHwG.isRecording = true;
-//            threadBlockTime(recordTime * 1000);
-//            AudioHw.audioHwG.isRecording = false;
+            AudioHw.audioHwG.dataagent= s;
+            final int recordTime = 12;
+            AudioHw.audioHwG.isRecording = true;
+            threadBlockTime(recordTime * 1000);
+            AudioHw.audioHwG.isRecording = false;
             s.convert();
             s.correlation();
-//            csv.saveToCsv("D:\\桌面\\project1_sample\\bitwave.csv",s.signal);
+            csv.saveToCsv("D:\\桌面\\project1_sample\\bitwave.csv",s.signal);
 //            csv.saveToCsvD("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\bitwave.csv",processData.bitWave);
             csv.saveToCsv("D:\\桌面\\project1_sample\\check.csv",s.check);
             //csv.saveToCsv("D:\\桌面\\project1_sample\\fuckyou.csv",processData.fft);

@@ -17,7 +17,7 @@ public class ProcessData implements CallBackStoreData {
     private final float[] header=frameConfig.header;
     private double[] headerD;
     private double[] signals;
-    final private double HEADTHERSHOLD =50;
+    final private double HEADTHERSHOLD =10;
     private int dataBegin;
     private final int bitLength = frameConfig.bitLength;
     private final int headerLength = 440;
@@ -37,6 +37,8 @@ public class ProcessData implements CallBackStoreData {
 
     private int frameCounter=0;
 
+    public int num=0;
+
 
     private double[] outt=new double[512];
     public ProcessData(int sampleFre){
@@ -46,6 +48,7 @@ public class ProcessData implements CallBackStoreData {
     @Override
     public void storeData(float[] data){
         //s is the doble format of data
+        num++;
         double[] dataD = new double[data.length];
         for(int i=0;i<data.length;i++){
             dataD[i]=Double.parseDouble(String.valueOf(data[i]));
@@ -73,12 +76,12 @@ public class ProcessData implements CallBackStoreData {
         double maxx =Arrays.stream(out).max().getAsDouble();
         check.add((float)(maxx));
         if(!isDatafield) {
-
             if (maxx > HEADTHERSHOLD) {
                 for(int i=0;i<out.length;i++){
                     if(Math.abs(out[i]-maxx)<0.01f){
-                        dataBegin=i + headerLength;
+                        dataBegin=i + headerLength-480;
                         System.out.println("dataBegin"+dataBegin);
+                        System.out.println("frameNum"+num);
                         break;
                     }
                 }
@@ -100,7 +103,7 @@ public class ProcessData implements CallBackStoreData {
                 {
                     howmanyBitsRead++;
 
-                    var bit=bitWave.stream().limit(bitWave.size()-88).mapToDouble(x->x).toArray();
+                    var bit=bitWave.stream().limit(bitWave.size()).mapToDouble(x->x).toArray();
 
                     bitWave.clear();                    readBitIndex=0;
 
@@ -154,6 +157,8 @@ public class ProcessData implements CallBackStoreData {
         int maxIndex=UtilMethods.argmax(ff,true);
         float realFreq=maxIndex*samplingRate/ff.length/2;
 
+        System.out.println("realFreq"+realFreq);
+
         if(isFreqPoint(realFreq,8000))
         {
             System.out.println("0");
@@ -167,7 +172,6 @@ public class ProcessData implements CallBackStoreData {
         }
         else{
             System.out.println("error:没能找到匹配的频率！");
-            System.out.println("realFreq"+realFreq);
 
             information.add(realFreq>10000?1:0);
         }
