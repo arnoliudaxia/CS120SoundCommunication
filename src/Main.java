@@ -1,5 +1,6 @@
 import OSI.Link.BitPacker;
 import OSI.Link.ProcessData;
+import OSI.Link.StoreData;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.jdsp.signal.Generate;
 import com.github.psambit9791.wavfile.WavFileException;
@@ -107,29 +108,31 @@ public class Main {
             AudioHw.audioHwG.isPlay = false;
         }
         if (taskchoice==5){
-            Float[] debugWave = csv.readCsv("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\wave.csv");
-            ProcessData processData = new ProcessData(Config.PHY_TX_SAMPLING_RATE);
-
+            Float[] debugWave = csv.readCsv("D:\\桌面\\project1_sample\\wave.csv");
+           // ProcessData processData = new ProcessData(Config.PHY_TX_SAMPLING_RATE);
+              StoreData s=new StoreData(Config.PHY_TX_SAMPLING_RATE);
             for(int i=0;i<debugWave.length-512;i+=512){
                 float[] debugFragment=new float[512];
                 for(int j=0;j<512;j++){
                     debugFragment[j]=debugWave[i+j];
                 }
-                processData.storeData(debugFragment);
+                s.storeData(debugFragment);
             }
 //
-//            AudioHw.audioHwG.dataagent=processData;
-//            final int recordTime = 3;
+            //AudioHw.audioHwG.dataagent=processData;
+//            AudioHw.audioHwG.dataagent= s;
+//            final int recordTime = 7;
 //            AudioHw.audioHwG.isRecording = true;
 //            threadBlockTime(recordTime * 1000);
 //            AudioHw.audioHwG.isRecording = false;
-//            csv.saveToCsv("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\wave.csv",processData.allData);
-
-            csv.saveToCsvD("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\bitwave.csv",processData.bitWave);
-            csv.saveToCsv("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\fuck.csv",processData.check);
+            s.convert();
+            s.correlation();
+//            csv.saveToCsv("D:\\桌面\\project1_sample\\bitwave.csv",s.signal);
+//            csv.saveToCsvD("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\bitwave.csv",processData.bitWave);
+            csv.saveToCsv("D:\\桌面\\project1_sample\\check.csv",s.check);
             //csv.saveToCsv("D:\\桌面\\project1_sample\\fuckyou.csv",processData.fft);
             try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
-                for(var bit:processData.information)
+                for(var bit:s.information)
                 {
                     input.write(bit.toString().getBytes());
                 }

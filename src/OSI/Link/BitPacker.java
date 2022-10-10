@@ -21,11 +21,10 @@ public class BitPacker {
 
     public void AppendData(List<Integer> data) {
         for (Integer datum : data) {
-            if(rawDataIndex>=headerLength+(bitLength-1) * fragmentLength)
+            if(rawDataIndex>=headerLength+(bitLength) * fragmentLength)
             {
                 send();
             }
-
             System.arraycopy(datum == 1 ? oneSignal : zeroSignal, 0, signal,
                     (rawDataIndex) , fragmentLength);
             rawDataIndex+=fragmentLength;
