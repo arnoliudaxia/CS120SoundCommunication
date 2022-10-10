@@ -21,7 +21,7 @@ public class BitPacker {
 
     public void AppendData(List<Integer> data) {
         for (Integer datum : data) {
-            if(rawDataIndex>=headerLength+(bitLength-1) * fragmentLength)
+            if(rawDataIndex>=headerLength+(bitLength) * fragmentLength)
             {
                 send();
             }
