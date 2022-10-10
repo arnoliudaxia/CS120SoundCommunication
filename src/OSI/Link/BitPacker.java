@@ -25,7 +25,6 @@ public class BitPacker {
             {
                 send();
             }
-
             System.arraycopy(datum == 1 ? oneSignal : zeroSignal, 0, signal,
                     (rawDataIndex) , fragmentLength);
             rawDataIndex+=fragmentLength;
