@@ -66,12 +66,12 @@ public class SoundUtil {
         }
         return null;
     }
+    static float phase=0;
 
     //duration 区间长度
     public static float[] generateSinwave(int hz,float duration,int sampleRate){
         int arrayLength=(int)(duration*sampleRate);
         float[] result=new float[arrayLength];
-        float phase=0;
         float dphase = (2 * (float) Math.PI * hz) / sampleRate;
         for (int i = 0; i < arrayLength; i++) {
             phase += dphase;
