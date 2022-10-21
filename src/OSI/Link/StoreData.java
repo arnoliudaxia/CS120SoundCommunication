@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 public class StoreData implements CallBackStoreData {
-    private ArrayList<Float> alldata = new ArrayList<>();
+    public ArrayList<Float> alldata = new ArrayList<>();
     public ArrayList<Float> signal = new ArrayList<>();
     public ArrayList<Float> check = new ArrayList<>();
     private double[] allDataD;
@@ -32,8 +32,8 @@ public class StoreData implements CallBackStoreData {
     }
     @Override
     public void storeData(float[] data){
-        for(int i=0;i<data.length;i++){
-            alldata.add(data[i]);
+        for (float datum : data) {
+            alldata.add(datum);
         }
     }
     public void convert(){

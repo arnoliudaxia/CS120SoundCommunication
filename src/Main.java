@@ -1,5 +1,4 @@
 import OSI.Link.BitPacker;
-import OSI.Link.ProcessData;
 import OSI.Link.StoreData;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.jdsp.signal.Generate;
@@ -37,7 +36,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 5;
+        int taskchoice = 4;
 
         //#endregion
         if (taskchoice == 1) {
@@ -104,7 +103,7 @@ public class Main {
                 }
             }
             bitPacker.AppendData(rawdata);
-            threadBlockTime(2000);
+            threadBlockTime(4000);
             AudioHw.audioHwG.isPlay = false;
         }
         if (taskchoice==5){
@@ -127,7 +126,9 @@ public class Main {
             AudioHw.audioHwG.isRecording = false;
             s.convert();
             s.correlation();
-            csv.saveToCsv("D:\\桌面\\project1_sample\\bitwave.csv",s.signal);
+            String lyfURL="C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
+            String lshURL="D:\\桌面\\project1_sample\\";
+            csv.saveToCsv(lshURL+"bitwave.csv",s.alldata);
 //            csv.saveToCsvD("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\bitwave.csv",processData.bitWave);
             csv.saveToCsv("D:\\桌面\\project1_sample\\check.csv",s.check);
             //csv.saveToCsv("D:\\桌面\\project1_sample\\fuckyou.csv",processData.fft);
