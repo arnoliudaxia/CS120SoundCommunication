@@ -110,6 +110,7 @@ public class Main {
                 }
             }
             bitPacker.AppendData(rawdata);
+            bitPacker.padding();
             csv.saveToCsv(lyfHPURL+"send.csv",bitPacker.onepackage);
             threadBlockTime(2000);
             AudioHw.audioHwG.isPlay = false;
@@ -127,7 +128,7 @@ public class Main {
             }
 
 //            AudioHw.audioHwG.dataagent=s ;
-//            final int recordTime = 5;
+//            final int recordTime = 8;
 //            AudioHw.audioHwG.isRecording = true;
 //            threadBlockTime(recordTime * 1000);
 //            AudioHw.audioHwG.isRecording = false;

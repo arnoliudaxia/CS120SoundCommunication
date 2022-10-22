@@ -76,7 +76,7 @@ public class StoreData implements CallBackStoreData {
         //必须先调用findOneHeader找头
         //找到头后，bitData中存储了一个frame的数据
         //现在要做的是将bitData中的数据转换成bit
-        float judgeRef=0.1f;
+        float judgeRef=0.f;
         //首先解析第一个数据点，接下来就是一个二元状态机
         int state=bitData.get(0)>judgeRef?1:0;
         int bitCounter=0;

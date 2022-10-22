@@ -36,6 +36,20 @@ public class BitPacker {
 
     }
 
+    /**
+     * 如果数据不够一帧，补0
+     */
+    public void padding()
+    {
+        int paddingsize=(headerLength+(bitLength) * fragmentLength-rawDataIndex)/fragmentLength;
+        List<Integer> data=new ArrayList<>();
+        for (int i = 0; i < paddingsize; i++) {
+            data.add(0);
+        }
+        AppendData(data);
+    }
+
+
     public void send() {
         if(rawDataIndex<=headerLength)return;
         if(onepackage.size()==0)
