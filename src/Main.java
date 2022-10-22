@@ -8,7 +8,6 @@ import utils.SoundUtil;
 import utils.csvFileHelper;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 4;
+        int taskchoice = 5;
 
         //#endregion
         //#region Project 0
@@ -93,6 +92,7 @@ public class Main {
         }
         //#endregion
         String lyfdellURL="C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
+        String lyfHPURL="C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
 
         if (taskchoice == 4) {
             //一台机子发送数据另一台接受
@@ -114,37 +114,33 @@ public class Main {
             AudioHw.audioHwG.isPlay = false;
         }
         if (taskchoice==5){
-            //Float[] debugWave = csv.readCsv("D:\\桌面\\project1_sample\\wave.csv");
+            Float[] debugWave = csv.readCsv(lyfHPURL+"wave.csv");
            // ProcessData processData = new ProcessData(Config.PHY_TX_SAMPLING_RATE);
-              StoreData s=new StoreData(Config.PHY_TX_SAMPLING_RATE);
-//            for(int i=0;i<debugWave.length-512;i+=512){
+            //            for(int i=0;i<debugWave.length-512;i+=512){
 //                float[] debugFragment=new float[512];
 //                for(int j=0;j<512;j++){
 //                    debugFragment[j]=debugWave[i+j];
 //                }
 //                s.storeData(debugFragment);
 //            }
-//
-            //AudioHw.audioHwG.dataagent=processData;
-            AudioHw.audioHwG.dataagent= s;
-            final int recordTime = 12;
+
+            var s=new StoreData(Config.PHY_TX_SAMPLING_RATE);
+            AudioHw.audioHwG.dataagent=s ;
+            final int recordTime = 5;
             AudioHw.audioHwG.isRecording = true;
             threadBlockTime(recordTime * 1000);
             AudioHw.audioHwG.isRecording = false;
-            s.convert();
-            s.correlation();
-            String lyfURL="C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
+//            s.convert();
+//            s.correlation();
             String lshURL="D:\\桌面\\project1_sample\\";
-            csv.saveToCsv(lshURL+"bitwave.csv",s.alldata);
-//            csv.saveToCsvD("C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\bitwave.csv",processData.bitWave);
-            csv.saveToCsv("D:\\桌面\\project1_sample\\check.csv",s.check);
-            //csv.saveToCsv("D:\\桌面\\project1_sample\\fuckyou.csv",processData.fft);
-            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
-                for(var bit:s.information)
-                {
-                    input.write(bit.toString().getBytes());
-                }
-            } // 编译器在此自动为我们写入finally并调用close()
+            csv.saveToCsv(lyfHPURL+"wave.csv",s.alldata);
+//            csv.saveToCsv("D:\\桌面\\project1_sample\\check.csv",s.check);
+//            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
+//                for(var bit:s.information)
+//                {
+//                    input.write(bit.toString().getBytes());
+//                }
+//            } // 编译器在此自动为我们写入finally并调用close()
 
 
         }

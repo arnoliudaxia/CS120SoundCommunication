@@ -13,6 +13,7 @@ public class csvFileHelper {
         HashMap< String, ArrayList< Object>> result = new HashMap<>();
         result.put("col1", new ArrayList<>(data));
         csvobj.writeCSV(path, result);
+        System.out.println("保存到"+path+"成功");
     }public void saveToCsvD(String path, List<Double> data) throws IOException {
         HashMap< String, ArrayList< Object>> result = new HashMap<>();
         result.put("col1", new ArrayList<>(data));
