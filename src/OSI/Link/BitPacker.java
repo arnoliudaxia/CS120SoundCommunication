@@ -8,8 +8,8 @@ import java.util.List;
 public class BitPacker {
     public BitPacker(int sampleFre) {
         //定义好信号的频率
-        this.oneSignal = SoundUtil.generateSinwave(12000, fragmentTime, sampleFre);
-        this.zeroSignal = SoundUtil.generateSinwave(8000, fragmentTime, sampleFre);
+        this.zeroSignal = SoundUtil.generateDigitalSignal(0, fragmentTime, sampleFre);
+        this.oneSignal = SoundUtil.generateDigitalSignal(1, fragmentTime, sampleFre);
         //每一个数据包的长度
         frameConfig.fragmentLength= fragmentLength = (int) (fragmentTime * sampleFre);
         signal = new float[headerLength+bitLength * fragmentLength];

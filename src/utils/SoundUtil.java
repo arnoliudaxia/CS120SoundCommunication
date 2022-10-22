@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class SoundUtil {
@@ -77,7 +78,20 @@ public class SoundUtil {
             phase += dphase;
             result[i] = (float) (Math.sin((double) phase));  // sine wave
         }
-//        Arrays.fill(result, (float) (Math.sin((double) phase)));
+        return result;
+    }
+
+    /**
+     * 持续（模拟）高电平或低电平
+     * @param bit 如果1则高电平，0则低电平
+     * @param duration 信号持续时间，单位s
+     * @param sampleRate 采样率
+     * @return 信号数组
+     */
+    public static float[] generateDigitalSignal(int bit,float duration,int sampleRate) {
+        int arrayLength=(int)(duration*sampleRate);
+        float[] result=new float[arrayLength];
+        Arrays.fill(result, bit);
         return result;
     }
     public static double[] bandPassFilter(double[] data,int samplingRate,int lowCut,int hightCut)
