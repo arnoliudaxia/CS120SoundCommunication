@@ -99,6 +99,7 @@ public class Main {
         if (taskchoice == 4) {
             //一台机子发送数据另一台接受
             //首先采取调频的方式传送
+            System.out.println("发送数据任务");
             BitPacker bitPacker = new BitPacker(Config.PHY_TX_SAMPLING_RATE);
             List<Integer> rawdata = new ArrayList<>();
             File f = new File("res\\INPUT.txt");
@@ -119,20 +120,20 @@ public class Main {
             Float[] debugWave = csv.readCsv(lyfHPURL+"wave.csv");
             var s=new StoreData(Config.PHY_TX_SAMPLING_RATE);
 
-            for (int i = 0; i < debugWave.length - 512; i += 512) {
-                float[] debugFragment = new float[512];
-                for (int j = 0; j < 512; j++) {
-                    debugFragment[j] = debugWave[i + j];
-                }
-                s.storeData(debugFragment);
-            }
+//            for (int i = 0; i < debugWave.length - 512; i += 512) {
+//                float[] debugFragment = new float[512];
+//                for (int j = 0; j < 512; j++) {
+//                    debugFragment[j] = debugWave[i + j];
+//                }
+//                s.storeData(debugFragment);
+//            }
 
-//            AudioHw.audioHwG.dataagent=s ;
-//            final int recordTime = 8;
-//            AudioHw.audioHwG.isRecording = true;
-//            threadBlockTime(recordTime * 1000);
-//            AudioHw.audioHwG.isRecording = false;
-//            csv.saveToCsv(lyfHPURL+"wave.csv",s.alldata);
+            AudioHw.audioHwG.dataagent=s ;
+            final int recordTime = 8;
+            AudioHw.audioHwG.isRecording = true;
+            threadBlockTime(recordTime * 1000);
+            AudioHw.audioHwG.isRecording = false;
+            csv.saveToCsv(lyfHPURL+"wave.csv",s.alldata);
 
             s.processAllData(50000);
 
