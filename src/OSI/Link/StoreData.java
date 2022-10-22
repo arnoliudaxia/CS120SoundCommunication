@@ -32,13 +32,13 @@ public class StoreData implements CallBackStoreData {
     /**
      * 交替调用findOneHeader()和decodeFrame(),处理alldata里的所有内容，完成后alldata清空
      */
-    public void processAllData()
+    public void processAllData(int expectLength)
     {
         while(findOneHeader()==1)
         {
-
             decodeFrame();
         }
+        information.subList(expectLength,information.size()).clear();
     }
     /**
      * 寻找高电平位置，然后提取一个frame到bitData
