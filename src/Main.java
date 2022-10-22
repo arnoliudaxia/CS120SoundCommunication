@@ -33,12 +33,14 @@ public class Main {
         AudioHw.audioHwG.init(Config.PHY_TX_SAMPLING_RATE);
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FILE);
         AudioHw.audioHwG.start();
+//        threadBlockTime(20000);
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
         int taskchoice = 4;
 
         //#endregion
+        //#region Project 0
         if (taskchoice == 1) {
             //record 10s，然后回放
             final int recordTime = 10;
@@ -89,6 +91,7 @@ public class Main {
             threadBlockTime(2000);
             AudioHw.audioHwG.isPlay = false;
         }
+        //#endregion
         if (taskchoice == 4) {
             //一台机子发送数据另一台接受
             //首先采取调频的方式传送
