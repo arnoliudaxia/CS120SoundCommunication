@@ -111,8 +111,8 @@ public class Main {
             }
             bitPacker.AppendData(rawdata);
             bitPacker.padding();
-            csv.saveToCsv(lyfHPURL+"send.csv",bitPacker.onepackage);
-            threadBlockTime(2000);
+            csv.saveToCsv(lyfdellURL+"send.csv",bitPacker.onepackage);
+            threadBlockTime(3000);
             AudioHw.audioHwG.isPlay = false;
         }
         if (taskchoice==5){
@@ -134,7 +134,7 @@ public class Main {
 //            AudioHw.audioHwG.isRecording = false;
 //            csv.saveToCsv(lyfHPURL+"wave.csv",s.alldata);
 
-            s.processAllData();
+            s.processAllData(50000);
 
             try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
                 for(var bit:s.information)
