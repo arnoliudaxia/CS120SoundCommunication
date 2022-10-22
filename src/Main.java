@@ -92,6 +92,8 @@ public class Main {
             AudioHw.audioHwG.isPlay = false;
         }
         //#endregion
+        String lyfdellURL="C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
+
         if (taskchoice == 4) {
             //一台机子发送数据另一台接受
             //首先采取调频的方式传送
@@ -106,6 +108,8 @@ public class Main {
                 }
             }
             bitPacker.AppendData(rawdata);
+            csv.saveToCsv(lyfdellURL+"send.csv",bitPacker.onepackage);
+            System.out.println("发送数据包保存至"+lyfdellURL+"send.csv");
             threadBlockTime(4000);
             AudioHw.audioHwG.isPlay = false;
         }

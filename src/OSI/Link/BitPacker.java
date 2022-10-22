@@ -3,6 +3,8 @@ package OSI.Link;
 import OSI.Physic.AudioHw;
 import utils.SoundUtil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BitPacker {
@@ -34,6 +36,12 @@ public class BitPacker {
 
     public void send() {
         if(rawDataIndex<=headerLength)return;
+        if(onepackage.size()==0)
+        {
+            for (float v : signal) {
+                onepackage.add(v);
+            }
+        }
         System.out.println("发送包数量"+AudioHw.audioHwG.playRawData(signal));
         AudioHw.audioHwG.isPlay = true;
         rawDataIndex = headerLength;
@@ -51,5 +59,8 @@ public class BitPacker {
 
     //singal就是最终的信号
     float[] signal = null;
+
+    public ArrayList<Float> onepackage = new ArrayList<>();
+
 
 }
