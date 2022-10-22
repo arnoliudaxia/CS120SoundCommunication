@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import static OSI.Link.frameConfig.fragmentTime;
+
 public class StoreData implements CallBackStoreData {
     public ArrayList<Float> alldata = new ArrayList<>();
     public ArrayList<Float> signal = new ArrayList<>();
@@ -25,6 +27,8 @@ public class StoreData implements CallBackStoreData {
     private int bitLength=frameConfig.bitLength;
     private int fragmentLength=frameConfig.fragmentLength;
     public ArrayList<Integer> information=new ArrayList<>();
+
+    public ArrayList<Double> bitData=new ArrayList<>();
 
     public StoreData(int sampleFre){
         this.samplingRate=sampleFre;
@@ -45,6 +49,55 @@ public class StoreData implements CallBackStoreData {
         }
         System.arraycopy(temp,0,allDataD,0,len);
         Arrays.stream(allDataD).forEach(x->signal.add((float)x));
+    }
+
+    /**
+     * 寻找高电平位置，然后提取一个frame到bitData
+     */
+    public void findOneHeader()
+    {
+        int i=0;bitData.clear();
+        while(alldata.get(0)<0.2f)
+        {
+            //不是header
+            alldata.remove(0);
+            i++;
+        }
+        //找到开始头
+        System.out.println("Header Begin at: "+i);
+        //去除头
+        alldata.subList(0,frameConfig.digitalHeaderLength).clear();
+
+        //数据点开始于headerlength
+        for (int j = 0; j < bitLength * fragmentLength; j++) {
+            bitData.add(Double.valueOf(alldata.get(j)));
+        }
+    }
+
+    public void decodeFrame()
+    {
+        //必须先调用findOneHeader找头
+        //找到头后，bitData中存储了一个frame的数据
+        //现在要做的是将bitData中的数据转换成bit
+        float judgeRef=0.1f;
+        int state=bitData.get(0)>judgeRef?1:0;
+        int bitCounter=0;
+        while(bitData.size()>0) {
+            while ((bitData.get(0) > judgeRef ? 1 : 0) == state) {
+                bitCounter++;
+                bitData.remove(0);
+                if(bitData.size()==0){
+                    break;
+                }
+            }
+            System.out.println("bitCounter: "+bitCounter);
+            for (int i = 0; i <SoundUtil.neareatRatio(bitCounter,(int)(fragmentTime*48000))/5; i++) {
+                information.add(state);
+            }
+            state=1-state;
+            bitCounter=0;
+        }
+        System.out.println("Frame处理完毕");
     }
     @Override
     public LinkedList<float[]> retriveData(int fragment){

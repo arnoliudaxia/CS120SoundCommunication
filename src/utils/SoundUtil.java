@@ -101,4 +101,15 @@ public class SoundUtil {
         return flt.bandPassFilter(data, order, lowCut, hightCut);
     }
 
+    /**
+     * 拟合到最接近的倍数，比如我想拟合17到3的倍数，由于17最接近18，所以返回18
+     * @param num 需要拟合的数
+     * @param ratio 基
+     * @return min(num,k*ratio),k为任意自然数
+     */
+    public static int neareatRatio(int num,int ratio)
+    {
+        return (int)(Math.round(num*1.0f/ratio)*ratio);
+    }
+
 }
