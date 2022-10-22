@@ -4,7 +4,6 @@ import OSI.Physic.AudioHw;
 import utils.SoundUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BitPacker {
@@ -14,9 +13,12 @@ public class BitPacker {
         this.oneSignal = SoundUtil.generateDigitalSignal(1, fragmentTime, sampleFre);
         //每一个数据包的长度
         frameConfig.fragmentLength= fragmentLength = (int) (fragmentTime * sampleFre);
+        //丢弃原来的header，直接选用20采样点的高电平表示1
         signal = new float[headerLength+bitLength * fragmentLength];
-        //把headr放到singal开头
-        System.arraycopy(header, 0, signal, 0, headerLength);
+        //float数组默认初始化0，赋值1
+        for (int i = 0; i < headerLength; i++) {
+            signal[i] = 1;
+        }
         rawDataIndex = headerLength;
     }
 
@@ -49,8 +51,8 @@ public class BitPacker {
 
     private final float[] oneSignal;
     private final float[] zeroSignal;
-    private final float[] header=frameConfig.header;
-    final int headerLength=header.length;
+//    private final float[] header=frameConfig.header;
+    final int headerLength=20;
     private final int bitLength = frameConfig.bitLength;
     private int rawDataIndex;
 
