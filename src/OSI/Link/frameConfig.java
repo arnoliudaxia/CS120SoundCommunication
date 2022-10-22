@@ -1,7 +1,7 @@
 package OSI.Link;
 
 public class frameConfig {
-    public static final int bitLength = 100;
+    public static final int bitLength = 300;
     public static final float fragmentTime = 0.0001f;
     public static int fragmentLength=(int) (frameConfig.fragmentTime * 44100);;
     //#region headerData (different length)
