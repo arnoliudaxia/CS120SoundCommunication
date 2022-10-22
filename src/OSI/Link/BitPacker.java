@@ -41,12 +41,15 @@ public class BitPacker {
      */
     public void padding()
     {
-        int paddingsize=(headerLength+(bitLength) * fragmentLength-rawDataIndex)/fragmentLength;
+        //直接填一针帧，确保挤到下一个frame
         List<Integer> data=new ArrayList<>();
-        for (int i = 0; i < paddingsize; i++) {
+        for (int i = 0; i < bitLength; i++) {
             data.add(0);
         }
         AppendData(data);
+        //然后把多出来的清掉就行
+        rawDataIndex = headerLength;
+
     }
 
 
