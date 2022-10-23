@@ -5,7 +5,6 @@ import com.github.psambit9791.jdsp.signal.CrossCorrelation;
 import com.github.psambit9791.jdsp.transform.FastFourier;
 import com.github.psambit9791.jdsp.transform._Fourier;
 import dataAgent.CallBackStoreData;
-import utils.smartConvertor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +13,7 @@ import java.util.LinkedList;
 
 public class ProcessData implements CallBackStoreData {
 
-    private final float[] header=frameConfig.header;
+
     private double[] headerD;
     private double[] signals;
     final private double HEADTHERSHOLD =10;
@@ -41,10 +40,7 @@ public class ProcessData implements CallBackStoreData {
 
 
     private double[] outt=new double[512];
-    public ProcessData(int sampleFre){
-        this.samplingRate=sampleFre;
-        headerD=smartConvertor.floatToDoubleArray(header);
-    }
+
     @Override
     public void storeData(float[] data){
         //s is the doble format of data
