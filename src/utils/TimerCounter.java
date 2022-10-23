@@ -40,6 +40,7 @@ public class TimerCounter {
                 }
             }
         });
+        timerCounter.timePastThread.setDaemon(true);
         timerCounter.timePastThread.start();
         timers.put(name, timerCounter);
     }
