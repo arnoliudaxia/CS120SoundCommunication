@@ -33,6 +33,12 @@ public class SoundUtil {
         }
     }
 
+    /**
+     * 从序列化的byte数组中还原float数组
+     * @param data 序列化的byte数组
+     * @param fragmentSize 为了避免数组过长,对float数组进行分段
+     * @return 返回分段了的float数组
+     */
     public static LinkedList<float[]> getSoundFromSerializedByte(byte[] data, int fragmentSize) {
         LinkedList<float[]> result = new LinkedList<>();
         ByteArrayInputStream deSerializedStream = new ByteArrayInputStream(data);
