@@ -6,6 +6,9 @@ import utils.SoundUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 该层接收到上层传过来的二进制数据，将其编码为frames然后传递给AudioHw层
+ */
 public class BitPacker {
     public BitPacker(int sampleFre) {
         //定义好信号的频率

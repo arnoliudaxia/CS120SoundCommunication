@@ -14,7 +14,10 @@ import utils.TimerCounter;
 import java.util.*;
 
 
-
+/**
+ * 该层的作用就是简单的收发声音，具体来说，只要isRecording，就会通过CallBackStoreData接口把收到的数据传到上一层。
+ * 只要isPlay，就会把playQueue这个FIFO里的信号发出去
+ */
 public class AudioHw implements AsioDriverListener {
     public static AudioHw audioHwG;
     //驱动层
