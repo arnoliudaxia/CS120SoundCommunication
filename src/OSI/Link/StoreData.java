@@ -11,8 +11,6 @@ import static OSI.Link.frameConfig.fragmentTime;
 public class StoreData implements CallBackStoreData {
     public ArrayList<Float> alldata = new ArrayList<>();
 
-    private int samplingRate;
-
     private final int bitLength=frameConfig.bitLength;
     private final int fragmentLength=frameConfig.fragmentLength;
     public ArrayList<Integer> information=new ArrayList<>();
@@ -20,7 +18,7 @@ public class StoreData implements CallBackStoreData {
     public ArrayList<Double> bitData=new ArrayList<>();
 
     public StoreData(int sampleFre){
-        this.samplingRate=sampleFre;
+
     }
     @Override
     public void storeData(float[] data){
