@@ -1,10 +1,8 @@
 import OSI.Link.BitPacker;
 import OSI.Link.StoreData;
 import OSI.Physic.AudioHw;
-import com.github.psambit9791.jdsp.signal.Generate;
 import com.github.psambit9791.wavfile.WavFileException;
 import dataAgent.StorgePolicy;
-import utils.SoundUtil;
 import utils.csvFileHelper;
 
 import java.io.File;
@@ -40,58 +38,7 @@ public class Main {
         int taskchoice = 4;
 
         //#endregion
-        //#region Project 0
-        if (taskchoice == 1) {
-            //record 10s，然后回放
-            final int recordTime = 10;
-            System.out.println("Recording 10s...");
-            AudioHw.audioHwG.isRecording = true;
-            threadBlockTime(recordTime * 1000);
-            AudioHw.audioHwG.isRecording = false;
-            System.out.println("播放录音");
-            AudioHw.audioHwG.playSound(AudioHw.audioHwG.dataagent.retriveData(Config.HW_BUFFER_SIZE));
-            AudioHw.audioHwG.isPlay = true;
-            threadBlockTime(recordTime * 1000);
-            AudioHw.audioHwG.isPlay = false;
 
-        }
-        if (taskchoice == 2) {
-            //同时放声音和录音10s，然后回放
-            final int recordTime = 10;
-            AudioHw.audioHwG.playSound(SoundUtil.playsoundFile("res\\cai.dat", Config.HW_BUFFER_SIZE));
-            AudioHw.audioHwG.isPlay = true;
-            System.out.println("放音乐中...");
-            System.out.println("Recording 10s...");
-            AudioHw.audioHwG.isRecording = true;
-            threadBlockTime(recordTime * 1000);
-            AudioHw.audioHwG.isPlay = false;
-            AudioHw.audioHwG.isRecording = false;
-            System.out.println("播放录音");
-            AudioHw.audioHwG.playSound(AudioHw.audioHwG.dataagent.retriveData(Config.HW_BUFFER_SIZE));
-            AudioHw.audioHwG.isPlay = true;
-            threadBlockTime(recordTime * 1000);
-            AudioHw.audioHwG.isPlay = false;
-
-
-        }
-        if (taskchoice == 3) {
-            //播放两个正弦波1000hz and 10000hz
-
-            var sin1K = SoundUtil.generateSinwave(1000, 2.1f, Config.PHY_TX_SAMPLING_RATE);
-//            var sin10K=SoundUtil.generateSinwave(10000,4,Config.PHY_TX_SAMPLING_RATE);
-            Generate gp = new Generate(0, 4, 4 * Config.PHY_TX_SAMPLING_RATE);
-            var sin10K = gp.generateSineWave(10000);
-            for (var i = 0; i < sin1K.length; i++) {
-                sin1K[i] += (float) sin10K[i];
-            }
-
-            AudioHw.audioHwG.playRawData(sin1K);
-
-            AudioHw.audioHwG.isPlay = true;
-            threadBlockTime(2000);
-            AudioHw.audioHwG.isPlay = false;
-        }
-        //#endregion
         String lyfdellURL="C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
         String lyfHPURL="C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
         String lshURL="D:\\桌面\\project1_sample\\";
