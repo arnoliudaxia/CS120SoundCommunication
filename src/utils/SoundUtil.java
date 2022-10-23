@@ -48,9 +48,16 @@ public class SoundUtil {
             return null;
         }
         try (ObjectInputStream input = new ObjectInputStream(deSerializedStream)) {
-            while (deSerializedStream.available() > 0) {
+            while (deSerializedStream.available() >= fragmentSize) {
                 float[] readBuffer=new float[fragmentSize];
                 for (int i = 0; i < fragmentSize; i++) {
+                    readBuffer[i]=input.readFloat();
+                }
+                result.add(readBuffer);
+            }
+            if(deSerializedStream.available()>0){
+                float[] readBuffer=new float[deSerializedStream.available()];
+                for (int i = 0; i < deSerializedStream.available(); i++) {
                     readBuffer[i]=input.readFloat();
                 }
                 result.add(readBuffer);
