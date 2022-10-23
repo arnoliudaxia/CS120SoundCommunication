@@ -156,10 +156,11 @@ public class AudioHw implements AsioDriverListener {
     }
 
     public void changeStorgePolicy(StorgePolicy policy){
-        switch (policy) {
-            case MEMORY -> dataagent = new MemoryData();
-            case FILE -> dataagent = new LocalTempFile();
-        }
+        assert false;
+//        switch (policy) {
+//            case MEMORY -> dataagent = new MemoryData();
+//            case FILE -> dataagent = new LocalTempFile();
+//        }
     }
 
     public int playRawData(float[] rawdata){
