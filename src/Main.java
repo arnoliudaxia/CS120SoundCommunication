@@ -3,6 +3,7 @@ import OSI.Link.StoreData;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
 import dataAgent.StorgePolicy;
+import utils.TimerCounter;
 import utils.csvFileHelper;
 
 import java.io.File;
@@ -57,16 +58,17 @@ public class Main {
                     rawdata.add(Integer.parseInt(String.valueOf(rawstring.charAt(i))));
                 }
             }
+            TimerCounter.startTimer("SendTimer");
             bitPacker.AppendData(rawdata);
             bitPacker.padding();
-            csv.saveToCsv(lyfdellURL+"send.csv",bitPacker.onepackage);
-            threadBlockTime(3000);
+//            csv.saveToCsv(lyfdellURL+"send.csv",bitPacker.onepackage);
+            threadBlockTime(6000);
             AudioHw.audioHwG.isPlay = false;
         }
         if (taskchoice==5){
-            Float[] debugWave = csv.readCsv(lyfHPURL+"wave.csv");
             var s=new StoreData(Config.PHY_TX_SAMPLING_RATE);
 
+//            Float[] debugWave = csv.readCsv(lyfHPURL+"wave.csv");
 //            for (int i = 0; i < debugWave.length - 512; i += 512) {
 //                float[] debugFragment = new float[512];
 //                for (int j = 0; j < 512; j++) {
