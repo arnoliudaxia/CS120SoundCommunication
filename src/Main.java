@@ -3,7 +3,6 @@ import OSI.Link.FrameDetector;
 import OSI.Link.StoreData;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
-import dataAgent.StorgePolicy;
 import utils.TimerCounter;
 import utils.csvFileHelper;
 
@@ -23,22 +22,19 @@ public class Main {
         }
     }
 
+
     public static void main(final String[] args) throws IOException, WavFileException {
 
         csvFileHelper csv = new csvFileHelper();
 
 //        AudioHw.initAudioHw();
 
-//        AudioHw.audioHwG=new AudioHw();
-//
-//        AudioHw.audioHwG.init(Config.PHY_TX_SAMPLING_RATE);
-//        AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FILE);
-//        AudioHw.audioHwG.start();
+
 //        threadBlockTime(20000);
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 6;
+        int taskchoice =6;
 
         //#endregion
 
@@ -80,7 +76,7 @@ public class Main {
 //            }
 
             AudioHw.audioHwG.dataagent=s ;
-            final int recordTime = 8;
+            final int recordTime = 10;
             AudioHw.audioHwG.isRecording = true;
             threadBlockTime(recordTime * 1000);
             AudioHw.audioHwG.isRecording = false;
@@ -97,9 +93,14 @@ public class Main {
 
 
         }
-        if(taskchoice==6){
+
+        if(taskchoice==6)
+        {
+            //实现MAC层的协议
             var s=new FrameDetector();
-            Float[] debugWave = csv.readCsv("C:\\Users\\Arno\\JAVAProjects\\CS120SoundCommunication\\res\\50000bits波形\\wave.csv");
+//            AudioHw.audioHwG.dataagent=s ;
+
+            Float[] debugWave = csv.readCsv(lyfHPURL + "wave.csv");
             for (int i = 0; i < debugWave.length - 512; i += 512) {
                 float[] debugFragment = new float[512];
                 for (int j = 0; j < 512; j++) {
@@ -107,10 +108,25 @@ public class Main {
                 }
                 s.storeData(debugFragment);
             }
-            threadBlockTime(500);
-             s.decodeOneFrame().forEach(x->System.out.print(x));
-             s.decodeOneFrame().forEach(x->System.out.print(x));
-             s.stopDetectSignal=true;
+            threadBlockTime(1000);
+            List<Integer> information=new ArrayList<>();
+            while (true){
+                var frameresult=s.decodeOneFrame();
+                if(frameresult.size()==0)
+                {break;}
+                information.addAll(frameresult);
+            }
+            information.subList(50000,information.size()).clear();
+            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
+                for(var bit:information)
+                {
+                    input.write(bit.toString().getBytes());
+                }
+            }
+
+        }
+
+//        AudioHw.audioHwG.stop();
 
         }
 
@@ -119,4 +135,4 @@ public class Main {
 
 
     }
-}
+
