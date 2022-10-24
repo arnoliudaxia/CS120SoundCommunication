@@ -93,7 +93,11 @@ public class AudioHw implements AsioDriverListener {
         asioDriver.shutdownAndUnloadDriver();  // tear everything down
     }
 
-
+    public static void initAudioHw() {
+        AudioHw.audioHwG=new AudioHw();
+        AudioHw.audioHwG.init(48000);
+        AudioHw.audioHwG.start();
+    }
 
 
     @Override
