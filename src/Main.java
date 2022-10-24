@@ -1,4 +1,5 @@
 import OSI.Link.BitPacker;
+import OSI.Link.FrameDetector;
 import OSI.Link.StoreData;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
@@ -27,16 +28,16 @@ public class Main {
         csvFileHelper csv = new csvFileHelper();
 
 
-        AudioHw.audioHwG=new AudioHw();
-
-        AudioHw.audioHwG.init(Config.PHY_TX_SAMPLING_RATE);
-        AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FILE);
-        AudioHw.audioHwG.start();
+//        AudioHw.audioHwG=new AudioHw();
+//
+//        AudioHw.audioHwG.init(Config.PHY_TX_SAMPLING_RATE);
+//        AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FILE);
+//        AudioHw.audioHwG.start();
 //        threadBlockTime(20000);
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 4;
+        int taskchoice = 6;
 
         //#endregion
 
@@ -95,7 +96,25 @@ public class Main {
 
 
         }
-        AudioHw.audioHwG.stop();
+        if(taskchoice==6){
+            var s=new FrameDetector();
+            Float[] debugWave = csv.readCsv("C:\\Users\\Arno\\JAVAProjects\\CS120SoundCommunication\\res\\50000bits波形\\wave.csv");
+            for (int i = 0; i < debugWave.length - 512; i += 512) {
+                float[] debugFragment = new float[512];
+                for (int j = 0; j < 512; j++) {
+                    debugFragment[j] = debugWave[i + j];
+                }
+                s.storeData(debugFragment);
+            }
+            threadBlockTime(500);
+             s.decodeOneFrame().forEach(x->System.out.print(x));
+             s.decodeOneFrame().forEach(x->System.out.print(x));
+             s.stopDetectSignal=true;
+
+        }
+
+
+//        AudioHw.audioHwG.stop();
 
 
     }

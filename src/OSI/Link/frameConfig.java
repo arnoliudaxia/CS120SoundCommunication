@@ -13,6 +13,10 @@ public class frameConfig {
      */
     public static final float fragmentTime = 0.00011f;
     /**
+     * 一个bit对应多少采样点
+     */
+    public static final int bitSamples=5;
+    /**
      * 一个bit的物理长度,以采样点为单位
      */
     public static int fragmentLength=(int) (frameConfig.fragmentTime * 48000);;

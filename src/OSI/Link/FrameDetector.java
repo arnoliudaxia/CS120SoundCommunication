@@ -73,7 +73,7 @@ public class FrameDetector implements CallBackStoreData {
                                 frames.get(frames.size() - 1).add(sampleP);
                             }
                             readDatabitCount++;
-                            if (readDatabitCount >= frameConfig.bitLength) {
+                            if (readDatabitCount >= frameConfig.bitLength*frameConfig.bitSamples) {
                                 //一个frame完整读取完毕
                                 System.out.println("Frame Read Complete");
                                 detectState = DetectState.lookingForHead;
