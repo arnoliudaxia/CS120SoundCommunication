@@ -27,6 +27,7 @@ public class Main {
 
         csvFileHelper csv = new csvFileHelper();
 
+//        AudioHw.initAudioHw();
 
 //        AudioHw.audioHwG=new AudioHw();
 //
