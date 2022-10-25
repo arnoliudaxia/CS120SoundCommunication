@@ -78,7 +78,6 @@ public class Main {
 
 //                threadBlockTime(10000);
                 DebugHelper.log("接收信号中....");
-                DebugHelper.log("有信号接入!");
                 synchronized (GlobalEvent.CONNECTED)
                 {
                     try {
@@ -87,6 +86,7 @@ public class Main {
                         e.printStackTrace();
                     }
                 }
+                DebugHelper.log("有信号接入!");
                 //需要马上发一个frame回复一下
                 new MessageSender();
                 MessageSender.messageSender.sendMessage("213");
