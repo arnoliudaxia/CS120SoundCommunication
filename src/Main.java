@@ -1,6 +1,5 @@
 import OSI.Application.MessageSender;
 import OSI.Link.FrameDetector;
-import OSI.Link.StoreData;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
@@ -28,18 +27,19 @@ public class Main {
         csvFileHelper csv = new csvFileHelper();
 
         AudioHw.initAudioHw();
+        MACLayer.initMACLayer();
 
 
 //        threadBlockTime(20000);
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice =4;
+        int taskchoice = 4;
         //#endregion
 
-        String lyfdellURL="C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
-        String lyfHPURL="C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
-        String lshURL="D:\\桌面\\project1_sample\\";
+        String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
+        String lyfHPURL = "C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
+        String lshURL = "D:\\桌面\\project1_sample\\";
 
         if (taskchoice == 4) {
             //一台机子发送数据另一台接受
@@ -54,48 +54,16 @@ public class Main {
                 }
             }
             new MessageSender();
-            MACLayer.initMACLayer();
             MessageSender.messageSender.sendBinary(rawdata);
 //            csv.saveToCsv(lyfdellURL+"send.csv",bitPacker.onepackage);
             threadBlockTime(6000);
             AudioHw.audioHwG.isPlay = false;
-            MACLayer.macStateMachine.SIG=true;
-        }
-        if (taskchoice==5){
-            var s=new StoreData(Config.PHY_TX_SAMPLING_RATE);
-
-//            Float[] debugWave = csv.readCsv(lyfHPURL+"wave.csv");
-//            for (int i = 0; i < debugWave.length - 512; i += 512) {
-//                float[] debugFragment = new float[512];
-//                for (int j = 0; j < 512; j++) {
-//                    debugFragment[j] = debugWave[i + j];
-//                }
-//                s.storeData(debugFragment);
-//            }
-
-            AudioHw.audioHwG.dataagent=s ;
-            final int recordTime = 10;
-            AudioHw.audioHwG.isRecording = true;
-            threadBlockTime(recordTime * 1000);
-            AudioHw.audioHwG.isRecording = false;
-            csv.saveToCsv(lyfHPURL+"wave.csv",s.alldata);
-
-            s.processAllData(50000);
-
-            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
-                for(var bit:s.information)
-                {
-                    input.write(bit.toString().getBytes());
-                }
-            }
-
-
+            MACLayer.macStateMachine.SIG = true;
         }
 
-        if(taskchoice==6)
-        {
+        if (taskchoice == 6) {
             //实现MAC层的协议
-            var s=new FrameDetector();
+            var s = new FrameDetector();
 //            AudioHw.audioHwG.dataagent=s ;
 
             Float[] debugWave = csv.readCsv(lyfHPURL + "wave.csv");
@@ -107,30 +75,25 @@ public class Main {
                 s.storeData(debugFragment);
             }
             threadBlockTime(1000);
-            List<Integer> information=new ArrayList<>();
-            while (true){
-                var frameresult=s.decodeOneFrame();
-                if(frameresult.size()==0)
-                {break;}
+            List<Integer> information = new ArrayList<>();
+            while (true) {
+                var frameresult = s.decodeOneFrame();
+                if (frameresult.size() == 0) {
+                    break;
+                }
                 information.addAll(frameresult);
             }
-            information.subList(50000,information.size()).clear();
+            information.subList(50000, information.size()).clear();
             try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
-                for(var bit:information)
-                {
+                for (var bit : information) {
                     input.write(bit.toString().getBytes());
                 }
             }
 
         }
 
-//        AudioHw.audioHwG.stop();
-
-        }
-
-
-//        AudioHw.audioHwG.stop();
-
+        AudioHw.audioHwG.stop();
 
     }
+}
 
