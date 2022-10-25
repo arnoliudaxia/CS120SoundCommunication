@@ -1,5 +1,6 @@
 package OSI.Physic;
 
+import OSI.Link.FrameDetector;
 import com.synthbot.jasiohost.AsioChannel;
 import com.synthbot.jasiohost.AsioDriver;
 import com.synthbot.jasiohost.AsioDriverListener;
@@ -168,6 +169,7 @@ public class AudioHw implements AsioDriverListener {
         switch (policy) {
             case MEMORY -> dataagent = new MemoryData();
             case FILE -> dataagent = new LocalTempFile();
+            case FrameRealTimeDetect -> dataagent = new FrameDetector();
         }
     }
 

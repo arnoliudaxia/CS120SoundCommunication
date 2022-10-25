@@ -5,6 +5,7 @@ import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import OSI.Physic.PlayOverCallback;
 import com.github.psambit9791.wavfile.WavFileException;
+import dataAgent.StorgePolicy;
 import utils.DebugHelper;
 import utils.csvFileHelper;
 import utils.smartConvertor;
@@ -52,12 +53,13 @@ public class Main {
                 threadBlockTime(3000);
                 AudioHw.audioHwG.isPlay = false;
             }
+            AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
+            AudioHw.audioHwG.isRecording = true;
 
             if (taskchoice == 6) {
                 //实现MAC层的协议
-                var s=new FrameDetector();
-                AudioHw.audioHwG.dataagent = s;
-                AudioHw.audioHwG.isRecording = true;
+//                var s=new FrameDetector();
+//                AudioHw.audioHwG.dataagent = s;
 //            new Thread(()->{
 //                Float[] debugWave = new Float[0];
 //                try {
@@ -76,7 +78,19 @@ public class Main {
 
 //                threadBlockTime(10000);
                 DebugHelper.log("接收信号中....");
-                //直接等接收完成的信号
+                DebugHelper.log("有信号接入!");
+                synchronized (GlobalEvent.CONNECTED)
+                {
+                    try {
+                        GlobalEvent.CONNECTED.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //需要马上发一个frame回复一下
+                new MessageSender();
+                MessageSender.messageSender.sendMessage("213");
+                //等接收完成的信号
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     try {
                         GlobalEvent.ALL_DATA_Recieved.wait();
@@ -86,9 +100,7 @@ public class Main {
                 }
                 DebugHelper.log("全部接收完成");
                 AudioHw.audioHwG.isRecording = false;
-                //需要马上发一个frame回复一下
-                new MessageSender();
-                MessageSender.messageSender.sendMessage("213");
+
 
                 List<Integer> information = new ArrayList<>();
                 while (MACLayer.macBufferController.upStreamQueue.size() > 0) {
@@ -109,7 +121,6 @@ public class Main {
                 class waitForReply implements PlayOverCallback{
                     @Override
                     public void playOverCallback() {
-                        threadBlockTime(8000);
                         AudioHw.audioHwG.isRecording = false;
                         if(MACLayer.macBufferController.upStreamQueue.size()==0){
                             DebugHelper.log("link error");
@@ -119,7 +130,6 @@ public class Main {
                         }
                     }
                 }
-                AudioHw.audioHwG.isRecording = true;
                 AudioHw.audioHwG.playOverCallback=new waitForReply();
                 MessageSender.messageSender.sendBinary(smartConvertor.binInTextFile("res\\INPUT.txt"));
                 threadBlockTime(20000);

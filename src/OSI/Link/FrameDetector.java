@@ -1,5 +1,6 @@
 package OSI.Link;
 
+import OSI.Application.GlobalEvent;
 import OSI.MAC.MACLayer;
 import dataAgent.CallBackStoreData;
 import utils.SoundUtil;
@@ -49,6 +50,9 @@ public class FrameDetector implements CallBackStoreData {
                             MACLayer.macStateMachine.PacketDetected=true;
                             detectState = DetectState.DataRetrive;
                             writeFrameBuffer = new ArrayList<>();
+                            synchronized (GlobalEvent.CONNECTED) {
+                                GlobalEvent.CONNECTED.notifyAll();
+                            }
                         }
                         else{
                             detectState = DetectState.lookingForHead;
