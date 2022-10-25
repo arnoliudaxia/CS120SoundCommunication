@@ -132,7 +132,7 @@ public class Main {
                 }
                 AudioHw.audioHwG.playOverCallback=new waitForReply();
                 MessageSender.messageSender.sendBinary(smartConvertor.binInTextFile("res\\INPUT.txt"));
-                threadBlockTime(20000);
+                threadBlockTime(12000);
             }
             if(taskchoice==8){
                 //接收完发一个回复
