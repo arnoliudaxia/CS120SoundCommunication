@@ -1,10 +1,10 @@
 package OSI.MAC;
 
-enum MACState {
-    FrameDetection, Tx, Rx;
-}
+
 public class MACStateMachine {
-    public static MACStateMachine macStateMachine;
+    enum MACState {
+        FrameDetection, Tx, Rx
+    }
     public MACState macState;
     public boolean SIG=false;
     //#region Events
@@ -12,17 +12,16 @@ public class MACStateMachine {
     public boolean RxDone=false;
     public boolean TxDone=false;
     public boolean TxPending=false;
+    /**
+     * MAC状态改变notify机制，下层notify这个object来让MAC层状态转换，
+     * 注意要在notify之前把事件置为true
+     */
     //#endregion
     MACStateMachine() {
-        if(macStateMachine==null) {
-            macStateMachine = this;
-            macStateMachine.macState = MACState.FrameDetection;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                   mainloop();
-                }
-            }).start();
+        if(MACLayer.macStateMachine==null) {
+            MACLayer.macStateMachine = this;
+            MACLayer.macStateMachine.macState = MACState.FrameDetection;
+            new Thread(this::mainloop).start();
         }
         else {
             System.out.println("MACStateMachine is already created");
@@ -31,7 +30,14 @@ public class MACStateMachine {
     public void mainloop()
     {
         while (!SIG) {
+
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             stateTransfer();
+            processState();
         }
 
     }
@@ -41,35 +47,58 @@ public class MACStateMachine {
      */
     private void stateTransfer()
     {
-        switch (macStateMachine.macState) {
+
+        switch (MACLayer.macStateMachine.macState) {
             case FrameDetection:
-                if(TxPending)
-                {
-                    TxPending=false;
-                    macStateMachine.macState=MACState.Tx;
-                }
+                //优先接收，然后再发
                 if(PacketDetected)
                 {
+                    System.out.println("FrameDetection->Rx");
                     PacketDetected=false;
-                    macStateMachine.macState=MACState.Rx;
+                    MACLayer.macStateMachine.macState=MACState.Rx;
                 }
+                if(TxPending)
+                {
+                    System.out.println("FrameDetection->Tx");
+                    TxPending=false;
+                    MACLayer.macStateMachine.macState=MACState.Tx;
+                }
+
                 break;
             case Tx:
                 if(TxDone)
                 {
+                    System.out.println("Tx->FrameDetection");
                     TxDone=false;
-                    macStateMachine.macState=MACState.FrameDetection;
+                    MACLayer.macStateMachine.macState=MACState.FrameDetection;
                 }
                 break;
             case Rx:
                 if(RxDone)
                 {
+                    System.out.println("Rx->FrameDetection");
                     RxDone=false;
-                    macStateMachine.macState=MACState.FrameDetection;
+                    MACLayer.macStateMachine.macState=MACState.FrameDetection;
                 }
                 break;
         }
     }
+    private void processState()
+    {
+        switch (MACLayer.macStateMachine.macState) {
+            case FrameDetection:
+                //当处于FrameDetection状态时，MAC层不需要做什么
+                break;
+            case Tx:
+                //让MACBufferController发送数据
+                MACLayer.macBufferController.__send();
+                break;
+            case Rx:
+                break;
+        }
+    }
+
+
 
 
 }

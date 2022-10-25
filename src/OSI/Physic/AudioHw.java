@@ -1,5 +1,6 @@
 package OSI.Physic;
 
+import OSI.Link.FrameDetector;
 import com.synthbot.jasiohost.AsioChannel;
 import com.synthbot.jasiohost.AsioDriver;
 import com.synthbot.jasiohost.AsioDriverListener;
@@ -8,8 +9,8 @@ import dataAgent.CallBackStoreData;
 import dataAgent.LocalTempFile;
 import dataAgent.MemoryData;
 import dataAgent.StorgePolicy;
+import utils.DebugHelper;
 import utils.SoundUtil;
-import utils.TimerCounter;
 
 import java.util.*;
 
@@ -31,14 +32,11 @@ public class AudioHw implements AsioDriverListener {
     //数据流
     private final int bufferSize=512;
     private float[] inBuffer;
-    public CallBackStoreData dataagent = new MemoryData();
     public LinkedList<float[]> playQueue = new LinkedList<>();
-    private int referenceNoiseMeasureIndex=0;
-    public double referenceNoise=1f;
-    private float inputAmplify=1f;
-
-    private int preheat=0;
-
+    //#region 回调函数
+    public CallBackStoreData dataagent = new MemoryData();
+    public PlayOverCallback playOverCallback;
+    //#endregion
     public void init(int sampleFre) {
         sampleFrequency= sampleFre;
         Set<AsioChannel> activeChannels = new HashSet<AsioChannel>();  // create a Set of AsioChannels
@@ -111,8 +109,12 @@ public class AudioHw implements AsioDriverListener {
                 else {
                     channelInfo.write(new float[bufferSize]);
                     isPlay = false;
-                    System.out.println("播放完成");
-                    System.out.println("用时" + TimerCounter.stopTimer("SendTimer"));
+                    DebugHelper.log("播放完成");
+                    if(playOverCallback!=null)
+                    {
+                        playOverCallback.playOverCallback();
+                    }
+//                    System.out.println("用时" + TimerCounter.stopTimer("SendTimer"));
                 }
 
             }
@@ -167,6 +169,7 @@ public class AudioHw implements AsioDriverListener {
         switch (policy) {
             case MEMORY -> dataagent = new MemoryData();
             case FILE -> dataagent = new LocalTempFile();
+            case FrameRealTimeDetect -> dataagent = new FrameDetector();
         }
     }
 
