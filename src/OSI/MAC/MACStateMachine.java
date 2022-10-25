@@ -30,6 +30,12 @@ public class MACStateMachine {
     public void mainloop()
     {
         while (!SIG) {
+
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             stateTransfer();
             processState();
         }
@@ -47,11 +53,13 @@ public class MACStateMachine {
                 //优先接收，然后再发
                 if(PacketDetected)
                 {
+                    System.out.println("FrameDetection->Rx");
                     PacketDetected=false;
                     MACLayer.macStateMachine.macState=MACState.Rx;
                 }
                 if(TxPending)
                 {
+                    System.out.println("FrameDetection->Tx");
                     TxPending=false;
                     MACLayer.macStateMachine.macState=MACState.Tx;
                 }
@@ -60,6 +68,7 @@ public class MACStateMachine {
             case Tx:
                 if(TxDone)
                 {
+                    System.out.println("Tx->FrameDetection");
                     TxDone=false;
                     MACLayer.macStateMachine.macState=MACState.FrameDetection;
                 }
@@ -67,6 +76,7 @@ public class MACStateMachine {
             case Rx:
                 if(RxDone)
                 {
+                    System.out.println("Rx->FrameDetection");
                     RxDone=false;
                     MACLayer.macStateMachine.macState=MACState.FrameDetection;
                 }

@@ -65,7 +65,8 @@ public class BitPacker {
                 onepackage.add(v);
             }
         }
-        System.out.println("发送包数量"+AudioHw.audioHwG.playRawData(signal));
+        AudioHw.audioHwG.playRawData(signal);
+//        System.out.println("发送包数量"+AudioHw.audioHwG.playRawData(signal));
         AudioHw.audioHwG.isPlay = true;
         rawDataIndex = headerLength;
     }
