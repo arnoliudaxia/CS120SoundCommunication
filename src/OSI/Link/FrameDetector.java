@@ -44,7 +44,7 @@ public class FrameDetector implements CallBackStoreData {
                     headerEngery+=sampleP;
                     if (headerJudgeCount >= 20) {
                         System.out.println("Header Energy: " + headerEngery);
-                        if(headerEngery>3.f&&headerEngery<10.f) {
+                        if(headerEngery>3.f&&headerEngery<20.f) {
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected=true;
                             detectState = DetectState.DataRetrive;

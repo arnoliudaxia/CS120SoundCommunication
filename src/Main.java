@@ -26,7 +26,7 @@ public class Main {
 
         csvFileHelper csv = new csvFileHelper();
 
-//        AudioHw.initAudioHw();
+        AudioHw.initAudioHw();
         MACLayer.initMACLayer();
 
 
@@ -41,54 +41,64 @@ public class Main {
         String lyfHPURL = "C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
         String lshURL = "D:\\桌面\\project1_sample\\";
 
-        if (taskchoice == 4) {
-            //一台机子发送数据另一台接受
-            //首先采取调频的方式传送
-            ArrayList<Integer> rawdata = new ArrayList<>();
-            File f = new File("res\\INPUT.txt");
-            Scanner sc = new Scanner(f);
-            var rawstring = sc.nextLine();
-            for (int i = 0; i < rawstring.length(); i++) {
-                {
-                    rawdata.add(Integer.parseInt(String.valueOf(rawstring.charAt(i))));
+        try {
+            if (taskchoice == 4) {
+                //一台机子发送数据另一台接受
+                //首先采取调频的方式传送
+                ArrayList<Integer> rawdata = new ArrayList<>();
+                File f = new File("res\\INPUT.txt");
+                Scanner sc = new Scanner(f);
+                var rawstring = sc.nextLine();
+                for (int i = 0; i < rawstring.length(); i++) {
+                    {
+                        rawdata.add(Integer.parseInt(String.valueOf(rawstring.charAt(i))));
+                    }
                 }
-            }
-            new MessageSender();
-            MessageSender.messageSender.sendBinary(rawdata);
+                new MessageSender();
+                MessageSender.messageSender.sendBinary(rawdata);
 //            csv.saveToCsv(lyfdellURL+"send.csv",bitPacker.onepackage);
-            threadBlockTime(6000);
-            AudioHw.audioHwG.isPlay = false;
-        }
+                threadBlockTime(7000);
+                AudioHw.audioHwG.isPlay = false;
+            }
 
-        if (taskchoice == 6) {
-            //实现MAC层的协议
-            var s = new FrameDetector();
-//            AudioHw.audioHwG.dataagent=s ;
+            if (taskchoice == 6) {
+                //实现MAC层的协议
+                var s=new FrameDetector();
+                AudioHw.audioHwG.dataagent = new FrameDetector();
+                AudioHw.audioHwG.isRecording = true;
 
-            Float[] debugWave = csv.readCsv(lyfHPURL + "wave.csv");
-            for (int i = 0; i < debugWave.length - 512; i += 512) {
-                float[] debugFragment = new float[512];
-                for (int j = 0; j < 512; j++) {
-                    debugFragment[j] = debugWave[i + j];
+//            Float[] debugWave = csv.readCsv(lyfHPURL + "wave.csv");
+//            for (int i = 0; i < debugWave.length - 512; i += 512) {
+//                float[] debugFragment = new float[512];
+//                for (int j = 0; j < 512; j++) {
+//                    debugFragment[j] = debugWave[i + j];
+//                }
+//                s.storeData(debugFragment);
+//            }
+                threadBlockTime(10000);
+                AudioHw.audioHwG.isRecording = false;
+
+                List<Integer> information = new ArrayList<>();
+                while (MACLayer.macBufferController.upStreamQueue.size() > 0) {
+                    information.addAll(MACLayer.macBufferController.upStreamQueue.poll());
                 }
-                s.storeData(debugFragment);
-            }
-            threadBlockTime(2000);
-            List<Integer> information = new ArrayList<>();
-            while(MACLayer.macBufferController.upStreamQueue.size()>0){
-                information.addAll(MACLayer.macBufferController.upStreamQueue.poll());
-            }
-            information.subList(50000, information.size()).clear();
-            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
-                for (var bit : information) {
-                    input.write(bit.toString().getBytes());
+                information.subList(50000, information.size()).clear();
+                try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
+                    for (var bit : information) {
+                        input.write(bit.toString().getBytes());
+                    }
                 }
-            }
 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        shutdown();
+        finally {
+            shutdown();
+        }
     }
     private static void shutdown() {
+        System.out.println("系统关闭");
         if(AudioHw.audioHwG!=null) {
             AudioHw.audioHwG.stop();
         }
