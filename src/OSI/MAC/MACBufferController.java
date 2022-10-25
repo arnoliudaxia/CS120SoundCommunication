@@ -20,6 +20,7 @@ public class MACBufferController {
     }
 
     private final Queue<ArrayList<Integer>> downStreamQueue=new LinkedList<>();
+    public final Queue<ArrayList<Integer>> upStreamQueue=new LinkedList<>();
 
     /**
      * 从上层获取数据后，MAC层会尽快把包发给下层（依赖MAC状态机）
@@ -41,5 +42,12 @@ public class MACBufferController {
 //        bitPacker.AppendData(Objects.requireNonNull(downStreamQueue.poll()));
         bitPacker.padding();
         MACLayer.macStateMachine.TxDone=true;
+    }
+
+    public void __receive(ArrayList<Integer> data){
+        synchronized (upStreamQueue) {
+            upStreamQueue.add(data);
+        }
+        MACLayer.macStateMachine.RxDone=true;
     }
 }

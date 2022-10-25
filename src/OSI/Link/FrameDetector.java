@@ -1,5 +1,6 @@
 package OSI.Link;
 
+import OSI.MAC.MACLayer;
 import dataAgent.CallBackStoreData;
 import utils.SoundUtil;
 
@@ -42,9 +43,10 @@ public class FrameDetector implements CallBackStoreData {
                     headerJudgeCount++;
                     headerEngery+=sampleP;
                     if (headerJudgeCount >= 20) {
-                        //找到头了
                         System.out.println("Header Energy: " + headerEngery);
                         if(headerEngery>3.f&&headerEngery<10.f) {
+                            //找到头了
+                            MACLayer.macStateMachine.PacketDetected=true;
                             detectState = DetectState.DataRetrive;
                             writeFrameBuffer = new ArrayList<>();
                         }
@@ -65,6 +67,10 @@ public class FrameDetector implements CallBackStoreData {
                         synchronized (frames) {
                             frames.add(writeFrameBuffer);
                         }
+                        //拿到一帧直接解析吧
+                        //TODO 可以在这里开一个线程
+                        MACLayer.macBufferController.__receive((ArrayList<Integer>) decodeOneFrame());
+
                     }
                     break;
             }

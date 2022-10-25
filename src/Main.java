@@ -26,7 +26,7 @@ public class Main {
 
         csvFileHelper csv = new csvFileHelper();
 
-        AudioHw.initAudioHw();
+//        AudioHw.initAudioHw();
         MACLayer.initMACLayer();
 
 
@@ -34,7 +34,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 4;
+        int taskchoice = 6;
         //#endregion
 
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
@@ -58,7 +58,6 @@ public class Main {
 //            csv.saveToCsv(lyfdellURL+"send.csv",bitPacker.onepackage);
             threadBlockTime(6000);
             AudioHw.audioHwG.isPlay = false;
-            MACLayer.macStateMachine.SIG = true;
         }
 
         if (taskchoice == 6) {
@@ -74,14 +73,10 @@ public class Main {
                 }
                 s.storeData(debugFragment);
             }
-            threadBlockTime(1000);
+            threadBlockTime(2000);
             List<Integer> information = new ArrayList<>();
-            while (true) {
-                var frameresult = s.decodeOneFrame();
-                if (frameresult.size() == 0) {
-                    break;
-                }
-                information.addAll(frameresult);
+            while(MACLayer.macBufferController.upStreamQueue.size()>0){
+                information.addAll(MACLayer.macBufferController.upStreamQueue.poll());
             }
             information.subList(50000, information.size()).clear();
             try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
@@ -91,9 +86,17 @@ public class Main {
             }
 
         }
-
-        AudioHw.audioHwG.stop();
+        shutdown();
+    }
+    private static void shutdown() {
+        if(AudioHw.audioHwG!=null) {
+            AudioHw.audioHwG.stop();
+        }
+        if(MACLayer.macBufferController!=null) {
+            MACLayer.macStateMachine.SIG=true;
+        }
 
     }
 }
+
 
