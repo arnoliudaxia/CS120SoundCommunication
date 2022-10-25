@@ -1,9 +1,9 @@
-import OSI.Link.BitPacker;
+import OSI.Application.MessageSender;
 import OSI.Link.FrameDetector;
 import OSI.Link.StoreData;
+import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
-import utils.TimerCounter;
 import utils.csvFileHelper;
 
 import java.io.File;
@@ -27,15 +27,14 @@ public class Main {
 
         csvFileHelper csv = new csvFileHelper();
 
-//        AudioHw.initAudioHw();
+        AudioHw.initAudioHw();
 
 
 //        threadBlockTime(20000);
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice =6;
-
+        int taskchoice =4;
         //#endregion
 
         String lyfdellURL="C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
@@ -45,9 +44,7 @@ public class Main {
         if (taskchoice == 4) {
             //一台机子发送数据另一台接受
             //首先采取调频的方式传送
-            System.out.println("发送数据任务");
-            BitPacker bitPacker = new BitPacker(Config.PHY_TX_SAMPLING_RATE);
-            List<Integer> rawdata = new ArrayList<>();
+            ArrayList<Integer> rawdata = new ArrayList<>();
             File f = new File("res\\INPUT.txt");
             Scanner sc = new Scanner(f);
             var rawstring = sc.nextLine();
@@ -56,12 +53,13 @@ public class Main {
                     rawdata.add(Integer.parseInt(String.valueOf(rawstring.charAt(i))));
                 }
             }
-            TimerCounter.startTimer("SendTimer");
-            bitPacker.AppendData(rawdata);
-            bitPacker.padding();
+            new MessageSender();
+            MACLayer.initMACLayer();
+            MessageSender.messageSender.sendBinary(rawdata);
 //            csv.saveToCsv(lyfdellURL+"send.csv",bitPacker.onepackage);
             threadBlockTime(6000);
             AudioHw.audioHwG.isPlay = false;
+            MACLayer.macStateMachine.SIG=true;
         }
         if (taskchoice==5){
             var s=new StoreData(Config.PHY_TX_SAMPLING_RATE);
