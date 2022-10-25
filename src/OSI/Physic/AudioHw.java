@@ -9,7 +9,6 @@ import dataAgent.LocalTempFile;
 import dataAgent.MemoryData;
 import dataAgent.StorgePolicy;
 import utils.SoundUtil;
-import utils.TimerCounter;
 
 import java.util.*;
 
@@ -112,7 +111,7 @@ public class AudioHw implements AsioDriverListener {
                     channelInfo.write(new float[bufferSize]);
                     isPlay = false;
                     System.out.println("播放完成");
-                    System.out.println("用时" + TimerCounter.stopTimer("SendTimer"));
+//                    System.out.println("用时" + TimerCounter.stopTimer("SendTimer"));
                 }
 
             }
