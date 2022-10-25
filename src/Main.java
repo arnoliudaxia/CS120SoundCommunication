@@ -56,23 +56,23 @@ public class Main {
             if (taskchoice == 6) {
                 //实现MAC层的协议
                 var s=new FrameDetector();
-//                AudioHw.audioHwG.dataagent = s;
-//                AudioHw.audioHwG.isRecording = true;
-            new Thread(()->{
-                Float[] debugWave = new Float[0];
-                try {
-                    debugWave = csv.readCsv(lyfHPURL + "wave.csv");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                for (int i = 0; i < debugWave.length - 512; i += 512) {
-                    float[] debugFragment = new float[512];
-                    for (int j = 0; j < 512; j++) {
-                        debugFragment[j] = debugWave[i + j];
-                    }
-                    s.storeData(debugFragment);
-                }
-            }).start();
+                AudioHw.audioHwG.dataagent = s;
+                AudioHw.audioHwG.isRecording = true;
+//            new Thread(()->{
+//                Float[] debugWave = new Float[0];
+//                try {
+//                    debugWave = csv.readCsv(lyfHPURL + "wave.csv");
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                for (int i = 0; i < debugWave.length - 512; i += 512) {
+//                    float[] debugFragment = new float[512];
+//                    for (int j = 0; j < 512; j++) {
+//                        debugFragment[j] = debugWave[i + j];
+//                    }
+//                    s.storeData(debugFragment);
+//                }
+//            }).start();
 
 //                threadBlockTime(10000);
                 DebugHelper.log("接收信号中....");

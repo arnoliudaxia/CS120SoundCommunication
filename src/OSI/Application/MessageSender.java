@@ -1,6 +1,7 @@
 package OSI.Application;
 
 import OSI.MAC.MACLayer;
+import utils.DebugHelper;
 
 import java.util.ArrayList;
 
@@ -17,7 +18,7 @@ public class MessageSender {
     }
     public void sendMessage(String message) {
         //TODO
-        System.out.println("随便发一点什么东西");
+        DebugHelper.log("随便发一点什么东西");
         ArrayList<Integer> data=new ArrayList<>();
         data.add(1);
         data.add(1);
