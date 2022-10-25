@@ -1,5 +1,6 @@
 package OSI.Link;
 
+import OSI.Application.UserSettings;
 import OSI.Physic.AudioHw;
 import utils.SoundUtil;
 
@@ -58,7 +59,7 @@ public class BitPacker {
 
     public void send() {
         if(rawDataIndex<=headerLength)return;
-        if(onepackage.size()==0)
+        if(UserSettings.isDebug&&onepackage.size()==0)
         {
             for (float v : signal) {
                 onepackage.add(v);
@@ -81,7 +82,9 @@ public class BitPacker {
 
     //singal就是最终的信号
     float[] signal = null;
-
+    /**
+     * 当UserSettings里的isdebug为true时，会把第一帧的数据存到这里
+     */
     public ArrayList<Float> onepackage = new ArrayList<>();
 
 
