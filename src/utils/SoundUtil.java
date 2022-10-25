@@ -45,7 +45,7 @@ public class SoundUtil {
 
         if (!(deSerializedStream.available() > 0))//没有数据提取个鬼给爷爬
         {
-            return null;
+            return new LinkedList<>();
         }
         try (ObjectInputStream input = new ObjectInputStream(deSerializedStream)) {
             while (deSerializedStream.available() >= fragmentSize) {
