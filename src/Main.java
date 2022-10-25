@@ -1,8 +1,11 @@
+import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
 import OSI.Link.FrameDetector;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
+import OSI.Physic.PlayOverCallback;
 import com.github.psambit9791.wavfile.WavFileException;
+import utils.DebugHelper;
 import utils.csvFileHelper;
 import utils.smartConvertor;
 
@@ -34,7 +37,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 4;
+        int taskchoice = 6;
         //#endregion
 
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
@@ -53,19 +56,39 @@ public class Main {
             if (taskchoice == 6) {
                 //实现MAC层的协议
                 var s=new FrameDetector();
-                AudioHw.audioHwG.dataagent = new FrameDetector();
-                AudioHw.audioHwG.isRecording = true;
+//                AudioHw.audioHwG.dataagent = s;
+//                AudioHw.audioHwG.isRecording = true;
+            new Thread(()->{
+                Float[] debugWave = new Float[0];
+                try {
+                    debugWave = csv.readCsv(lyfHPURL + "wave.csv");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                for (int i = 0; i < debugWave.length - 512; i += 512) {
+                    float[] debugFragment = new float[512];
+                    for (int j = 0; j < 512; j++) {
+                        debugFragment[j] = debugWave[i + j];
+                    }
+                    s.storeData(debugFragment);
+                }
+            }).start();
 
-//            Float[] debugWave = csv.readCsv(lyfHPURL + "wave.csv");
-//            for (int i = 0; i < debugWave.length - 512; i += 512) {
-//                float[] debugFragment = new float[512];
-//                for (int j = 0; j < 512; j++) {
-//                    debugFragment[j] = debugWave[i + j];
-//                }
-//                s.storeData(debugFragment);
-//            }
-                threadBlockTime(10000);
+//                threadBlockTime(10000);
+                DebugHelper.log("接收信号中....");
+                //直接等接收完成的信号
+                synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                    try {
+                        GlobalEvent.ALL_DATA_Recieved.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                DebugHelper.log("全部接收完成");
                 AudioHw.audioHwG.isRecording = false;
+                //需要马上发一个frame回复一下
+                new MessageSender();
+                MessageSender.messageSender.sendMessage("213");
 
                 List<Integer> information = new ArrayList<>();
                 while (MACLayer.macBufferController.upStreamQueue.size() > 0) {
@@ -77,6 +100,37 @@ public class Main {
                         input.write(bit.toString().getBytes());
                     }
                 }
+
+            }
+
+            if(taskchoice==7){
+                //发送完要求有一个回复
+                new MessageSender();
+                class waitForReply implements PlayOverCallback{
+                    @Override
+                    public void playOverCallback() {
+                        AudioHw.audioHwG.isRecording = true;
+                        threadBlockTime(1000);
+                        AudioHw.audioHwG.isRecording = false;
+                        if(MACLayer.macBufferController.upStreamQueue.size()==0){
+                            DebugHelper.log("link error");
+                        }
+                        else{
+                            DebugHelper.log("发送成功");
+                        }
+                    }
+                }
+                AudioHw.audioHwG.playOverCallback=new waitForReply();
+                MessageSender.messageSender.sendBinary(smartConvertor.binInTextFile("res\\INPUT.txt"));
+                threadBlockTime(10000);
+            }
+            if(taskchoice==8){
+                //接收完发一个回复
+                var s=new FrameDetector();
+                AudioHw.audioHwG.dataagent = s;
+                AudioHw.audioHwG.isRecording = true;
+
+                AudioHw.audioHwG.isRecording = false;
 
             }
         } catch (Exception e) {

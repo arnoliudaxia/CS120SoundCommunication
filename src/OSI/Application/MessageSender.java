@@ -17,6 +17,12 @@ public class MessageSender {
     }
     public void sendMessage(String message) {
         //TODO
+        System.out.println("随便发一点什么东西");
+        ArrayList<Integer> data=new ArrayList<>();
+        data.add(1);
+        data.add(1);
+        data.add(1);
+        MACLayer.macBufferController.trySend(data);
     }
     public void sendBinary(ArrayList<Integer> input) {
         System.out.println("发送二进制数据包");

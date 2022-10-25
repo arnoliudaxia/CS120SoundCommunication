@@ -30,14 +30,11 @@ public class AudioHw implements AsioDriverListener {
     //数据流
     private final int bufferSize=512;
     private float[] inBuffer;
-    public CallBackStoreData dataagent = new MemoryData();
     public LinkedList<float[]> playQueue = new LinkedList<>();
-    private int referenceNoiseMeasureIndex=0;
-    public double referenceNoise=1f;
-    private float inputAmplify=1f;
-
-    private int preheat=0;
-
+    //#region 回调函数
+    public CallBackStoreData dataagent = new MemoryData();
+    public PlayOverCallback playOverCallback;
+    //#endregion
     public void init(int sampleFre) {
         sampleFrequency= sampleFre;
         Set<AsioChannel> activeChannels = new HashSet<AsioChannel>();  // create a Set of AsioChannels
@@ -111,6 +108,10 @@ public class AudioHw implements AsioDriverListener {
                     channelInfo.write(new float[bufferSize]);
                     isPlay = false;
                     System.out.println("播放完成");
+                    if(playOverCallback!=null)
+                    {
+                        playOverCallback.playOverCallback();
+                    }
 //                    System.out.println("用时" + TimerCounter.stopTimer("SendTimer"));
                 }
 

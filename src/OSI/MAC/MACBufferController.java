@@ -1,5 +1,6 @@
 package OSI.MAC;
 
+import OSI.Application.GlobalEvent;
 import OSI.Link.BitPacker;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class MACBufferController {
 
     private final Queue<ArrayList<Integer>> downStreamQueue=new LinkedList<>();
     public final Queue<ArrayList<Integer>> upStreamQueue=new LinkedList<>();
+    public int receiveBitCount=0;
 
     /**
      * 从上层获取数据后，MAC层会尽快把包发给下层（依赖MAC状态机）
@@ -47,6 +49,12 @@ public class MACBufferController {
     public void __receive(ArrayList<Integer> data){
         synchronized (upStreamQueue) {
             upStreamQueue.add(data);
+        }
+        receiveBitCount+=data.size();
+        if(receiveBitCount>=50000){
+            synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                GlobalEvent.ALL_DATA_Recieved.notifyAll();
+            }
         }
         MACLayer.macStateMachine.RxDone=true;
     }
