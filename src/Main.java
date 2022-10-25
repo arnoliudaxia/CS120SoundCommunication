@@ -4,8 +4,8 @@ import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
 import utils.csvFileHelper;
+import utils.smartConvertor;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 6;
+        int taskchoice = 4;
         //#endregion
 
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
@@ -43,21 +43,10 @@ public class Main {
 
         try {
             if (taskchoice == 4) {
-                //一台机子发送数据另一台接受
-                //首先采取调频的方式传送
-                ArrayList<Integer> rawdata = new ArrayList<>();
-                File f = new File("res\\INPUT.txt");
-                Scanner sc = new Scanner(f);
-                var rawstring = sc.nextLine();
-                for (int i = 0; i < rawstring.length(); i++) {
-                    {
-                        rawdata.add(Integer.parseInt(String.valueOf(rawstring.charAt(i))));
-                    }
-                }
                 new MessageSender();
-                MessageSender.messageSender.sendBinary(rawdata);
+                MessageSender.messageSender.sendBinary(smartConvertor.binInTextFile("res\\INPUT.txt"));
 //            csv.saveToCsv(lyfdellURL+"send.csv",bitPacker.onepackage);
-                threadBlockTime(7000);
+                threadBlockTime(3000);
                 AudioHw.audioHwG.isPlay = false;
             }
 
