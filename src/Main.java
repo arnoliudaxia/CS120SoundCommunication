@@ -37,7 +37,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 6;
+        int taskchoice = 7;
         //#endregion
 
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
@@ -109,8 +109,7 @@ public class Main {
                 class waitForReply implements PlayOverCallback{
                     @Override
                     public void playOverCallback() {
-                        AudioHw.audioHwG.isRecording = true;
-                        threadBlockTime(1000);
+                        threadBlockTime(8000);
                         AudioHw.audioHwG.isRecording = false;
                         if(MACLayer.macBufferController.upStreamQueue.size()==0){
                             DebugHelper.log("link error");
@@ -120,9 +119,10 @@ public class Main {
                         }
                     }
                 }
+                AudioHw.audioHwG.isRecording = true;
                 AudioHw.audioHwG.playOverCallback=new waitForReply();
                 MessageSender.messageSender.sendBinary(smartConvertor.binInTextFile("res\\INPUT.txt"));
-                threadBlockTime(10000);
+                threadBlockTime(20000);
             }
             if(taskchoice==8){
                 //接收完发一个回复
