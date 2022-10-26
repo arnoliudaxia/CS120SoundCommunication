@@ -27,7 +27,7 @@ public class MACBufferController {
     /**
      * MAC层接受到的一个个frame，MAP的第一个Integer是存储包的序号的
      */
-    public final Queue<Pair<Integer,ArrayList<Integer>>> upStreamQueue=new LinkedList<>();
+    public final Queue<MACFrame> upStreamQueue=new LinkedList<>();
 
     public int receiveBitCount=0;
 
@@ -71,7 +71,8 @@ public class MACBufferController {
             data.subList(0,10).clear();
 //            Pair<Integer,ArrayList<Integer>> entry= new Pair<>(seq,data);
             //TODO 需要测试
-            upStreamQueue.add(new Pair<>(seq,data));
+            //TODO 在这里加入CRC
+            upStreamQueue.add(new MACFrame(seq,data,-1));
         }
         receiveBitCount+=data.size();
         if(receiveBitCount>= UserSettings.WHOLE_DATA_LENGTH){
