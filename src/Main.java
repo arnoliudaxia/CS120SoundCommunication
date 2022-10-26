@@ -104,7 +104,7 @@ public class Main {
 
                 List<Integer> information = new ArrayList<>();
                 while (MACLayer.macBufferController.upStreamQueue.size() > 0) {
-                    information.addAll(MACLayer.macBufferController.upStreamQueue.poll());
+                    information.addAll(MACLayer.macBufferController.upStreamQueue.poll().getSecond());
                 }
                 information.subList(50000, information.size()).clear();
                 try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {

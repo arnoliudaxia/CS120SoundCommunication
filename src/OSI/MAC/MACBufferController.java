@@ -1,10 +1,13 @@
 package OSI.MAC;
 
 import OSI.Application.GlobalEvent;
+import OSI.Application.UserSettings;
 import OSI.Link.BitPacker;
+import com.mathworks.util.Pair;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 public class MACBufferController {
@@ -21,7 +24,11 @@ public class MACBufferController {
     }
 
     private final Queue<ArrayList<Integer>> downStreamQueue=new LinkedList<>();
-    public final Queue<ArrayList<Integer>> upStreamQueue=new LinkedList<>();
+    /**
+     * MAC层接受到的一个个frame，MAP的第一个Integer是存储包的序号的
+     */
+    public final Queue<Pair<Integer,ArrayList<Integer>>> upStreamQueue=new LinkedList<>();
+
     public int receiveBitCount=0;
 
     /**
@@ -48,10 +55,26 @@ public class MACBufferController {
 
     public void __receive(ArrayList<Integer> data){
         synchronized (upStreamQueue) {
-            upStreamQueue.add(data);
+            //data的前10位是序号
+            var seqS=data.stream().limit(10).toList();
+            int seq=0;
+            seq+=0b1000000000*seqS.get(0);
+            seq+=0b0100000000*seqS.get(1);
+            seq+=0b0010000000*seqS.get(2);
+            seq+=0b0001000000*seqS.get(3);
+            seq+=0b0000100000*seqS.get(4);
+            seq+=0b0000010000*seqS.get(5);
+            seq+=0b0000001000*seqS.get(6);
+            seq+=0b0000000100*seqS.get(7);
+            seq+=0b0000000010*seqS.get(8);
+            seq+=0b0000000001*seqS.get(9);
+            data.subList(0,10).clear();
+//            Pair<Integer,ArrayList<Integer>> entry= new Pair<>(seq,data);
+            //TODO 需要测试
+            upStreamQueue.add(new Pair<>(seq,data));
         }
         receiveBitCount+=data.size();
-        if(receiveBitCount>=50000){
+        if(receiveBitCount>= UserSettings.WHOLE_DATA_LENGTH){
             synchronized (GlobalEvent.ALL_DATA_Recieved) {
                 GlobalEvent.ALL_DATA_Recieved.notifyAll();
             }

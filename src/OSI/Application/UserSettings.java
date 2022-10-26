@@ -5,4 +5,5 @@ package OSI.Application;
  */
 public class UserSettings {
     public static boolean isDebug = true;
+    public static int WHOLE_DATA_LENGTH = 50000;
 }
