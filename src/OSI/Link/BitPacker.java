@@ -2,6 +2,7 @@ package OSI.Link;
 
 import OSI.Application.UserSettings;
 import OSI.Physic.AudioHw;
+import utils.DebugHelper;
 import utils.SoundUtil;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
  * 该层接收到上层传过来的二进制数据，将其编码为frames然后传递给AudioHw层
  */
 public class BitPacker {
+    private  int seq=-1;
     public BitPacker(int sampleFre) {
         //定义好信号的频率
         this.zeroSignal = SoundUtil.generateDigitalSignal(0, fragmentTime, sampleFre);
@@ -24,8 +26,21 @@ public class BitPacker {
             signal[i] = 1;
         }
         rawDataIndex = headerLength;
+        seqPack();
     }
-
+    private void seqPack()
+    {
+        seq++;
+        //seq指定为10位
+        int binseq=0b1000000000;
+        for (int i = 0; i < 10; i++) {
+            System.arraycopy((seq&binseq)>0 ? oneSignal : zeroSignal, 0, signal,
+                    (rawDataIndex) , fragmentLength);
+            rawDataIndex+=fragmentLength;
+//            DebugHelper.<Integer>log((seq&binseq)>0?1:0);
+            binseq=binseq>>1;
+        }
+    }
 
     public void AppendData(List<Integer> data) {
         for (Integer datum : data) {
@@ -39,6 +54,7 @@ public class BitPacker {
         }
 
     }
+
 
     /**
      * 如果数据不够一帧，补0
@@ -70,6 +86,7 @@ public class BitPacker {
 //        DebugHelper.log("发包");
         AudioHw.audioHwG.isPlay = true;
         rawDataIndex = headerLength;
+        seqPack();
     }
 
     private final float[] oneSignal;

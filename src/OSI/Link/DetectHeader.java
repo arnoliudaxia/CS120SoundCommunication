@@ -13,7 +13,7 @@ import static OSI.Link.frameConfig.fragmentTime;
 
 public class DetectHeader{
     private LinkedList<float[]> detectData = new LinkedList<>();
-    private int detectLength = frameConfig.packageLength*3;
+    private int detectLength = frameConfig.digitalHeaderLength*3;
     private ArrayList<Integer> dataIndex= new ArrayList<>();
     private ArrayList<Integer> tempIndex= new ArrayList<>();
     public ArrayList<Double> bitData=new ArrayList<>();
