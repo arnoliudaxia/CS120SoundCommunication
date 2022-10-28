@@ -36,6 +36,21 @@ public class AudioHw implements AsioDriverListener {
     //#region 回调函数
     public CallBackStoreData dataagent = new MemoryData();
     public PlayOverCallback playOverCallback;
+    /* PlayOverCallback 使用示例
+        class waitForReply implements PlayOverCallback {
+        @Override
+        public void playOverCallback() {
+            AudioHw.audioHwG.isRecording = false;
+            if (MACLayer.macBufferController.upStreamQueue.size() == 0) {
+                DebugHelper.log("link error");
+            } else {
+                DebugHelper.log("发送成功");
+            }
+        }
+    }
+    AudioHw.audioHwG.playOverCallback = new waitForReply();
+    */
+
     //#endregion
     public void init(int sampleFre) {
         sampleFrequency= sampleFre;
