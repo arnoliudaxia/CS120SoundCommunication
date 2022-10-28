@@ -2,6 +2,7 @@ package utils;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class smartConvertor {
@@ -95,5 +96,24 @@ public class smartConvertor {
             DebugHelper.log("写入文件:"+path);
         } catch (IOException e) {
         }
+    }
+
+    public static ArrayList<Integer> exactBitsOfNumber(int number,int bitLength){
+        int mask=0b1<<(bitLength-1);
+        ArrayList<Integer> result=new ArrayList<>();
+        for (int i = 0; i < bitLength; i++) {
+            result.add((number & mask) > 0 ? 1 : 0);
+            mask=mask>>1;
+        }
+        return result;
+    }
+    public static int mergeBitsToInteger(List<Integer> input){
+        int result=0;
+        int mask=0b1<<(input.size()-1);
+        for (Integer integer : input) {
+            result += mask * integer;
+            mask = mask >> 1;
+        }
+        return result;
     }
 }
