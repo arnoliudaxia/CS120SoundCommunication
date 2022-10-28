@@ -28,8 +28,6 @@ public class Main {
         AudioHw.initAudioHw();
         MACLayer.initMACLayer();
 
-
-//        threadBlockTime(20000);
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
