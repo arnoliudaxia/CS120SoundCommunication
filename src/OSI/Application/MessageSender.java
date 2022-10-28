@@ -8,16 +8,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class MessageSender {
-    public static MessageSender messageSender;
-
-    public MessageSender() {
-        if(messageSender==null) {
-            messageSender = this;
-        }
-        else {
-            System.out.println("MessageSender is already created");
-        }
-    }
+    
     public void sendMessage(String message) {
         //TODO
         DebugHelper.log("随便发一点什么东西");
