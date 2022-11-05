@@ -1,7 +1,6 @@
 package OSI.MAC;
 
 import OSI.Application.GlobalEvent;
-import OSI.Application.UserSettings;
 import OSI.Link.BitPacker;
 import OSI.Link.frameConfig;
 import utils.DebugHelper;
@@ -89,14 +88,15 @@ public class MACBufferController {
             while(downStreamQueue.size()>0) {
                 var frame=downStreamQueue.poll();
                 //每一个字段都需要发出去
+                DebugHelper.log(String.format("发送序号为%d的包,效验码为%d",frame.seq,frame.crc));
                 bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.seq, 10));
                 bitPacker.AppendData(frame.payload);
                 bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.crc,6));
-                DebugHelper.log(String.format("发送序号为%d的包,效验码为%d",frame.seq,frame.crc));
+                bitPacker.padding();
+
 
             }
         }
-        bitPacker.padding();
         MACLayer.macStateMachine.TxDone=true;
     }
 
@@ -121,17 +121,11 @@ public class MACBufferController {
             synchronized (upStreamQueue) {
                 upStreamQueue.add(new MACFrame(seq,payload,checkCode));
             }
+            //记录一下seq包接收成功
+            MACLayer.ReceivedFramesSeq.add(seq);
             //通知其他人有frame进来了
             synchronized (GlobalEvent.Receive_Frame){
                 GlobalEvent.Receive_Frame.notifyAll();
-            }
-        }
-
-        receiveFramesCount ++;
-        if(receiveFramesCount >= UserSettings.Number_Frames_True){
-            receiveFramesCount =0;
-            synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                GlobalEvent.ALL_DATA_Recieved.notifyAll();
             }
         }
         MACLayer.macStateMachine.RxDone=true;

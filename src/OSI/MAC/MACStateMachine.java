@@ -58,12 +58,14 @@ public class MACStateMachine {
                     DebugHelper.log("FrameDetection->Rx");
                     PacketDetected=false;
                     MACLayer.macStateMachine.macState=MACState.Rx;
+                    break;
                 }
                 if(TxPending)
                 {
                     DebugHelper.log("FrameDetection->Tx");
                     TxPending=false;
                     MACLayer.macStateMachine.macState=MACState.Tx;
+                    break;
                 }
 
                 break;

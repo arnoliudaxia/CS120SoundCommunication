@@ -30,10 +30,9 @@ public class FrameDetector implements CallBackStoreData {
     public void storeData(float[] data) {
         for (var sampleP : data) {
             float wakeupRef = 0.2f;
-            boolean isHigh = sampleP > wakeupRef;
             switch (detectState) {
                 case lookingForHead:
-                    if (isHigh) {
+                    if (sampleP > wakeupRef) {
                         detectState = DetectState.HeadWholeJudge;
                         headerJudgeCount = 1;
                         headerEngery=sampleP;
@@ -41,10 +40,10 @@ public class FrameDetector implements CallBackStoreData {
                     break;
                 case HeadWholeJudge:
                     headerJudgeCount++;
-                    headerEngery+=sampleP;
+                    headerEngery+=Math.abs(sampleP);
                     if (headerJudgeCount >= 20) {
                         System.out.println("Header Energy: " + headerEngery);
-                        if(headerEngery>3.f&&headerEngery<20.f) {
+                        if(headerEngery>2.f&&headerEngery<20.f) {
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected=true;
                             detectState = DetectState.DataRetrive;

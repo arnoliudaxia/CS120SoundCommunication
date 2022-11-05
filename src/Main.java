@@ -1,14 +1,15 @@
-import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
 import dataAgent.StorgePolicy;
+import utils.DebugHelper;
 import utils.csvFileHelper;
 import utils.smartConvertor;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Main {
@@ -26,6 +27,8 @@ public class Main {
         csvFileHelper csv = new csvFileHelper();
 
         AudioHw.initAudioHw();
+        AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
+        AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
 
         //#region 选择Task
@@ -39,29 +42,45 @@ public class Main {
         String lshURL = "D:\\桌面\\project1_sample\\";
 
         try {
-            AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
-            AudioHw.audioHwG.isRecording = true;
+            if(taskchoice==7)
+            {
+                //纯收听，测试用
+                threadBlockTime(10000);
+            }
+
 
             if (taskchoice == 8) {
+                //var inputData=smartConvertor.binInFile("res\\INPUT.bin");
+                var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
                 //在发送完一小段数据后，检查收到的（自己的）frame是不是正确的，然后再发下一段
                 //一小段数据指284*4 bits，也即4个frame
-                int fragSize=284*4;
+                //首先把数据分成frames,
+                LinkedList<ArrayList<Integer>> frames=new LinkedList<>();
+                for (int i = 0; i < inputData.size(); i += 284) {
+                    frames.add(new ArrayList<>(inputData.subList(i,i+284>= inputData.size() ? inputData.size() - 1 :i+284)));
+                }
+                frames.remove(frames.size()-1); //TODO 先去掉最后一个不完整的，待会在处理
+
+                //4个frame一发
                 MessageSender messager = new MessageSender();
-//                var inputData=smartConvertor.binInFile("res\\INPUT.bin");
-                var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
-                for (int i = 0; i < inputData.size(); i += fragSize) {
-                    var fragment = new ArrayList<>(inputData.subList(i, i+fragSize >= inputData.size() ? inputData.size() - 1 : i+fragSize));
-                    messager.sendBinary(fragment);
-                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait();
-                    }
-                    synchronized (MACLayer.macBufferController.upStreamQueue)
-                    {
-                        while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
-                            var frame=MACLayer.macBufferController.upStreamQueue.poll();
-                        }
-                    }
-                    threadBlockTime(100);
+
+                for (int i = 0; i < frames.size(); i += 4) {
+                    //取出4个frame然后发送
+                    ArrayList<Integer> sendData=new ArrayList<>();
+                    sendData.addAll(frames.get(i+0));
+                    sendData.addAll(frames.get(i+1));
+                    sendData.addAll(frames.get(i+2));
+                    sendData.addAll(frames.get(i+3));
+                    DebugHelper.log("发送数据包"+i+"~"+(i+4));
+                    messager.sendBinary(sendData);
+
+//                    synchronized (MACLayer.macBufferController.upStreamQueue)
+//                    {
+//                        while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
+//                            var frame=MACLayer.macBufferController.upStreamQueue.poll();
+//                        }
+//                    }
+                    threadBlockTime(1000);
                 }
 
             }
