@@ -48,15 +48,31 @@ public class Main {
         String lshURL = "D:\\桌面\\project1_sample\\";
 
         try {
+            ArrayList<Integer> information=new ArrayList<>();
+
             if(taskchoice==7)
             {
                 //纯收听，测试用
-                threadBlockTime(10000);
+                threadBlockTime(15000);
+                ArrayList<MACFrame> rFrames=new ArrayList<>();
+                synchronized (MACLayer.macBufferController.upStreamQueue)
+                {
+                    while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
+                        var frame=MACLayer.macBufferController.upStreamQueue.poll();
+                        rFrames.add(frame);
+                    }
+                }
+                rFrames.sort(Comparator.comparingInt(o -> o.seq));
+                rFrames.forEach(x->information.addAll(x.payload));
+                try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
+                    for (var bit : information) {
+                        input.write(bit.toString().getBytes());
+                    }
+                }
             }
 
 
             if (taskchoice == 8) {
-                ArrayList<Integer> information=new ArrayList<>();
                 //var inputData=smartConvertor.binInFile("res\\INPUT.bin");
                 var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
                 //在发送完一小段数据后，检查收到的（自己的）frame是不是正确的，然后再发下一段
@@ -84,16 +100,17 @@ public class Main {
                         GlobalEvent.ALL_DATA_Recieved.wait((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
                     }
                 }
-                        ArrayList<MACFrame> rFrames=new ArrayList<>();
-                    synchronized (MACLayer.macBufferController.upStreamQueue)
-                    {
-                        while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
-                            var frame=MACLayer.macBufferController.upStreamQueue.poll();
-                            rFrames.add(frame);
-                        }
+
+                ArrayList<MACFrame> rFrames=new ArrayList<>();
+                synchronized (MACLayer.macBufferController.upStreamQueue)
+                {
+                    while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
+                        var frame=MACLayer.macBufferController.upStreamQueue.poll();
+                        rFrames.add(frame);
                     }
-                    rFrames.sort(Comparator.comparingInt(o -> o.seq));
-                    rFrames.forEach(x->information.addAll(x.payload));
+                }
+                rFrames.sort(Comparator.comparingInt(o -> o.seq));
+                rFrames.forEach(x->information.addAll(x.payload));
                 for (int i = 0; i < information.size(); i++) {
                     if(information.get(i)!=inputData.get(i))
                     {
@@ -108,8 +125,8 @@ public class Main {
                 }
                 csv.saveToCsv(lyfHPURL+"wave.csv",((FrameDetector)AudioHw.audioHwG.dataagent).wave);
 
-
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
