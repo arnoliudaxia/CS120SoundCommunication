@@ -1,4 +1,3 @@
-import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
 import OSI.Application.UserSettings;
 import OSI.Link.FrameDetector;
@@ -50,6 +49,10 @@ public class Main {
         try {
             ArrayList<Integer> information=new ArrayList<>();
 
+            if(taskchoice==2){
+
+            }
+
             if(taskchoice==7)
             {
                 //纯收听，测试用
@@ -73,6 +76,7 @@ public class Main {
 
 
             if (taskchoice == 8) {
+                //Node 1
                 //var inputData=smartConvertor.binInFile("res\\INPUT.bin");
                 var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
                 //在发送完一小段数据后，检查收到的（自己的）frame是不是正确的，然后再发下一段
@@ -94,12 +98,18 @@ public class Main {
                     DebugHelper.log("发送数据包"+i+"~"+(i+4));
                     messager.sendBinary(sendData);
 
-//                    threadBlockTime((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
-                    synchronized (GlobalEvent.ALL_DATA_Recieved)
-                    {
-                        GlobalEvent.ALL_DATA_Recieved.wait((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
-                    }
+                    threadBlockTime((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
+//                    synchronized (GlobalEvent.ALL_DATA_Recieved)
+//                    {
+//                        GlobalEvent.ALL_DATA_Recieved.wait((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
+//                    }
                 }
+                while(MACLayer.macBufferController.hasDataLeft())
+                {
+                    MACLayer.macBufferController.__send();
+                    threadBlockTime((int) (UserSettings.LoopBackDelay*1000*(.3+Math.random())));
+                }
+//                threadBlockTime(5000);
 
                 ArrayList<MACFrame> rFrames=new ArrayList<>();
                 synchronized (MACLayer.macBufferController.upStreamQueue)
@@ -115,6 +125,7 @@ public class Main {
                     if(information.get(i)!=inputData.get(i))
                     {
                         DebugHelper.log("位"+i+"错误");
+                        break;
                     }
                 }
 

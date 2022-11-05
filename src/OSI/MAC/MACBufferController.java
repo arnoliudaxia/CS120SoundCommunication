@@ -159,9 +159,9 @@ public class MACBufferController {
 
     }
 
-    public boolean isDataLeft()
-    {
+    public boolean hasDataLeft(){
         return downStreamQueue.size()>0;
     }
+
 
 }
