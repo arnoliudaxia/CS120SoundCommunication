@@ -9,7 +9,6 @@ import dataAgent.CallBackStoreData;
 import dataAgent.LocalTempFile;
 import dataAgent.MemoryData;
 import dataAgent.StorgePolicy;
-import utils.DebugHelper;
 import utils.SoundUtil;
 
 import java.util.*;
@@ -123,8 +122,8 @@ public class AudioHw implements AsioDriverListener {
                 }
                 else {
                     channelInfo.write(new float[bufferSize]);
-                    isPlay = false;
-                    DebugHelper.log("播放完成");
+//                    isPlay = false;
+//                    DebugHelper.log("播放完成");
                     if(playOverCallback!=null)
                     {
                         playOverCallback.playOverCallback();
