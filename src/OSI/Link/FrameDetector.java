@@ -14,6 +14,9 @@ public class FrameDetector implements CallBackStoreData {
     private int readDatabitCount = 0;
     private int headerJudgeCount = 0;
     private float headerEngery = 0;
+    //用来判断是不是有其他的干扰源，原理是收集附近几个采样点的能量（绝对值）
+    public float localEnergy = 0;
+    private float quietRef=0.01f;//认为localEnergy小于这个值就是没有干扰状态
 
     public final Queue<ArrayList<Float>> frames = new LinkedList<>();
     private ArrayList<Float> writeFrameBuffer = new ArrayList<>();
@@ -28,8 +31,11 @@ public class FrameDetector implements CallBackStoreData {
     @Override
     public void storeData(float[] data) {
         for (var sampleP : data) {
-            wave.add(sampleP);
-            float wakeupRef = 0.09f;
+//            wave.add(sampleP);//用来给matlab分析
+            localEnergy*=19.f/20.f;
+            localEnergy+=Math.abs(sampleP);
+//            wave.add(localEnergy);
+            float wakeupRef = 0.09f;//header的触发电平
             switch (detectState) {
                 case lookingForHead:
                     if (sampleP > wakeupRef) {
@@ -157,5 +163,7 @@ public class FrameDetector implements CallBackStoreData {
 
     }
 
-
+    public boolean isChannelQuiet(){
+        return localEnergy<quietRef;
+    }
 }
