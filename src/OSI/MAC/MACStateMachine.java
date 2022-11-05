@@ -34,7 +34,7 @@ public class MACStateMachine {
         while (!SIG) {
 
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
