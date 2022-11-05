@@ -82,8 +82,8 @@ public class Main {
                 //在发送完一小段数据后，检查收到的（自己的）frame是不是正确的，然后再发下一段
                 //首先把数据分成frames,
                 LinkedList<ArrayList<Integer>> frames=new LinkedList<>();
-                for (int i = 0; i < inputData.size(); i += 84) {
-                    frames.add(new ArrayList<>(inputData.subList(i,i+84>= inputData.size() ? inputData.size() - 1 :i+84)));
+                for (int i = 0; i < inputData.size(); i += MACLayer.macBufferController.payloadLength) {
+                    frames.add(new ArrayList<>(inputData.subList(i,i+MACLayer.macBufferController.payloadLength>= inputData.size() ? inputData.size() - 1 :i+MACLayer.macBufferController.payloadLength)));
                 }
                 frames.remove(frames.size()-1); //TODO 先去掉最后一个不完整的，待会在处理
                 MessageSender messager = new MessageSender();
@@ -109,7 +109,6 @@ public class Main {
                     MACLayer.macBufferController.__send();
                     threadBlockTime((int) (UserSettings.LoopBackDelay*1000*(.3+Math.random())));
                 }
-//                threadBlockTime(5000);
 
                 ArrayList<MACFrame> rFrames=new ArrayList<>();
                 synchronized (MACLayer.macBufferController.upStreamQueue)
@@ -121,13 +120,6 @@ public class Main {
                 }
                 rFrames.sort(Comparator.comparingInt(o -> o.seq));
                 rFrames.forEach(x->information.addAll(x.payload));
-                for (int i = 0; i < information.size(); i++) {
-                    if(information.get(i)!=inputData.get(i))
-                    {
-                        DebugHelper.log("位"+i+"错误");
-                        break;
-                    }
-                }
 
                 try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
                     for (var bit : information) {
