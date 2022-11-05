@@ -1,7 +1,6 @@
 package OSI.Link;
 
 import OSI.Physic.AudioHw;
-import dataAgent.MemoryData;
 import utils.SoundUtil;
 
 import java.util.ArrayList;
@@ -136,7 +135,7 @@ public class DetectHeader{
                 }
             }
 //            System.out.println("bitCounter: "+bitCounter);
-            for (int i = 0; i < SoundUtil.neareatRatio(bitCounter, (int) (fragmentTime * 48000)) / 5; i++) {
+            for (int i = 0; i < SoundUtil.neareatRatio(bitCounter, (int) (fragmentTime * 48000)) / frameConfig.bitSamples; i++) {
                 result.add(state);
             }
             state = 1 - state;

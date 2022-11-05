@@ -1,6 +1,7 @@
 package OSI.MAC;
 
 import OSI.Application.GlobalEvent;
+import OSI.Application.UserSettings;
 import OSI.Link.BitPacker;
 import OSI.Link.frameConfig;
 import utils.DebugHelper;
@@ -39,7 +40,7 @@ public class MACBufferController {
      * MAC层介绍到数据后规格化为MACFrames并加入这个队列，
      * 然后真正send的时候从这里拿数据
      */
-    private final Queue<MACFrame> downStreamQueue=new LinkedList<>();
+    private final LinkedList<MACFrame> downStreamQueue=new LinkedList<>();
     /**
      * MAC层接受到的一个个frame加入这个队列
      */
@@ -58,7 +59,7 @@ public class MACBufferController {
     private Integer checkCode_NumberOfOnes(List<Integer> input){
         return Math.toIntExact(input.stream().filter((x) -> {
             return x == 1;
-        }).count()%128);
+        }).count()%64);
     }
     /**
      * 从上层获取数据后，MAC层会尽快把包发给下层（依赖MAC状态机）
@@ -85,16 +86,25 @@ public class MACBufferController {
 
     public void __send(){
         synchronized (downStreamQueue) {
-            while(downStreamQueue.size()>0) {
-                var frame=downStreamQueue.poll();
-                //每一个字段都需要发出去
-                DebugHelper.log(String.format("发送序号为%d的包,效验码为%d",frame.seq,frame.crc));
+//            while(downStreamQueue.size()>0) {
+//                var frame=downStreamQueue.poll();
+//                //每一个字段都需要发出去
+//                DebugHelper.log(String.format("发送序号为%d的包,效验码为%d",frame.seq,frame.crc));
+//                bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.seq, 10));
+//                bitPacker.AppendData(frame.payload);
+//                bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.crc,6));
+//                bitPacker.padding();
+//
+//
+//            }\
+            //发送的时候先保留着，确认收到后再继续发其他的，否则再发
+            for (int i = 0; i < Math.min(UserSettings.Number_Frames_True, downStreamQueue.size()); i++) {
+                var frame = downStreamQueue.get(i);
+                DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
                 bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.seq, 10));
                 bitPacker.AppendData(frame.payload);
-                bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.crc,6));
+                bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.crc, 6));
                 bitPacker.padding();
-
-
             }
         }
         MACLayer.macStateMachine.TxDone=true;
@@ -107,7 +117,7 @@ public class MACBufferController {
         data.subList(0,10).clear();
         //提取字段
         ArrayList<Integer> payload=new ArrayList<>(data.subList(0,payloadLength));
-        ArrayList<Integer> crc=new ArrayList<>(data.subList(payloadLength+1,data.size()));
+        ArrayList<Integer> crc=new ArrayList<>(data.subList(payloadLength,data.size()));
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
         int checkCode=smartConvertor.mergeBitsToInteger(crc);
         int checkCode_compute= checkCode_NumberOfOnes(payload);
@@ -117,6 +127,13 @@ public class MACBufferController {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!",seq));
         }
         else {
+            for (int i = 0; i < downStreamQueue.size(); i++) {
+                if(downStreamQueue.get(i).seq==seq)
+                {
+                    downStreamQueue.remove(i);
+                    break;
+                }
+            }
             //包没有问题就存下来
             synchronized (upStreamQueue) {
                 upStreamQueue.add(new MACFrame(seq,payload,checkCode));
@@ -128,7 +145,22 @@ public class MACBufferController {
                 GlobalEvent.Receive_Frame.notifyAll();
             }
         }
+
+        receiveFramesCount ++;
+        if(receiveFramesCount >= UserSettings.Number_Frames_True){
+            receiveFramesCount =0;
+            synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                GlobalEvent.ALL_DATA_Recieved.notifyAll();
+            }
+        }
+
         MACLayer.macStateMachine.RxDone=true;
 
     }
+
+    public boolean isDataLeft()
+    {
+        return downStreamQueue.size()>0;
+    }
+
 }

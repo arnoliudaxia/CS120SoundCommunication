@@ -87,7 +87,7 @@ public class StoreData implements CallBackStoreData {
                 }
             }
 //            System.out.println("bitCounter: "+bitCounter);
-            for (int i = 0; i <SoundUtil.neareatRatio(bitCounter,(int)(fragmentTime*48000))/5; i++) {
+            for (int i = 0; i <SoundUtil.neareatRatio(bitCounter,(int)(fragmentTime*48000))/frameConfig.bitSamples; i++) {
                 information.add(state);
             }
             state=1-state;

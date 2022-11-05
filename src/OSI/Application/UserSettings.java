@@ -5,5 +5,6 @@ package OSI.Application;
  */
 public class UserSettings {
     public static boolean isDebug = true;
-    public static int Number_Frames_True = 4;
+    public static int Number_Frames_True = 5;
+    public static float LoopBackDelay=2.7f;
 }

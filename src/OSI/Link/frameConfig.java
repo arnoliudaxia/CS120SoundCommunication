@@ -7,7 +7,7 @@ public class frameConfig {
     /**
      * 一个frame包含的bit数
      */
-    public static final int bitLength = 300;
+    public static final int bitLength = 100;
     /**
      * 一个bit的物理长度,以s为单位
      */

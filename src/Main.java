@@ -1,4 +1,5 @@
 import OSI.Application.MessageSender;
+import OSI.Application.UserSettings;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
@@ -7,6 +8,7 @@ import utils.DebugHelper;
 import utils.csvFileHelper;
 import utils.smartConvertor;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -50,6 +52,7 @@ public class Main {
 
 
             if (taskchoice == 8) {
+                ArrayList<Integer> information=new ArrayList<>();
                 //var inputData=smartConvertor.binInFile("res\\INPUT.bin");
                 var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
                 //在发送完一小段数据后，检查收到的（自己的）frame是不是正确的，然后再发下一段
@@ -60,28 +63,38 @@ public class Main {
                     frames.add(new ArrayList<>(inputData.subList(i,i+284>= inputData.size() ? inputData.size() - 1 :i+284)));
                 }
                 frames.remove(frames.size()-1); //TODO 先去掉最后一个不完整的，待会在处理
-
-                //4个frame一发
                 MessageSender messager = new MessageSender();
-
-                for (int i = 0; i < frames.size(); i += 4) {
+                for (int i = 0; i < frames.size(); i += UserSettings.Number_Frames_True) {
                     //取出4个frame然后发送
                     ArrayList<Integer> sendData=new ArrayList<>();
-                    sendData.addAll(frames.get(i+0));
-                    sendData.addAll(frames.get(i+1));
-                    sendData.addAll(frames.get(i+2));
-                    sendData.addAll(frames.get(i+3));
+                    for (int j = 0; j < UserSettings.Number_Frames_True; j++) {
+                        if(i+j>= frames.size())break;
+                        sendData.addAll(frames.get(i+j));
+                    }
+
                     DebugHelper.log("发送数据包"+i+"~"+(i+4));
                     messager.sendBinary(sendData);
 
-//                    synchronized (MACLayer.macBufferController.upStreamQueue)
+
+//                    synchronized (GlobalEvent.ALL_DATA_Recieved)
 //                    {
-//                        while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
-//                            var frame=MACLayer.macBufferController.upStreamQueue.poll();
-//                        }
+//                        GlobalEvent.ALL_DATA_Recieved.wait();
 //                    }
-                    threadBlockTime(1000);
+                    threadBlockTime((int) (UserSettings.LoopBackDelay*1000));
                 }
+                    synchronized (MACLayer.macBufferController.upStreamQueue)
+                    {
+                        while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
+                            var frame=MACLayer.macBufferController.upStreamQueue.poll();
+                            information.addAll(frame.payload);
+                        }
+                    }
+                try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
+                    for (var bit : information) {
+                        input.write(bit.toString().getBytes());
+                    }
+                }
+
 
             }
         } catch (Exception e) {
