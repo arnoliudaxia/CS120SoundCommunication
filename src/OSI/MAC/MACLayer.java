@@ -10,6 +10,7 @@ import java.util.List;
  * 故为了避免误用，MACLayer为一个抽象类。
  */
 public abstract class MACLayer {
+    public static volatile boolean isChannelReady = false;
     public static void initMACLayer()
     {
         new MACStateMachine();

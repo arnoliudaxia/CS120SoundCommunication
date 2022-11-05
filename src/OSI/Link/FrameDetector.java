@@ -34,7 +34,8 @@ public class FrameDetector implements CallBackStoreData {
 //            wave.add(sampleP);//用来给matlab分析
             localEnergy*=19.f/20.f;
             localEnergy+=Math.abs(sampleP);
-//            wave.add(localEnergy);
+            MACLayer.isChannelReady= localEnergy < quietRef;
+            wave.add(localEnergy);
             float wakeupRef = 0.09f;//header的触发电平
             switch (detectState) {
                 case lookingForHead:
@@ -46,7 +47,7 @@ public class FrameDetector implements CallBackStoreData {
                     break;
                 case HeadWholeJudge:
                     headerJudgeCount++;
-                    headerEngery+=Math.abs(sampleP);
+                    headerEngery+=sampleP;
                     if (headerJudgeCount >= 20) {
                         System.out.println("Header Energy: " + headerEngery);
                         if(headerEngery>1.f&&headerEngery<10.f) {

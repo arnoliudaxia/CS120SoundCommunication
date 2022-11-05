@@ -5,7 +5,8 @@ import utils.DebugHelper;
 
 public class MACStateMachine {
     enum MACState {
-        FrameDetection, Tx, Rx
+        FrameDetection, Tx, Rx,
+        Tx_waiting//想要发送，但是先听一下频道
     }
     public MACState macState;
     public boolean SIG=false;
@@ -62,12 +63,20 @@ public class MACStateMachine {
                 }
                 if(TxPending)
                 {
-                    DebugHelper.log("FrameDetection->Tx");
+                    DebugHelper.log("FrameDetection->Tx_waiting");
                     TxPending=false;
-                    MACLayer.macStateMachine.macState=MACState.Tx;
+                    MACLayer.macStateMachine.macState=MACState.Tx_waiting;
                     break;
                 }
 
+                break;
+            case Tx_waiting:
+                if(MACLayer.isChannelReady)
+                {
+                    //如果频道空闲，就发
+                    DebugHelper.log("Tx_waiting->Tx");
+                    MACLayer.macStateMachine.macState=MACState.Tx;
+                }
                 break;
             case Tx:
                 if(TxDone)

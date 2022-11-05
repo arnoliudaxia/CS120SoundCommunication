@@ -49,7 +49,10 @@ public class Main {
         try {
             ArrayList<Integer> information=new ArrayList<>();
 
+            //交替机制：node1先发20个data frame，然后node1再发1个ACK frame和20个frame，接下来都和前面一样
             if(taskchoice==2){
+                //我是Node2
+
 
             }
 
