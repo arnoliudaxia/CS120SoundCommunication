@@ -6,7 +6,6 @@ import utils.SoundUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 import static OSI.Link.frameConfig.fragmentTime;
@@ -26,7 +25,6 @@ public class FrameDetector implements CallBackStoreData {
 
     DetectState detectState = DetectState.lookingForHead;
 
-
     @Override
     public void storeData(float[] data) {
         for (var sampleP : data) {
@@ -45,7 +43,7 @@ public class FrameDetector implements CallBackStoreData {
                     headerEngery+=Math.abs(sampleP);
                     if (headerJudgeCount >= 20) {
                         System.out.println("Header Energy: " + headerEngery);
-                        if(headerEngery>1.f&&headerEngery<3.f) {
+                        if(headerEngery>1.f&&headerEngery<10.f) {
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected=true;
                             detectState = DetectState.DataRetrive;
@@ -67,10 +65,10 @@ public class FrameDetector implements CallBackStoreData {
                         readDatabitCount = 0;
                         synchronized (frames) {
                             frames.add(writeFrameBuffer);
+                            frames.notifyAll();
                         }
                         //拿到一帧直接解析吧
-                        //TODO 可以在这里开一个线程
-                        MACLayer.macBufferController.__receive((ArrayList<Integer>) decodeOneFrame());
+                        decodeOneFrame();
 
                     }
                     break;
@@ -81,11 +79,6 @@ public class FrameDetector implements CallBackStoreData {
 
     @Override
     public LinkedList<float[]> retriveData(int fragmentSize) {
-//        float[] result=new float[wave.size()];
-//        for (int i = 0; i < wave.size(); i++) {
-//            result[i]=wave.get(i);
-//        }
-//        return new LinkedList<>(wave.toArray());
         return null;
     }
 
@@ -102,40 +95,66 @@ public class FrameDetector implements CallBackStoreData {
         return null;
 
     }
+    public void deCoder()
+    {
+        while (true){
+            synchronized (frames) {
+                try {
+                    frames.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
 
     /**
      * 解析收到的一个frame的数据（如果有找到frame）
      * @return 二进制的原始数据，如果没有找到frame则返回一个空的List
      */
-    public List<Integer> decodeOneFrame() {
-        List<Integer> result = new ArrayList<>();
-        ArrayList<Float> frame = retriveFrame();
-        if(frame==null)
-        {
-            return new ArrayList<>();
-        }
-        //下面是直接用之前的
+    public void decodeOneFrame() {
+        ArrayList<Integer> result = new ArrayList<>();
 
-        //现在要做的是将bitData中的数据转换成bit
-        float judgeDataRef = 0.f;
-        //首先解析第一个数据点，接下来就是一个二元状态机
-        int state = frame.get(0) > judgeDataRef ? 1 : 0;
-        int bitCounter = 0;
-        while (frame.size() > 0) {
-            while ((frame.get(0) > judgeDataRef ? 1 : 0) == state) {
-                bitCounter++;
-                frame.remove(0);
-                if (frame.size() == 0) {
-                    break;
+
+        class decodeThread extends Thread {
+            ArrayList<Float> frame = retriveFrame();
+
+            decodeThread(ArrayList<Float> input) {
+                frame =input;
+            }
+
+            @Override
+            public void run() {
+                //下面是直接用之前的
+                //现在要做的是将bitData中的数据转换成bit
+                float judgeDataRef = 0.f;
+                //首先解析第一个数据点，接下来就是一个二元状态机
+                int state = frame.get(0) > judgeDataRef ? 1 : 0;
+                int bitCounter = 0;
+                while(frame.size()>0)
+
+                {
+                    while ((frame.get(0) > judgeDataRef ? 1 : 0) == state) {
+                        bitCounter++;
+                        frame.remove(0);
+                        if (frame.size() == 0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < SoundUtil.neareatRatio(bitCounter, (int) (fragmentTime * 48000)) / frameConfig.bitSamples; i++) {
+                        result.add(state);
+                    }
+                    state = 1 - state;
+                    bitCounter = 0;
                 }
+                MACLayer.macBufferController.__receive(result);
             }
-            for (int i = 0; i < SoundUtil.neareatRatio(bitCounter, (int) (fragmentTime * 48000)) /frameConfig.bitSamples; i++) {
-                result.add(state);
-            }
-            state = 1 - state;
-            bitCounter = 0;
         }
-        return result;
+
+        decodeThread dt=new decodeThread(retriveFrame());
+        dt.start();
+
+
     }
 
 

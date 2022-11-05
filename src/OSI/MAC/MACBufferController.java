@@ -73,6 +73,7 @@ public class MACBufferController {
                 while(payload.size()!=payloadLength)
                 {
                     payload.add(0);
+                    DebugHelper.log("填充数据!");
                 }
                 MACFrame frame=new MACFrame(seq, new ArrayList<>(payload), checkCode_NumberOfOnes(payload));
                 downStreamQueue.add(frame);

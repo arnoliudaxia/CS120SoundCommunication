@@ -2,6 +2,7 @@ import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
 import OSI.Application.UserSettings;
 import OSI.Link.FrameDetector;
+import OSI.MAC.MACFrame;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
@@ -13,6 +14,7 @@ import utils.smartConvertor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -58,11 +60,10 @@ public class Main {
                 //var inputData=smartConvertor.binInFile("res\\INPUT.bin");
                 var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
                 //在发送完一小段数据后，检查收到的（自己的）frame是不是正确的，然后再发下一段
-                //一小段数据指284*4 bits，也即4个frame
                 //首先把数据分成frames,
                 LinkedList<ArrayList<Integer>> frames=new LinkedList<>();
-                for (int i = 0; i < inputData.size(); i += 284) {
-                    frames.add(new ArrayList<>(inputData.subList(i,i+284>= inputData.size() ? inputData.size() - 1 :i+284)));
+                for (int i = 0; i < inputData.size(); i += 84) {
+                    frames.add(new ArrayList<>(inputData.subList(i,i+84>= inputData.size() ? inputData.size() - 1 :i+84)));
                 }
                 frames.remove(frames.size()-1); //TODO 先去掉最后一个不完整的，待会在处理
                 MessageSender messager = new MessageSender();
@@ -77,19 +78,29 @@ public class Main {
                     DebugHelper.log("发送数据包"+i+"~"+(i+4));
                     messager.sendBinary(sendData);
 
-
+//                    threadBlockTime((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
                     synchronized (GlobalEvent.ALL_DATA_Recieved)
                     {
-                        GlobalEvent.ALL_DATA_Recieved.wait((int) (UserSettings.LoopBackDelay*1000));
+                        GlobalEvent.ALL_DATA_Recieved.wait((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
                     }
                 }
+                        ArrayList<MACFrame> rFrames=new ArrayList<>();
                     synchronized (MACLayer.macBufferController.upStreamQueue)
                     {
                         while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
                             var frame=MACLayer.macBufferController.upStreamQueue.poll();
-                            information.addAll(frame.payload);
+                            rFrames.add(frame);
                         }
                     }
+                    rFrames.sort(Comparator.comparingInt(o -> o.seq));
+                    rFrames.forEach(x->information.addAll(x.payload));
+                for (int i = 0; i < information.size(); i++) {
+                    if(information.get(i)!=inputData.get(i))
+                    {
+                        DebugHelper.log("位"+i+"错误");
+                    }
+                }
+
                 try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
                     for (var bit : information) {
                         input.write(bit.toString().getBytes());
