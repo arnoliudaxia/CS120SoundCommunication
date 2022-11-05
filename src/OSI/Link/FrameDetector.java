@@ -22,6 +22,7 @@ public class FrameDetector implements CallBackStoreData {
     enum DetectState {
         lookingForHead, HeadWholeJudge, DataRetrive;
     }
+    public ArrayList<Float> wave=new ArrayList<>();
 
     DetectState detectState = DetectState.lookingForHead;
 
@@ -29,7 +30,8 @@ public class FrameDetector implements CallBackStoreData {
     @Override
     public void storeData(float[] data) {
         for (var sampleP : data) {
-            float wakeupRef = 0.2f;
+            wave.add(sampleP);
+            float wakeupRef = 0.09f;
             switch (detectState) {
                 case lookingForHead:
                     if (sampleP > wakeupRef) {
@@ -43,7 +45,7 @@ public class FrameDetector implements CallBackStoreData {
                     headerEngery+=Math.abs(sampleP);
                     if (headerJudgeCount >= 20) {
                         System.out.println("Header Energy: " + headerEngery);
-                        if(headerEngery>2.f&&headerEngery<20.f) {
+                        if(headerEngery>1.f&&headerEngery<3.f) {
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected=true;
                             detectState = DetectState.DataRetrive;
@@ -79,6 +81,11 @@ public class FrameDetector implements CallBackStoreData {
 
     @Override
     public LinkedList<float[]> retriveData(int fragmentSize) {
+//        float[] result=new float[wave.size()];
+//        for (int i = 0; i < wave.size(); i++) {
+//            result[i]=wave.get(i);
+//        }
+//        return new LinkedList<>(wave.toArray());
         return null;
     }
 

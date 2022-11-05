@@ -83,6 +83,7 @@ public class MACStateMachine {
                     DebugHelper.log("Rx->FrameDetection");
                     RxDone=false;
                     MACLayer.macStateMachine.macState=MACState.FrameDetection;
+                    PacketDetected=false;
                 }
                 break;
         }

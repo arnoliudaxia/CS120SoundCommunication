@@ -1,5 +1,7 @@
+import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
 import OSI.Application.UserSettings;
+import OSI.Link.FrameDetector;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
@@ -76,11 +78,10 @@ public class Main {
                     messager.sendBinary(sendData);
 
 
-//                    synchronized (GlobalEvent.ALL_DATA_Recieved)
-//                    {
-//                        GlobalEvent.ALL_DATA_Recieved.wait();
-//                    }
-                    threadBlockTime((int) (UserSettings.LoopBackDelay*1000));
+                    synchronized (GlobalEvent.ALL_DATA_Recieved)
+                    {
+                        GlobalEvent.ALL_DATA_Recieved.wait((int) (UserSettings.LoopBackDelay*1000));
+                    }
                 }
                     synchronized (MACLayer.macBufferController.upStreamQueue)
                     {
@@ -94,6 +95,7 @@ public class Main {
                         input.write(bit.toString().getBytes());
                     }
                 }
+                csv.saveToCsv(lyfHPURL+"wave.csv",((FrameDetector)AudioHw.audioHwG.dataagent).wave);
 
 
             }
