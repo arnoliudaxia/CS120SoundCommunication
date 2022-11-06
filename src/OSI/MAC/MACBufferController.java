@@ -184,7 +184,7 @@ public class MACBufferController {
             else{
                 //如果是ACK包，需要从重发队列里删除对应的包
                 //先解析ACK里包含哪些frame，payload里每10位是一个seq
-                while(true){
+                while(payload.size()>10){
                     int recieveSeq=smartConvertor.mergeBitsToInteger(new ArrayList<>(payload.subList(0,10)));
                     if(recieveSeq==0)
                     {
