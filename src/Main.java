@@ -5,6 +5,7 @@ import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
 import dataAgent.StorgePolicy;
+import utils.DebugHelper;
 import utils.csvFileHelper;
 import utils.smartConvertor;
 
@@ -54,8 +55,11 @@ public class Main {
                 messager.sendBinary(inputData);//数据填充
                 //我先发
                 MACLayer.macStateMachine.TxPending=true;
-                threadBlockTime(5000);
-
+                synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                    GlobalEvent.ALL_DATA_Recieved.wait();
+                }
+                //我收到了我自己发的一轮包，而且收到了对方发的一轮包
+                DebugHelper.log("我收到了我自己发的一轮包，而且收到了对方发的一轮包");
 
             }
             //交替机制：node1先发20个data frame，然后node1再发1个ACK frame和20个frame，接下来都和前面一样
@@ -66,12 +70,17 @@ public class Main {
                 var inputData = smartConvertor.binInTextFile("res\\INPUT2.txt");
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
-
+                synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                    GlobalEvent.ALL_DATA_Recieved.wait();
+                }
                 while (true) {
+                    MACLayer.macStateMachine.TxPending=true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait();
                     }
-                    //收到包之后发送ACK确认
+                    //我收到了我自己发的一轮包，而且收到了对方发的一轮包
+                    DebugHelper.log("我收到了我自己发的一轮包，而且收到了对方发的一轮包");
+
 
                 }
 
