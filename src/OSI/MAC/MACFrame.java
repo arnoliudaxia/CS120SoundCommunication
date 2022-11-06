@@ -11,8 +11,8 @@ public class MACFrame {
     }
 
 
-    public int seq;
-    public int frame_type; //0是data，1是ack
+    public int seq;//10位
+    public int frame_type; //2位，0是data，1是ack
     public ArrayList<Integer> payload;
-    public int crc;
+    public int crc;//crc16
 }

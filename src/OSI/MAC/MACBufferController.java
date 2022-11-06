@@ -1,9 +1,10 @@
 package OSI.MAC;
 
+import OSI.Application.GlobalEvent;
 import OSI.Application.UserSettings;
 import OSI.Link.BitPacker;
 import OSI.Link.frameConfig;
-import com.mathworks.util.Pair;
+import org.apache.commons.math3.util.Pair;
 import utils.CRC;
 import utils.DebugHelper;
 import utils.smartConvertor;
@@ -19,7 +20,7 @@ public class MACBufferController {
     /**
      * 发包时候的序号
      */
-    private  int seq=0;
+    private  int seq=1;
     /**
      * MAC包每一段配置
      */
@@ -89,6 +90,25 @@ public class MACBufferController {
         }
 //        MACLayer.macStateMachine.TxPending=true;
     }
+    private final Queue<Integer>ACKs=new LinkedList<>();
+    public void sendACK(){
+        ArrayList<Integer> payload = new ArrayList<>();
+        if(ACKs.size()>UserSettings.Number_Frames_True){
+            DebugHelper.log("ACKs.size()>UserSettings.Number_Frames_True");
+        }
+        while(ACKs.size()>0){
+            payload.addAll(smartConvertor.exactBitsOfNumber(ACKs.poll(),10));
+        }
+        while(payload.size()!=payloadLength)
+        {
+            payload.add(0);
+        }
+        MACFrame frame= new MACFrame(0, payload, CRC.crc16(payload), 1);
+
+        synchronized (downStreamQueue) {
+            downStreamQueue.add(frame);
+        }
+    }
     private int framesSendCount=0;
 
     /**
@@ -102,7 +122,7 @@ public class MACBufferController {
             MACLayer.macStateMachine.TxDone=true;
             return;
         }
-        resendQueue.add(new Pair<>(System.currentTimeMillis(),frame));
+        resendQueue.add(new Pair<Long, MACFrame>(System.currentTimeMillis(),frame));
         DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
         bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.seq, 10));
         bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.frame_type, 2));
@@ -115,9 +135,10 @@ public class MACBufferController {
         MACLayer.macStateMachine.TxDone=true;
         MACLayer.macStateMachine.TxPending=true;
 
-        if(framesSendCount>=UserSettings.Number_Frames_True-1)
+        if(framesSendCount>=UserSettings.Number_Frames_True)
         {
             //你已经发得够多了别贪
+            DebugHelper.log("我发完了等待接收");
             framesSendCount=0;
             MACLayer.macStateMachine.TxPending=false;
         }
@@ -125,7 +146,7 @@ public class MACBufferController {
 
     public void __receive(ArrayList<Integer> data){
         //data的前10位是序号,需要把二进制转换回数字
-        var seqS=data.stream().limit(10).toList();
+        var seqS=data.subList(0,10);
         int seq=smartConvertor.mergeBitsToInteger(seqS);
         data.subList(0,10).clear();
         //提取字段
@@ -142,33 +163,52 @@ public class MACBufferController {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!",seq));
         }
         else {
-            synchronized (downStreamQueue) {
-                for (int i = 0; i < downStreamQueue.size(); i++) {
-                    if (downStreamQueue.get(i).seq == seq) {
-                        downStreamQueue.remove(i);
+            //如果是数据包，需要发送ACK
+            if(seq!=0)
+            {
+                ACKs.add(seq);
+                //包没有问题就存下来
+                synchronized (upStreamQueue) {
+                    upStreamQueue.add(new MACFrame(seq,payload,checkCode,frameType));
+                }
+                //记录一下seq包接收成功
+                MACLayer.ReceivedFramesSeq.add(seq);
+            }
+            else{
+                //如果是ACK包，需要从重发队列里删除对应的包
+                //先解析ACK里包含哪些frame，payload里每10位是一个seq
+                while(true){
+                    int recieveSeq=smartConvertor.mergeBitsToInteger(new ArrayList<>(payload.subList(0,10)));
+                    if(recieveSeq==0)
+                    {
                         break;
                     }
+                    payload.subList(0,10).clear();
+                    synchronized (resendQueue) {
+                        for (int i = 0; i < resendQueue.size(); i++) {
+                            if (resendQueue.get(i).getSecond().seq == recieveSeq) {
+                                resendQueue.remove(i);
+                                break;
+                            }
+                        }
+                    }
                 }
+
+
             }
-            //包没有问题就存下来
-            synchronized (upStreamQueue) {
-                upStreamQueue.add(new MACFrame(seq,payload,checkCode,frameType));
-            }
-            //记录一下seq包接收成功
-            MACLayer.ReceivedFramesSeq.add(seq);
 //            通知其他人有frame进来了
 //            synchronized (GlobalEvent.Receive_Frame){
 //                GlobalEvent.Receive_Frame.notifyAll();
 //            }
         }
 
-//        receiveFramesCount ++;
-//        if(receiveFramesCount >= UserSettings.Number_Frames_True){
-//            receiveFramesCount =0;
-//            synchronized (GlobalEvent.ALL_DATA_Recieved) {
-//                GlobalEvent.ALL_DATA_Recieved.notifyAll();
-//            }
-//        }
+        receiveFramesCount ++;
+        if(receiveFramesCount >= UserSettings.Number_Frames_True){
+            receiveFramesCount =0;
+            synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                GlobalEvent.ALL_DATA_Recieved.notifyAll();
+            }
+        }
 
         MACLayer.macStateMachine.RxDone=true;
 
@@ -176,6 +216,24 @@ public class MACBufferController {
 
     public boolean hasDataLeft(){
         return downStreamQueue.size()>0;
+    }
+
+    public void checkTimeExceedFrames(){
+        while(resendQueue.size()>0){
+
+            var frame=resendQueue.peek();
+            if(System.currentTimeMillis()-frame.getFirst()>UserSettings.ACKTTL)
+            {
+                DebugHelper.log(String.format("Warning: 包%d超时,需要重发!",frame.getSecond().seq));
+                synchronized (resendQueue) {
+                    downStreamQueue.add(resendQueue.poll().getSecond());
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
     }
 
 

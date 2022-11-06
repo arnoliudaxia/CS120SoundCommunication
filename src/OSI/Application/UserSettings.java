@@ -7,4 +7,5 @@ public class UserSettings {
     public static boolean isDebug = true;
     public static int Number_Frames_True = 5;
     public static float LoopBackDelay=0.8f;
+    public static float ACKTTL=1.f;
 }

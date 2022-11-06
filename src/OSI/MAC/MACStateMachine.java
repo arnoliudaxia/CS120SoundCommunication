@@ -41,6 +41,8 @@ public class MACStateMachine {
             }
             stateTransfer();
             processState();
+            //TODO 检查一下有没有包过期了
+//            MACLayer.macBufferController.checkTimeExceedFrames();
         }
 
     }

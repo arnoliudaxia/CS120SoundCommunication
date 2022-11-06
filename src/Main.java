@@ -1,3 +1,4 @@
+import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
 import OSI.Application.UserSettings;
 import OSI.Link.FrameDetector;
@@ -6,7 +7,6 @@ import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import com.github.psambit9791.wavfile.WavFileException;
 import dataAgent.StorgePolicy;
-import utils.DebugHelper;
 import utils.csvFileHelper;
 import utils.smartConvertor;
 
@@ -14,7 +14,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Main {
@@ -49,9 +48,33 @@ public class Main {
         try {
             ArrayList<Integer> information=new ArrayList<>();
 
+            if(taskchoice==1)
+            {
+                //Node 1
+                var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
+                MessageSender messager = new MessageSender();
+                messager.sendBinary(inputData);//数据填充
+                //我先发
+                MACLayer.macStateMachine.TxPending=true;
+
+
+            }
             //交替机制：node1先发20个data frame，然后node1再发1个ACK frame和20个frame，接下来都和前面一样
             if(taskchoice==2){
                 //我是Node2
+                int framesCount=0;
+                //在% 20为奇数的时候我发
+                var inputData = smartConvertor.binInTextFile("res\\INPUT2.txt");
+                MessageSender messager = new MessageSender();
+                messager.sendBinary(inputData);//数据填充
+
+                while (true) {
+                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                        GlobalEvent.ALL_DATA_Recieved.wait();
+                    }
+                    //收到包之后发送ACK确认
+
+                }
 
 
             }
@@ -79,29 +102,16 @@ public class Main {
 
 
             if (taskchoice == 8) {
-                //Node 1
                 //var inputData=smartConvertor.binInFile("res\\INPUT.bin");
-                var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
                 //在发送完一小段数据后，检查收到的（自己的）frame是不是正确的，然后再发下一段
                 //首先把数据分成frames,
-                LinkedList<ArrayList<Integer>> frames=new LinkedList<>();
-                for (int i = 0; i < inputData.size(); i += MACLayer.macBufferController.payloadLength) {
-                    frames.add(new ArrayList<>(inputData.subList(i,i+MACLayer.macBufferController.payloadLength>= inputData.size() ? inputData.size() - 1 :i+MACLayer.macBufferController.payloadLength)));
-                }
-                frames.remove(frames.size()-1); //TODO 先去掉最后一个不完整的，待会在处理
+                var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
                 MessageSender messager = new MessageSender();
-                for (int i = 0; i < frames.size(); i += UserSettings.Number_Frames_True) {
-                    //取出4个frame然后发送
-                    ArrayList<Integer> sendData=new ArrayList<>();
-                    for (int j = 0; j < UserSettings.Number_Frames_True; j++) {
-                        if(i+j>= frames.size())break;
-                        sendData.addAll(frames.get(i+j));
-                    }
+                messager.sendBinary(inputData);
+                MACLayer.macStateMachine.TxPending=true;
+                threadBlockTime(10000);
 
-                    DebugHelper.log("发送数据包"+i+"~"+(i+4));
-                    messager.sendBinary(sendData);
-
-                    threadBlockTime((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
+//                threadBlockTime((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
 //                    synchronized (GlobalEvent.ALL_DATA_Recieved)
 //                    {
 //                        GlobalEvent.ALL_DATA_Recieved.wait((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
@@ -131,7 +141,7 @@ public class Main {
                 }
                 csv.saveToCsv(lyfHPURL+"wave.csv",((FrameDetector)AudioHw.audioHwG.dataagent).wave);
 
-            }
+
 
         } catch (Exception e) {
             e.printStackTrace();
