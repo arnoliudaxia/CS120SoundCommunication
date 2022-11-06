@@ -115,6 +115,9 @@ public class MACBufferController {
      * 一次性发送UserSettings.Number_Frames_True个frame
      */
     public void __send(){
+        if(ACKs.size()>0){
+            sendACK();
+        }
         MACFrame frame=downStreamQueue.poll();
         if(frame==null)
         {
