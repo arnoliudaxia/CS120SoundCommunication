@@ -3,6 +3,7 @@ package OSI.MAC;
 import OSI.Application.UserSettings;
 import OSI.Link.BitPacker;
 import OSI.Link.frameConfig;
+import com.mathworks.util.Pair;
 import utils.CRC;
 import utils.DebugHelper;
 import utils.smartConvertor;
@@ -41,6 +42,10 @@ public class MACBufferController {
      * 然后真正send的时候从这里拿数据
      */
     private final LinkedList<MACFrame> downStreamQueue=new LinkedList<>();
+    /**
+     * 发送之后的MACFrame会被放在这里，等待ACK，超时就重新加入downStreamQueue
+     */
+    private final LinkedList<Pair<Long,MACFrame>> resendQueue=new LinkedList<>();
     /**
      * MAC层接受到的一个个frame加入这个队列
      */
@@ -82,23 +87,40 @@ public class MACBufferController {
             }
 
         }
-        MACLayer.macStateMachine.TxPending=true;
+//        MACLayer.macStateMachine.TxPending=true;
     }
+    private int framesSendCount=0;
 
+    /**
+     * 一次性发送UserSettings.Number_Frames_True个frame
+     */
     public void __send(){
-        synchronized (downStreamQueue) {
-            //发送的时候先保留着，确认收到后再继续发其他的，否则再发
-            for (int i = 0; i < Math.min(UserSettings.Number_Frames_True, downStreamQueue.size()); i++) {
-                var frame = downStreamQueue.get(i);
-                DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
-                bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.seq, 10));
-                bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.frame_type, 2));
-                bitPacker.AppendData(frame.payload);
-                bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.crc,16));
-                bitPacker.padding();
-            }
+        MACFrame frame=downStreamQueue.poll();
+        if(frame==null)
+        {
+            DebugHelper.log("发送队列里没有东西朋友!");
+            MACLayer.macStateMachine.TxDone=true;
+            return;
         }
+        resendQueue.add(new Pair<>(System.currentTimeMillis(),frame));
+        DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
+        bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.seq, 10));
+        bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.frame_type, 2));
+        bitPacker.AppendData(frame.payload);
+        bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.crc,16));
+        bitPacker.padding();
+        framesSendCount++;
+
+
         MACLayer.macStateMachine.TxDone=true;
+        MACLayer.macStateMachine.TxPending=true;
+
+        if(framesSendCount>=UserSettings.Number_Frames_True-1)
+        {
+            //你已经发得够多了别贪
+            framesSendCount=0;
+            MACLayer.macStateMachine.TxPending=false;
+        }
     }
 
     public void __receive(ArrayList<Integer> data){
