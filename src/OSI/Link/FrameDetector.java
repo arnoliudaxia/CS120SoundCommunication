@@ -135,7 +135,7 @@ public class FrameDetector implements CallBackStoreData {
             public void run() {
                 //下面是直接用之前的
                 //现在要做的是将bitData中的数据转换成bit
-                float judgeDataRef = 0.f;
+                float judgeDataRef = 0.05f;
                 //首先解析第一个数据点，接下来就是一个二元状态机
                 int state = frame.get(0) > judgeDataRef ? 1 : 0;
                 int bitCounter = 0;
@@ -155,12 +155,18 @@ public class FrameDetector implements CallBackStoreData {
                     state = 1 - state;
                     bitCounter = 0;
                 }
+                assert result.size()==100;
                 MACLayer.macBufferController.__receive(result);
             }
         }
 
         decodeThread dt=new decodeThread(retriveFrame());
         dt.start();
+//        try {
+//            dt.join();
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
 
 
     }

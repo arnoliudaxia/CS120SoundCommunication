@@ -103,12 +103,14 @@ public class MACBufferController {
         {
             payload.add(0);
         }
-        MACFrame frame= new MACFrame(0, payload, CRC.crc16(payload), 1);
+        ArrayList<Integer> data = new ArrayList<>();
+        data.addAll(payload);
+        MACFrame frame= new MACFrame(0, payload, CRC.crc16(data), 1);
 
         synchronized (downStreamQueue) {
-            downStreamQueue.add(frame);
+            downStreamQueue.add(0,frame);
         }
-        DebugHelper.log("发送ACK");
+        DebugHelper.log("发送ACK,crc is"+frame.crc);
     }
     private int framesSendCount=0;
 
