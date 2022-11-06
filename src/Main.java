@@ -1,7 +1,5 @@
 import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
-import OSI.Application.UserSettings;
-import OSI.Link.FrameDetector;
 import OSI.MAC.MACFrame;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
@@ -56,6 +54,7 @@ public class Main {
                 messager.sendBinary(inputData);//数据填充
                 //我先发
                 MACLayer.macStateMachine.TxPending=true;
+                threadBlockTime(5000);
 
 
             }
@@ -117,29 +116,29 @@ public class Main {
 //                        GlobalEvent.ALL_DATA_Recieved.wait((int) (UserSettings.LoopBackDelay*1000*(1+Math.random())));
 //                    }
                 }
-                while(MACLayer.macBufferController.hasDataLeft())
-                {
-                    MACLayer.macBufferController.__send();
-                    threadBlockTime((int) (UserSettings.LoopBackDelay*1000*(.3+Math.random())));
-                }
-
-                ArrayList<MACFrame> rFrames=new ArrayList<>();
-                synchronized (MACLayer.macBufferController.upStreamQueue)
-                {
-                    while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
-                        var frame=MACLayer.macBufferController.upStreamQueue.poll();
-                        rFrames.add(frame);
-                    }
-                }
-                rFrames.sort(Comparator.comparingInt(o -> o.seq));
-                rFrames.forEach(x->information.addAll(x.payload));
-
-                try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
-                    for (var bit : information) {
-                        input.write(bit.toString().getBytes());
-                    }
-                }
-                csv.saveToCsv(lyfHPURL+"wave.csv",((FrameDetector)AudioHw.audioHwG.dataagent).wave);
+//                while(MACLayer.macBufferController.hasDataLeft())
+//                {
+//                    MACLayer.macBufferController.__send();
+//                    threadBlockTime((int) (UserSettings.LoopBackDelay*1000*(.3+Math.random())));
+//                }
+//
+//                ArrayList<MACFrame> rFrames=new ArrayList<>();
+//                synchronized (MACLayer.macBufferController.upStreamQueue)
+//                {
+//                    while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
+//                        var frame=MACLayer.macBufferController.upStreamQueue.poll();
+//                        rFrames.add(frame);
+//                    }
+//                }
+//                rFrames.sort(Comparator.comparingInt(o -> o.seq));
+//                rFrames.forEach(x->information.addAll(x.payload));
+//
+//                try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
+//                    for (var bit : information) {
+//                        input.write(bit.toString().getBytes());
+//                    }
+//                }
+//                csv.saveToCsv(lyfHPURL+"wave.csv",((FrameDetector)AudioHw.audioHwG.dataagent).wave);
 
 
 

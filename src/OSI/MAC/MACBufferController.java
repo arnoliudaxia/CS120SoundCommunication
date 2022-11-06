@@ -133,14 +133,15 @@ public class MACBufferController {
 
 
         MACLayer.macStateMachine.TxDone=true;
-        MACLayer.macStateMachine.TxPending=true;
 
         if(framesSendCount>=UserSettings.Number_Frames_True)
         {
             //你已经发得够多了别贪
             DebugHelper.log("我发完了等待接收");
             framesSendCount=0;
-            MACLayer.macStateMachine.TxPending=false;
+        }
+        else{
+            MACLayer.macStateMachine.TxPending=true;
         }
     }
 
