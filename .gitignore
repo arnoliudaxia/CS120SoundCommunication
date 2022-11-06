@@ -10,6 +10,6 @@ target/classes/
 
 src/META-INF/MANIFEST.MF
 
-*.txt
+OUTPUT.txt
 
 res/OUTPUT.bin
