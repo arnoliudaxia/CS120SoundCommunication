@@ -57,6 +57,7 @@ public class Main {
                 MACLayer.macStateMachine.TxPending=true;
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     GlobalEvent.ALL_DATA_Recieved.wait();
+                    GlobalEvent.ALL_DATA_Recieved.wait();
                 }
                 //我收到了我自己发的一轮包，而且收到了对方发的一轮包
                 DebugHelper.log("我收到了我自己发的一轮包，而且收到了对方发的一轮包");
@@ -76,6 +77,7 @@ public class Main {
                 while (true) {
                     MACLayer.macStateMachine.TxPending=true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                        GlobalEvent.ALL_DATA_Recieved.wait();
                         GlobalEvent.ALL_DATA_Recieved.wait();
                     }
                     //我收到了我自己发的一轮包，而且收到了对方发的一轮包
