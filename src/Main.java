@@ -57,10 +57,10 @@ public class Main {
                 MACLayer.macStateMachine.TxPending=true;
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     GlobalEvent.ALL_DATA_Recieved.wait();
+                    DebugHelper.log("我收到了我自己发的一轮包");
                     GlobalEvent.ALL_DATA_Recieved.wait();
+                    DebugHelper.log("我收到了对方发的一轮包");
                 }
-                //我收到了我自己发的一轮包，而且收到了对方发的一轮包
-                DebugHelper.log("我收到了我自己发的一轮包，而且收到了对方发的一轮包");
 
             }
             //交替机制：node1先发20个data frame，然后node1再发1个ACK frame和20个frame，接下来都和前面一样

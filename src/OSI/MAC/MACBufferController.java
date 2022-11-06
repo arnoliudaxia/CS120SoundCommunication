@@ -160,6 +160,9 @@ public class MACBufferController {
         var frameType=smartConvertor.mergeBitsToInteger(new ArrayList<>(data.subList(0,2)));
         data.subList(0,2).clear();
         ArrayList<Integer> payload=new ArrayList<>(data.subList(0,payloadLength));
+        if(payload.size()!=payloadLength){
+            DebugHelper.log("payload.size()!=payloadLength");
+        }
         ArrayList<Integer> crc=new ArrayList<>(data.subList(payloadLength,data.size()));
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
         int checkCode=smartConvertor.mergeBitsToInteger(crc);
