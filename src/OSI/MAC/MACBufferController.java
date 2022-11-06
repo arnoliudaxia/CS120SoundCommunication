@@ -108,6 +108,7 @@ public class MACBufferController {
         synchronized (downStreamQueue) {
             downStreamQueue.add(frame);
         }
+        DebugHelper.log("发送ACK");
     }
     private int framesSendCount=0;
 
@@ -187,6 +188,7 @@ public class MACBufferController {
                     {
                         break;
                     }
+                    DebugHelper.log("包"+recieveSeq+"发送成功");
                     payload.subList(0,10).clear();
                     synchronized (resendQueue) {
                         for (int i = 0; i < resendQueue.size(); i++) {
