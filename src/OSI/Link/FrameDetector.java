@@ -2,6 +2,7 @@ package OSI.Link;
 
 import OSI.MAC.MACLayer;
 import dataAgent.CallBackStoreData;
+import utils.DebugHelper;
 import utils.SoundUtil;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class FrameDetector implements CallBackStoreData {
                     headerJudgeCount++;
                     headerEngery+=sampleP;
                     if (headerJudgeCount >= 20) {
-                        System.out.println("Header Energy: " + headerEngery);
+                        DebugHelper.log("Header Energy: " + headerEngery);
                         if(headerEngery>1.f&&headerEngery<10.f) {
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected=true;
