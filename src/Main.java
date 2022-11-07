@@ -1,3 +1,4 @@
+import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
 import OSI.MAC.MACLayer;
@@ -34,7 +35,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 1;
+        int taskchoice = 2;
         //#endregion
 
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
@@ -46,6 +47,7 @@ public class Main {
 
             if(taskchoice==1)
             {
+                DeviceSettings.MACAddress=0;
                 //Node 1
                 var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
                 MessageSender messager = new MessageSender();
@@ -59,6 +61,8 @@ public class Main {
 
             } 
             if(taskchoice==2){
+                DeviceSettings.MACAddress=1;
+
                 //我是Node2
                 var inputData = smartConvertor.binInTextFile("res\\INPUT2.txt");
                 MessageSender messager = new MessageSender();

@@ -1,5 +1,6 @@
 package OSI.MAC;
 
+import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
 import OSI.Application.UserSettings;
 import OSI.Link.BitPacker;
@@ -77,7 +78,7 @@ public class MACBufferController {
                     payload.add(0);
                     DebugHelper.log("填充数据!");
                 }
-                MACFrame frame= new MACFrame(seq, new ArrayList<>(payload), CRC.crc16(new ArrayList<>(payload)), 0,UserSettings.MACAddress);
+                MACFrame frame= new MACFrame(seq, new ArrayList<>(payload), CRC.crc16(new ArrayList<>(payload)), 0, DeviceSettings.MACAddress);
                 downStreamQueue.add(frame);
                 seq++;
                 data.subList(0,payloadLength).clear();
@@ -99,7 +100,7 @@ public class MACBufferController {
         {
             payload.add(0);
         }
-        MACFrame frame= new MACFrame(0, payload, CRC.crc16(payload), 1,UserSettings.MACAddress);
+        MACFrame frame= new MACFrame(0, payload, CRC.crc16(payload), 1,DeviceSettings.MACAddress);
 
         synchronized (downStreamQueue) {
             downStreamQueue.add(0,frame);
@@ -158,7 +159,7 @@ public class MACBufferController {
         }
         else {
             //如果是自己发的包不用管
-            if (receivedFrame.src_mac == UserSettings.MACAddress) {
+            if (receivedFrame.src_mac == DeviceSettings.MACAddress) {
                 DebugHelper.log("收到自己的包,不需要处理直接丢弃");
             } else {
                 //如果是数据包，需要发送ACK
