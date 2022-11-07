@@ -10,10 +10,7 @@ import utils.CRC;
 import utils.DebugHelper;
 import utils.smartConvertor;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 
 public class MACBufferController {
@@ -53,6 +50,8 @@ public class MACBufferController {
      * 记录在该阶段中收到了多少个包
      */
     public int receiveFramesCount =0;
+
+    public HashSet<Integer> receiveFramesSeq=new HashSet<>();
 
     /**
      * 一个过于简单的效验算法,只看payload中1的数量对128取余(保证位数)
@@ -170,10 +169,16 @@ public class MACBufferController {
                 if (receivedFrame.frame_type == 0) {
 
                     ACKs.add(receivedFrame.seq);
-                    //包没有问题就存下来
-                    synchronized (upStreamQueue) {
-                        upStreamQueue.add(receivedFrame);
+
+                    if(!receiveFramesSeq.contains(receivedFrame.seq))
+                    {
+                        //包没有问题就存下来
+                        synchronized (upStreamQueue) {
+                            upStreamQueue.add(receivedFrame);
+                        }
+                        receiveFramesSeq.add(receivedFrame.seq);
                     }
+
                 }
                 if (receivedFrame.frame_type == 1) {
                     //如果是ACK包，需要从重发队列里删除对应的包
