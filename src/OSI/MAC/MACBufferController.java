@@ -191,18 +191,18 @@ public class MACBufferController {
 //            synchronized (GlobalEvent.Receive_Frame){
 //                GlobalEvent.Receive_Frame.notifyAll();
 //            }
-                receiveFramesCount++;
-                if (receiveFramesCount >= UserSettings.Number_Frames_True) {
-                    receiveFramesCount = 0;
-                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.notifyAll();
-                    }
-                }
+
             }
         }
 
 
-
+        receiveFramesCount++;
+        if (receiveFramesCount >= UserSettings.Number_Frames_True) {
+            receiveFramesCount = 0;
+            synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                GlobalEvent.ALL_DATA_Recieved.notifyAll();
+            }
+        }
         MACLayer.macStateMachine.RxDone=true;
 
     }
