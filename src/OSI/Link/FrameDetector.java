@@ -121,11 +121,10 @@ public class FrameDetector implements CallBackStoreData {
      * @return 二进制的原始数据，如果没有找到frame则返回一个空的List
      */
     public void decodeOneFrame() {
-        ArrayList<Integer> result = new ArrayList<>();
 
 
         class decodeThread extends Thread {
-            ArrayList<Float> frame;
+            final ArrayList<Float> frame;
 
             decodeThread(ArrayList<Float> input) {
                 frame =input;
@@ -133,6 +132,7 @@ public class FrameDetector implements CallBackStoreData {
 
             @Override
             public void run() {
+                ArrayList<Integer> result = new ArrayList<>();
                 //下面是直接用之前的
                 //现在要做的是将bitData中的数据转换成bit
                 float judgeDataRef = 0.03f;
