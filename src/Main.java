@@ -79,7 +79,7 @@ public class Main {
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                    GlobalEvent.ALL_DATA_Recieved.wait(2000);
+                    GlobalEvent.ALL_DATA_Recieved.wait();
                 }
                 DebugHelper.log("收到了对方的第一轮包");
                 MACLayer.macBufferController.framesSendCount = 0;
@@ -91,7 +91,8 @@ public class Main {
                     }
                     DebugHelper.log("收到了对方的一轮包");
                     MACLayer.macBufferController.framesSendCount = 0;
-                    if (System.currentTimeMillis() - startTime > 20000) {
+                    if(System.currentTimeMillis()-startTime>40000)
+                    {
                         DebugHelper.log("20时间已到结束收发");
                         break;
                     }
