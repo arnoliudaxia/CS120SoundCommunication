@@ -156,15 +156,16 @@ public class MACBufferController {
         {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!",receivedFrame.seq));
         }
+        //如果是自己发的包不用管
+        if(receivedFrame.src_mac==UserSettings.MACAddress){
+            DebugHelper.log("收到自己的包,不需要处理直接丢弃");
+            return;
+        }
         else {
             //如果是数据包，需要发送ACK
             if(receivedFrame.frame_type==0)
             {
-                //看一下如果是别人的包需要发送ACK
-                if(receivedFrame.src_mac==UserSettings.MACAddress){
-                    DebugHelper.log("收到自己的包,不需要发送ACK");
-                    return;
-                }
+
                 ACKs.add(seq);
                 //包没有问题就存下来
                 synchronized (upStreamQueue) {
