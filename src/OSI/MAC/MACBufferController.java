@@ -213,7 +213,7 @@ public class MACBufferController {
 
     public void checkTimeExceedFrames(){
         while(true){
-            while(resendQueue.size()>0){
+            if(resendQueue.size()>0){
                 var frame=resendQueue.peek();
                 if(System.currentTimeMillis()-frame.getFirst()>UserSettings.ACKTTL)
                 {
@@ -221,15 +221,6 @@ public class MACBufferController {
                     synchronized (resendQueue) {
                         downStreamQueue.add(resendQueue.poll().getSecond());
                     }
-                }
-                else
-                {
-                    break;
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
             }
             try {

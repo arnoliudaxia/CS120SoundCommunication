@@ -25,7 +25,9 @@ public class MACStateMachine {
             MACLayer.macStateMachine = this;
             MACLayer.macStateMachine.macState = MACState.FrameDetection;
             new Thread(this::mainloop).start();
-            new Thread(MACLayer.macBufferController::checkTimeExceedFrames).start();
+            Thread ct=new Thread(MACLayer.macBufferController::checkTimeExceedFrames);
+            ct.setDaemon(true);
+            ct.start();
         }
         else {
             System.out.println("MACStateMachine is already created");
