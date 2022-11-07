@@ -187,6 +187,14 @@ public class MACBufferController {
                         synchronized (resendQueue) {
                             resendQueue.removeIf(x -> x.getValue().seq == recieveSeq);
                         }
+                        if(resendQueue.isEmpty()&&downStreamQueue.isEmpty()){
+                            DebugHelper.log("我现在已经全部发完啦@@!!!=================");
+                            ArrayList<Integer> rubbish=new ArrayList<>();
+                            for(int j=0;j<1000000;j++){
+                                rubbish.add(0);
+                            }
+                            trySend(rubbish);
+                        }
                     }
                 }
 //            通知其他人有frame进来了
