@@ -171,13 +171,6 @@ public class MACBufferController {
                 synchronized (upStreamQueue) {
                     upStreamQueue.add(receivedFrame);
                 }
-                receiveFramesCount ++;
-                if(receiveFramesCount >= UserSettings.Number_Frames_True){
-                    receiveFramesCount =0;
-                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.notifyAll();
-                    }
-                }
             }
             if(receivedFrame.frame_type==1){
                 //如果是ACK包，需要从重发队列里删除对应的包
@@ -200,7 +193,13 @@ public class MACBufferController {
 //            }
         }
 
-
+        receiveFramesCount ++;
+        if(receiveFramesCount >= UserSettings.Number_Frames_True){
+            receiveFramesCount =0;
+            synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                GlobalEvent.ALL_DATA_Recieved.notifyAll();
+            }
+        }
 
         MACLayer.macStateMachine.RxDone=true;
 
