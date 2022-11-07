@@ -61,14 +61,13 @@ public class Main {
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait();
                     }
-                    DebugHelper.log("我收到了对方发的一轮包");
-                    MACLayer.macBufferController.framesSendCount = 0;
-
-
-                    if (System.currentTimeMillis() - startTime > 50000) {
-                        DebugHelper.log("20时间已到结束收发");
+                    if(MACLayer.macBufferController.upStreamQueue.size()==52)
+                    {
+                        taskchoice=3;
                         break;
                     }
+                    DebugHelper.log("我收到了对方发的一轮包");
+                    MACLayer.macBufferController.framesSendCount = 0;
                 }
 
 
@@ -88,20 +87,52 @@ public class Main {
 
                 while (true) {
                     MACLayer.macBufferController.resend();
+                    if(MACLayer.macBufferController.downStreamQueue.size()<=1)
+                    {
+                        taskchoice=4;
+                        break;
+                    }
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait();
                     }
                     DebugHelper.log("收到了对方的一轮包");
                     MACLayer.macBufferController.framesSendCount = 0;
-                    if(System.currentTimeMillis()-startTime>40000)
-                    {
-                        DebugHelper.log("20时间已到结束收发");
-                        break;
-                    }
                 }
 
 
+            }
+            if(taskchoice==3) {
+                //我只需要发送并且接受ACK
+                while (true) {
+                    MACLayer.macBufferController.resend();
+                    if(MACLayer.macBufferController.downStreamQueue.isEmpty())
+                    {
+                        //现在连我也发完数据了
+                        DebugHelper.log("数据发送全部完成");
+                        break;
+                    }
+                    MACLayer.macStateMachine.TxPending = true;
+                    synchronized (GlobalEvent.Receive_Frame) {
+                        GlobalEvent.Receive_Frame.wait();
+                    }
+                }
+            }
+            if(taskchoice==4)
+            {
+                //我只需要听然后发送ACK
+                while(true){
+                    MACLayer.macStateMachine.TxPending = true;
+                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                        GlobalEvent.ALL_DATA_Recieved.wait();
+                    }
+                    if(MACLayer.macBufferController.upStreamQueue.size()==52*2)
+                    {
+                        DebugHelper.log("数据接收全部完成");
+                        break;
+                    }
+
+                }
             }
 
 
@@ -115,7 +146,7 @@ public class Main {
             rFrames.sort(Comparator.comparingInt(o -> o.seq));
             for (int i = 0; i < rFrames.size(); i++) {
                 if (rFrames.get(i).seq != i+1) {
-                    DebugHelper.log("在" + i+1 + "处断开");
+                    DebugHelper.log("在" + (int)(i+1) + "处断开");
                     rFrames.subList(i, rFrames.size()).clear();
                     break;
                 }
