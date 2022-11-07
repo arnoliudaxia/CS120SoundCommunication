@@ -3,13 +3,10 @@ package OSI.Link;
 import OSI.MAC.MACLayer;
 import dataAgent.CallBackStoreData;
 import utils.DebugHelper;
-import utils.SoundUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
-
-import static OSI.Link.frameConfig.fragmentTime;
 
 public class FrameDetector implements CallBackStoreData {
     private int readDatabitCount = 0;
@@ -141,33 +138,15 @@ public class FrameDetector implements CallBackStoreData {
                 int bitCounter = 0;
                 float judgeEnerge = 0.15f;
                 float energeSum=0;
-                while(frame.size()>0)
-
-//                {
-//                    while ((frame.get(0) > judgeDataRef ? 1 : 0) == state) {
-//                        bitCounter++;
-//                        frame.remove(0);
-//                        if (frame.size() == 0) {
-//                            break;
-//                        }
-//                    }
-//                    for (int i = 0; i < SoundUtil.neareatRatio(bitCounter, (int) (fragmentTime * 48000)) / frameConfig.bitSamples; i++) {
-//                        result.add(state);
-//                    }
-//                    state = 1 - state;
-//                    bitCounter = 0;
-//                }
-                {
-                    while(bitCounter<5){
-                        bitCounter++;
-                        energeSum+=frame.get(0);
-                        frame.remove(0);
-                        if(frame.size()==0){
-                            break;
-                        }
-                    }
+                for (int i = 0; i < frame.size(); i+=5) {
+                    energeSum+=frame.get(i);
+                    energeSum+=frame.get(i+1);
+                    energeSum+=frame.get(i+2);
+                    energeSum+=frame.get(i+3);
+                    energeSum+=frame.get(i+4);
                     result.add(energeSum>judgeEnerge? 1:0);
-                    bitCounter=0;
+                    energeSum=0;
+
                 }
                 assert result.size()==100;
                 MACLayer.macBufferController.__receive(result);
