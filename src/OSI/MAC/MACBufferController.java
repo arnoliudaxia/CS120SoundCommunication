@@ -5,7 +5,6 @@ import OSI.Application.GlobalEvent;
 import OSI.Application.UserSettings;
 import OSI.Link.BitPacker;
 import OSI.Link.frameConfig;
-import org.apache.commons.math3.util.Pair;
 import utils.CRC;
 import utils.DebugHelper;
 import utils.smartConvertor;
@@ -36,11 +35,12 @@ public class MACBufferController {
      * MAC层介绍到数据后规格化为MACFrames并加入这个队列，
      * 然后真正send的时候从这里拿数据
      */
-    private final LinkedList<MACFrame> downStreamQueue=new LinkedList<>();
+    public final LinkedList<MACFrame> downStreamQueue=new LinkedList<>();
+
     /**
      * 发送之后的MACFrame会被放在这里，等待ACK，超时就重新加入downStreamQueue
      */
-    private final LinkedList<Pair<Long,MACFrame>> resendQueue=new LinkedList<>();
+//    private final LinkedList<Pair<Long,MACFrame>> resendQueue=new LinkedList<>();
     /**
      * MAC层接受到的一个个frame加入这个队列
      */
@@ -53,6 +53,7 @@ public class MACBufferController {
 
     public HashSet<Integer> receiveFramesSeq=new HashSet<>();
 
+    private final LinkedList<MACFrame> LastSendFrames=new LinkedList<>();
     /**
      * 一个过于简单的效验算法,只看payload中1的数量对128取余(保证位数)
      * @param input payload数据
@@ -124,8 +125,10 @@ public class MACBufferController {
             return;
         }
         if(frame.frame_type==0) {
-            resendQueue.add(new Pair<Long, MACFrame>(System.currentTimeMillis(), frame));
+            LastSendFrames.add(frame);
         }
+//            resendQueue.add(new Pair<Long, MACFrame>(System.currentTimeMillis(), frame));
+
         DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
         ArrayList<Integer> sendTemp=new ArrayList<>();
         sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.seq,10));
@@ -189,10 +192,12 @@ public class MACBufferController {
                             break;
                         }
                         DebugHelper.log("包" + recieveSeq + "发送成功");
-                        synchronized (resendQueue) {
-                            resendQueue.removeIf(x -> x.getValue().seq == recieveSeq);
+                        LastSendFrames.removeIf(x -> x.seq == recieveSeq);
+                        while(!LastSendFrames.isEmpty()) {
+                            downStreamQueue.addFirst(LastSendFrames.poll());
                         }
-                        if(resendQueue.isEmpty()&&downStreamQueue.isEmpty()){
+
+                        if(downStreamQueue.isEmpty()){
                             DebugHelper.log("我现在已经全部发完啦@@!!!=================");
                             ArrayList<Integer> rubbish=new ArrayList<>();
                             for(int j=0;j<1000000;j++){
@@ -224,32 +229,6 @@ public class MACBufferController {
 
     public boolean hasDataLeft(){
         return downStreamQueue.size()>0;
-    }
-
-    public void checkTimeExceedFrames(){
-        while(true){
-            if(resendQueue.size()>0){
-                var frame=resendQueue.peek();
-                if(System.currentTimeMillis()-frame.getFirst()>UserSettings.ACKTTL)
-                {
-                    DebugHelper.log(String.format("Warning: 包%d超时,需要重发!",frame.getSecond().seq));
-                    synchronized (resendQueue) {
-                        downStreamQueue.add(resendQueue.poll().getSecond());
-                    }
-                }
-            }
-//            synchronized (downStreamQueue) {
-//                if (downStreamQueue.size()==4) {
-//                    MAC
-//                }
-//            }
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
     }
 
 
