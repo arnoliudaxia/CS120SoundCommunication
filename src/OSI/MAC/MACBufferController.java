@@ -163,6 +163,7 @@ public class MACBufferController {
             //如果是自己发的包不用管
             if (receivedFrame.src_mac == DeviceSettings.MACAddress) {
                 DebugHelper.log("收到自己的包,不需要处理直接丢弃");
+                receiveFramesCount--;
             } else {
                 //如果是数据包，需要发送ACK
                 if (receivedFrame.frame_type == 0) {
