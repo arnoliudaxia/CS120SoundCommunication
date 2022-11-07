@@ -113,6 +113,9 @@ public class MACBufferController {
      * 一次性发送UserSettings.Number_Frames_True个frame
      */
     public void __send(){
+        while(!LastSendFrames.isEmpty()) {
+            downStreamQueue.addFirst(LastSendFrames.poll());
+        }
         if(ACKs.size()>0){
             sendACK();
         }
@@ -193,11 +196,9 @@ public class MACBufferController {
                         }
                         DebugHelper.log("包" + recieveSeq + "发送成功");
                         LastSendFrames.removeIf(x -> x.seq == recieveSeq);
-                        while(!LastSendFrames.isEmpty()) {
-                            downStreamQueue.addFirst(LastSendFrames.poll());
-                        }
 
-                        if(downStreamQueue.isEmpty()){
+
+                        if(LastSendFrames.isEmpty()&&downStreamQueue.isEmpty()){
                             DebugHelper.log("我现在已经全部发完啦@@!!!=================");
                             ArrayList<Integer> rubbish=new ArrayList<>();
                             for(int j=0;j<1000000;j++){
