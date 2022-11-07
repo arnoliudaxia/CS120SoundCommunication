@@ -139,21 +139,35 @@ public class FrameDetector implements CallBackStoreData {
                 //首先解析第一个数据点，接下来就是一个二元状态机
                 int state = frame.get(0) > judgeDataRef ? 1 : 0;
                 int bitCounter = 0;
+                float judgeEnerge = 0.15f;
+                float energeSum=0;
                 while(frame.size()>0)
 
+//                {
+//                    while ((frame.get(0) > judgeDataRef ? 1 : 0) == state) {
+//                        bitCounter++;
+//                        frame.remove(0);
+//                        if (frame.size() == 0) {
+//                            break;
+//                        }
+//                    }
+//                    for (int i = 0; i < SoundUtil.neareatRatio(bitCounter, (int) (fragmentTime * 48000)) / frameConfig.bitSamples; i++) {
+//                        result.add(state);
+//                    }
+//                    state = 1 - state;
+//                    bitCounter = 0;
+//                }
                 {
-                    while ((frame.get(0) > judgeDataRef ? 1 : 0) == state) {
+                    while(bitCounter<5){
                         bitCounter++;
+                        energeSum+=frame.get(0);
                         frame.remove(0);
-                        if (frame.size() == 0) {
+                        if(frame.size()==0){
                             break;
                         }
                     }
-                    for (int i = 0; i < SoundUtil.neareatRatio(bitCounter, (int) (fragmentTime * 48000)) / frameConfig.bitSamples; i++) {
-                        result.add(state);
-                    }
-                    state = 1 - state;
-                    bitCounter = 0;
+                    result.add(energeSum>judgeEnerge? 1:0);
+                    bitCounter=0;
                 }
                 assert result.size()==100;
                 MACLayer.macBufferController.__receive(result);
