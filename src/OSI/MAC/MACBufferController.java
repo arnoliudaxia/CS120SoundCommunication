@@ -123,7 +123,9 @@ public class MACBufferController {
             MACLayer.macStateMachine.TxDone=true;
             return;
         }
-        resendQueue.add(new Pair<Long, MACFrame>(System.currentTimeMillis(),frame));
+        if(frame.frame_type==0) {
+            resendQueue.add(new Pair<Long, MACFrame>(System.currentTimeMillis(), frame));
+        }
         DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
         ArrayList<Integer> sendTemp=new ArrayList<>();
         sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.seq,10));

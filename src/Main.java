@@ -60,7 +60,7 @@ public class Main {
                 {
                     MACLayer.macStateMachine.TxPending=true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait();
+                        GlobalEvent.ALL_DATA_Recieved.wait(2000);
                     }
                         DebugHelper.log("我收到了对方发的一轮包");
                     if(System.currentTimeMillis()-startTime>20000)
@@ -80,13 +80,13 @@ public class Main {
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                    GlobalEvent.ALL_DATA_Recieved.wait();
+                    GlobalEvent.ALL_DATA_Recieved.wait(2000);
                 }
                 DebugHelper.log("收到了对方的第一轮包");
                 while (true) {
                     MACLayer.macStateMachine.TxPending=true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait();
+                        GlobalEvent.ALL_DATA_Recieved.wait(2000);
                     }
                     DebugHelper.log("收到了对方的一轮包");
                     if(System.currentTimeMillis()-startTime>20000)
