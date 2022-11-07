@@ -121,6 +121,7 @@ public class MACBufferController {
         {
             DebugHelper.log("发送队列里没有东西朋友!");
             MACLayer.macStateMachine.TxDone=true;
+            MACLayer.macStateMachine.TxPending=true;
             return;
         }
         if(frame.frame_type==0) {
@@ -224,6 +225,11 @@ public class MACBufferController {
                     }
                 }
             }
+//            synchronized (downStreamQueue) {
+//                if (downStreamQueue.size()==4) {
+//                    MAC
+//                }
+//            }
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {

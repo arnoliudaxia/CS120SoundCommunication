@@ -6,5 +6,5 @@ package OSI.Application;
 public class UserSettings {
     public static boolean isDebug = true;
     public static int Number_Frames_True = 5;
-    public static int ACKTTL=3000;
+    public static int ACKTTL=2000;
 }
