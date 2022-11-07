@@ -170,7 +170,7 @@ public class MACBufferController {
 
                     ACKs.add(receivedFrame.seq);
 
-                    if(!receiveFramesSeq.contains(receivedFrame.seq))
+                    if(!receiveFramesSeq.contains(receivedFrame.seq)&&receiveFramesSeq.size()<UserSettings.MAX_RESEIEVE_FRAMES)
                     {
                         //包没有问题就存下来
                         synchronized (upStreamQueue) {

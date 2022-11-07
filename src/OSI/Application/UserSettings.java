@@ -7,4 +7,5 @@ public class UserSettings {
     public static boolean isDebug = true;
     public static int Number_Frames_True = 5;
     public static int ACKTTL=2000;
+    public static int MAX_RESEIEVE_FRAMES=51;
 }
