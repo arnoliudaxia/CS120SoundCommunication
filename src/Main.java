@@ -59,10 +59,11 @@ public class Main {
                     MACLayer.macBufferController.resend();
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait();
+                        GlobalEvent.ALL_DATA_Recieved.wait(4000);
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()==52)
+                    if(MACLayer.macBufferController.upStreamQueue.size()>=52)
                     {
+                        DebugHelper.log("切换到3");
                         taskchoice=3;
                         break;
                     }
@@ -89,6 +90,7 @@ public class Main {
                     MACLayer.macBufferController.resend();
                     if(MACLayer.macBufferController.downStreamQueue.size()<=1)
                     {
+                        DebugHelper.log("切换到4");
                         taskchoice=4;
                         break;
                     }
