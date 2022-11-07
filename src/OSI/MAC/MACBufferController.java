@@ -170,10 +170,13 @@ public class MACBufferController {
             } else {
                 //如果是数据包，需要发送ACK
                 if (receivedFrame.frame_type == 0) {
+                    if(!ACKs.contains(receivedFrame.seq))
+                    {
+                        ACKs.add(receivedFrame.seq);
 
+                    }
 
                     if (!receiveFramesSeq.contains(receivedFrame.seq) && receiveFramesSeq.size() < UserSettings.MAX_RESEIEVE_FRAMES) {
-                        ACKs.add(receivedFrame.seq);
                         //包没有问题就存下来
                         synchronized (upStreamQueue) {
                             upStreamQueue.add(receivedFrame);
