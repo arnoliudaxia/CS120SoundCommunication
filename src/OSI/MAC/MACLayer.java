@@ -1,8 +1,5 @@
 package OSI.MAC;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * 将MAC层的机制全部封装在这个类里面，其他层只需要关注着一个类即可。<br>
  * 注意MACLayer类是“虚拟的”，实际不应该存在一个MACLayer对象。
@@ -18,8 +15,6 @@ public abstract class MACLayer {
     }
     public static MACStateMachine macStateMachine;
     public static MACBufferController macBufferController;
-
-    public static List<Integer> ReceivedFramesSeq=new LinkedList<>();
 
 
 }

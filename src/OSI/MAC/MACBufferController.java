@@ -21,12 +21,8 @@ public class MACBufferController {
      * 发包时候的序号
      */
     private  int seq=1;
-    /**
-     * MAC包每一段配置
-     */
-    private final int seqLength=10;
-    private final int crcLength=16;
-    public final int payloadLength= frameConfig.bitLength-seqLength-crcLength-2;
+
+    public final int payloadLength= MACFrame.SEGEMENT[3];
 
     MACBufferController() {
         if (MACLayer.macBufferController == null) {
@@ -81,7 +77,7 @@ public class MACBufferController {
                     payload.add(0);
                     DebugHelper.log("填充数据!");
                 }
-                MACFrame frame= new MACFrame(seq, new ArrayList<>(payload), CRC.crc16(new ArrayList<>(payload)), 0);
+                MACFrame frame= new MACFrame(seq, new ArrayList<>(payload), CRC.crc16(new ArrayList<>(payload)), 0,UserSettings.MACAddress);
                 downStreamQueue.add(frame);
                 seq++;
                 data.subList(0,payloadLength).clear();
@@ -103,9 +99,7 @@ public class MACBufferController {
         {
             payload.add(0);
         }
-        ArrayList<Integer> data = new ArrayList<>();
-        data.addAll(payload);
-        MACFrame frame= new MACFrame(0, payload, CRC.crc16(data), 1);
+        MACFrame frame= new MACFrame(0, payload, CRC.crc16(payload), 1,UserSettings.MACAddress);
 
         synchronized (downStreamQueue) {
             downStreamQueue.add(0,frame);
@@ -130,16 +124,18 @@ public class MACBufferController {
         }
         resendQueue.add(new Pair<Long, MACFrame>(System.currentTimeMillis(),frame));
         DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
-        bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.seq, 10));
-        bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.frame_type, 2));
-        bitPacker.AppendData(frame.payload);
-        bitPacker.AppendData(smartConvertor.exactBitsOfNumber(frame.crc,16));
+        ArrayList<Integer> sendTemp=new ArrayList<>();
+        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.seq,10));
+        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.frame_type,2));
+        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.src_mac,2));
+        sendTemp.addAll(frame.payload);
+        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.crc,16));
+        assert sendTemp.size()== frameConfig.bitLength;
+        bitPacker.AppendData(sendTemp);
         bitPacker.padding();
+
         framesSendCount++;
-
-
         MACLayer.macStateMachine.TxDone=true;
-
         if(framesSendCount>=UserSettings.Number_Frames_True)
         {
             //你已经发得够多了别贪
@@ -152,60 +148,43 @@ public class MACBufferController {
     }
 
     public void __receive(ArrayList<Integer> data){
-        //data的前10位是序号,需要把二进制转换回数字
-        var seqS=data.subList(0,10);
-        int seq=smartConvertor.mergeBitsToInteger(seqS);
-        data.subList(0,10).clear();
-        //提取字段
-        var frameType=smartConvertor.mergeBitsToInteger(new ArrayList<>(data.subList(0,2)));
-        data.subList(0,2).clear();
-        ArrayList<Integer> payload=new ArrayList<>(data.subList(0,payloadLength));
-        if(payload.size()!=payloadLength){
-            DebugHelper.log("payload.size()!=payloadLength");
-        }
-        ArrayList<Integer> crc=new ArrayList<>(data.subList(payloadLength,data.size()));
+        var receivedFrame=new MACFrame(data);
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
-        int checkCode=smartConvertor.mergeBitsToInteger(crc);
-        int checkCode_compute= CRC.crc16(payload);
-        DebugHelper.log(String.format("收到序号为%d包,效验码内容为%d,计算为%d",seq,checkCode,checkCode_compute));
-        if(checkCode_compute!=checkCode)
+        int checkCode_compute= CRC.crc16(receivedFrame.payload);
+        DebugHelper.log(String.format("收到序号为%d包,效验码内容为%d,计算为%d",receivedFrame.seq,receivedFrame.crc,checkCode_compute));
+        if(checkCode_compute!=receivedFrame.crc)
         {
-            DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!",seq));
+            DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!",receivedFrame.seq));
         }
         else {
             //如果是数据包，需要发送ACK
-            if(seq!=0)
+            if(receivedFrame.frame_type==0)
             {
+                //看一下如果是别人的包需要发送ACK
+                if(receivedFrame.src_mac==UserSettings.MACAddress){
+                    DebugHelper.log("收到自己的包,不需要发送ACK");
+                    return;
+                }
                 ACKs.add(seq);
                 //包没有问题就存下来
                 synchronized (upStreamQueue) {
-                    upStreamQueue.add(new MACFrame(seq,payload,checkCode,frameType));
+                    upStreamQueue.add(receivedFrame);
                 }
-                //记录一下seq包接收成功
-                MACLayer.ReceivedFramesSeq.add(seq);
             }
-            else{
+            if(receivedFrame.frame_type==1){
                 //如果是ACK包，需要从重发队列里删除对应的包
                 //先解析ACK里包含哪些frame，payload里每10位是一个seq
-                while(payload.size()>10){
-                    int recieveSeq=smartConvertor.mergeBitsToInteger(new ArrayList<>(payload.subList(0,10)));
+                for (int i = 0; i < receivedFrame.payload.size()-10; i+=10) {
+                    int recieveSeq=smartConvertor.mergeBitsToInteger(new ArrayList<>(receivedFrame.payload.subList(i,i+10)));
                     if(recieveSeq==0)
                     {
                         break;
                     }
                     DebugHelper.log("包"+recieveSeq+"发送成功");
-                    payload.subList(0,10).clear();
                     synchronized (resendQueue) {
-                        for (int i = 0; i < resendQueue.size(); i++) {
-                            if (resendQueue.get(i).getSecond().seq == recieveSeq) {
-                                resendQueue.remove(i);
-                                break;
-                            }
-                        }
+                        resendQueue.removeIf(x -> x.getValue().seq == recieveSeq);
                     }
                 }
-
-
             }
 //            通知其他人有frame进来了
 //            synchronized (GlobalEvent.Receive_Frame){
