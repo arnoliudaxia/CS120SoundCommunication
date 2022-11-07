@@ -56,14 +56,16 @@ public class Main {
                 messager.sendBinary(inputData);//数据填充
                 //我先发
                 while (true) {
+                    MACLayer.macBufferController.resend();
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait(2000);
+                        GlobalEvent.ALL_DATA_Recieved.wait();
                     }
                     DebugHelper.log("我收到了对方发的一轮包");
                     MACLayer.macBufferController.framesSendCount = 0;
 
-                    if (System.currentTimeMillis() - startTime > 40000) {
+
+                    if (System.currentTimeMillis() - startTime > 50000) {
                         DebugHelper.log("20时间已到结束收发");
                         break;
                     }
@@ -85,9 +87,10 @@ public class Main {
                 MACLayer.macBufferController.framesSendCount = 0;
 
                 while (true) {
+                    MACLayer.macBufferController.resend();
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait(5000);
+                        GlobalEvent.ALL_DATA_Recieved.wait();
                     }
                     DebugHelper.log("收到了对方的一轮包");
                     MACLayer.macBufferController.framesSendCount = 0;

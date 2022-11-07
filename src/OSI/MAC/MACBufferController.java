@@ -53,7 +53,7 @@ public class MACBufferController {
 
     public HashSet<Integer> receiveFramesSeq=new HashSet<>();
 
-    private final LinkedList<MACFrame> LastSendFrames=new LinkedList<>();
+    public final LinkedList<MACFrame> LastSendFrames=new LinkedList<>();
     /**
      * 一个过于简单的效验算法,只看payload中1的数量对128取余(保证位数)
      * @param input payload数据
@@ -113,9 +113,7 @@ public class MACBufferController {
      * 一次性发送UserSettings.Number_Frames_True个frame
      */
     public void __send(){
-        while(!LastSendFrames.isEmpty()) {
-            downStreamQueue.addFirst(LastSendFrames.poll());
-        }
+
         if(ACKs.size()>0){
             sendACK();
         }
@@ -232,5 +230,12 @@ public class MACBufferController {
         return downStreamQueue.size()>0;
     }
 
+    public void resend(){
+        synchronized (downStreamQueue) {
+            while (!LastSendFrames.isEmpty()) {
+                downStreamQueue.addFirst(LastSendFrames.poll());
+            }
+        }
 
+    }
 }
