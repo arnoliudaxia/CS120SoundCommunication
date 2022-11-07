@@ -25,6 +25,7 @@ public class MACStateMachine {
             MACLayer.macStateMachine = this;
             MACLayer.macStateMachine.macState = MACState.FrameDetection;
             new Thread(this::mainloop).start();
+            new Thread(MACLayer.macBufferController::checkTimeExceedFrames).start();
         }
         else {
             System.out.println("MACStateMachine is already created");
@@ -41,8 +42,6 @@ public class MACStateMachine {
             }
             stateTransfer();
             processState();
-            //TODO 检查一下有没有包过期了
-//            MACLayer.macBufferController.checkTimeExceedFrames();
         }
 
     }

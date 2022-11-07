@@ -210,21 +210,33 @@ public class MACBufferController {
     }
 
     public void checkTimeExceedFrames(){
-        while(resendQueue.size()>0){
-
-            var frame=resendQueue.peek();
-            if(System.currentTimeMillis()-frame.getFirst()>UserSettings.ACKTTL)
-            {
-                DebugHelper.log(String.format("Warning: 包%d超时,需要重发!",frame.getSecond().seq));
-                synchronized (resendQueue) {
-                    downStreamQueue.add(resendQueue.poll().getSecond());
+        while(true){
+            while(resendQueue.size()>0){
+                var frame=resendQueue.peek();
+                if(System.currentTimeMillis()-frame.getFirst()>UserSettings.ACKTTL)
+                {
+                    DebugHelper.log(String.format("Warning: 包%d超时,需要重发!",frame.getSecond().seq));
+                    synchronized (resendQueue) {
+                        downStreamQueue.add(resendQueue.poll().getSecond());
+                    }
+                }
+                else
+                {
+                    break;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
-            else
-            {
-                break;
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
+
     }
 
 

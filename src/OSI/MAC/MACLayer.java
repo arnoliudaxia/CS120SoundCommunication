@@ -10,8 +10,8 @@ public abstract class MACLayer {
     public static volatile boolean isChannelReady = false;
     public static void initMACLayer()
     {
-        new MACStateMachine();
         new MACBufferController();
+        new MACStateMachine();
     }
     public static MACStateMachine macStateMachine;
     public static MACBufferController macBufferController;
