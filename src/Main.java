@@ -44,36 +44,35 @@ public class Main {
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
         String lyfHPURL = "C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
         String lshURL = "D:\\桌面\\project1_sample\\";
-        var startTime=System.currentTimeMillis();
+        var startTime = System.currentTimeMillis();
         try {
-            ArrayList<Integer> information=new ArrayList<>();
+            ArrayList<Integer> information = new ArrayList<>();
 
-            if(taskchoice==1)
-            {
-                DeviceSettings.MACAddress=0;
+            if (taskchoice == 1) {
+                DeviceSettings.MACAddress = 0;
                 //Node 1
                 var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
                 //我先发
-                while(true)
-                {
-                    MACLayer.macStateMachine.TxPending=true;
+                while (true) {
+                    MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(2000);
                     }
-                        DebugHelper.log("我收到了对方发的一轮包");
-                    if(System.currentTimeMillis()-startTime>20000)
-                    {
+                    DebugHelper.log("我收到了对方发的一轮包");
+                    MACLayer.macBufferController.framesSendCount = 0;
+
+                    if (System.currentTimeMillis() - startTime > 40000) {
                         DebugHelper.log("20时间已到结束收发");
                         break;
                     }
                 }
 
 
-            } 
-            if(taskchoice==2){
-                DeviceSettings.MACAddress=1;
+            }
+            if (taskchoice == 2) {
+                DeviceSettings.MACAddress = 1;
 
                 //我是Node2
                 var inputData = smartConvertor.binInTextFile("res\\INPUT2.txt");
@@ -83,14 +82,16 @@ public class Main {
                     GlobalEvent.ALL_DATA_Recieved.wait(2000);
                 }
                 DebugHelper.log("收到了对方的第一轮包");
+                MACLayer.macBufferController.framesSendCount = 0;
+
                 while (true) {
-                    MACLayer.macStateMachine.TxPending=true;
+                    MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait(2000);
+                        GlobalEvent.ALL_DATA_Recieved.wait(5000);
                     }
                     DebugHelper.log("收到了对方的一轮包");
-                    if(System.currentTimeMillis()-startTime>20000)
-                    {
+                    MACLayer.macBufferController.framesSendCount = 0;
+                    if (System.currentTimeMillis() - startTime > 20000) {
                         DebugHelper.log("20时间已到结束收发");
                         break;
                     }
@@ -100,23 +101,28 @@ public class Main {
             }
 
 
-                ArrayList<MACFrame> rFrames=new ArrayList<>();
-                synchronized (MACLayer.macBufferController.upStreamQueue)
-                {
-                    while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
-                        var frame=MACLayer.macBufferController.upStreamQueue.poll();
-                        rFrames.add(frame);
-                    }
+            ArrayList<MACFrame> rFrames = new ArrayList<>();
+            synchronized (MACLayer.macBufferController.upStreamQueue) {
+                while (!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
+                    var frame = MACLayer.macBufferController.upStreamQueue.poll();
+                    rFrames.add(frame);
                 }
-                rFrames.sort(Comparator.comparingInt(o -> o.seq));
-                rFrames.forEach(x->information.addAll(x.payload));
-                try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
-                    for (var bit : information) {
-                        input.write(bit.toString().getBytes());
-                    }
+            }
+            rFrames.sort(Comparator.comparingInt(o -> o.seq));
+            for (int i = 0; i < rFrames.size(); i++) {
+                if (rFrames.get(i).seq != i+1) {
+                    DebugHelper.log("在" + i+1 + "处断开");
+                    rFrames.subList(i, rFrames.size()).clear();
+                    break;
                 }
+            }
+            rFrames.forEach(x -> information.addAll(x.payload));
+            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
+                for (var bit : information) {
+                    input.write(bit.toString().getBytes());
+                }
+            }
 //                csv.saveToCsv(lyfHPURL+"wave.csv",((FrameDetector)AudioHw.audioHwG.dataagent).wave);
-
 
 
         } catch (Exception e) {

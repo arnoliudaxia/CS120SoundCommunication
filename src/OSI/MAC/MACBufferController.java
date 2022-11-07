@@ -107,7 +107,7 @@ public class MACBufferController {
         }
         DebugHelper.log("发送ACK,crc is"+frame.crc);
     }
-    private int framesSendCount=0;
+    public int framesSendCount=0;
 
     /**
      * 一次性发送UserSettings.Number_Frames_True个frame
