@@ -166,7 +166,7 @@ public class MACBufferController {
             if(receivedFrame.frame_type==0)
             {
 
-                ACKs.add(seq);
+                ACKs.add(receivedFrame.seq);
                 //包没有问题就存下来
                 synchronized (upStreamQueue) {
                     upStreamQueue.add(receivedFrame);
