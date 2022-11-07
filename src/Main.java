@@ -38,7 +38,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 1;
+        int taskchoice = 2;
         //#endregion
 
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
@@ -126,9 +126,9 @@ public class Main {
                 while(true){
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait();
+                        GlobalEvent.ALL_DATA_Recieved.wait(4000);
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()==52*2)
+                    if(MACLayer.macBufferController.upStreamQueue.size()>=103)
                     {
                         DebugHelper.log("数据接收全部完成");
                         break;
