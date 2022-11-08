@@ -145,11 +145,11 @@ public class FrameDetector implements CallBackStoreData {
                 float judgeEnerge = 0.1f;
                 float energeSum=0;
                 for (int i = 0; i < frame.size(); i+=5) {
-                    energeSum+=frame.get(i);
+//                    energeSum+=frame.get(i);
                     energeSum+=frame.get(i+1);
                     energeSum+=frame.get(i+2);
                     energeSum+=frame.get(i+3);
-                    energeSum+=frame.get(i+4);
+//                    energeSum+=frame.get(i+4);
                     result.add(energeSum>judgeEnerge? 1:0);
                     energeSum=0;
 
