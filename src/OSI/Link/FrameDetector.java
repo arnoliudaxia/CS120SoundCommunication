@@ -3,7 +3,6 @@ package OSI.Link;
 import OSI.MAC.MACLayer;
 import dataAgent.CallBackStoreData;
 import utils.DebugHelper;
-import utils.SoundUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -140,25 +139,20 @@ public class FrameDetector implements CallBackStoreData {
                 ArrayList<Integer> result = new ArrayList<>();
                 //下面是直接用之前的
                 //现在要做的是将bitData中的数据转换成bit
-                float judgeDataRef = 0.1f;
+                float judgeDataRef = 0.03f;
                 //首先解析第一个数据点，接下来就是一个二元状态机
                 int state = frame.get(0) > judgeDataRef ? 1 : 0;
-                frame.add(-1*frame.get(frame.size()-1));
-                int bitCounter = 0;
-                float lastPoint=frame.get(0);
-                for(var p:frame){
-                    float diff=Math.abs(p-lastPoint);
-                    lastPoint=p;
-                    if(diff>0.4f){
-                        for (int i = 0; i < SoundUtil.neareatRatio(bitCounter,5)/5; i++) {
-                            result.add(state);
-                        }
-                        state=1-state;
-                        bitCounter=0;
-                    }
-                    else {
-                        bitCounter++;
-                    }
+                float judgeEnerge = 0.3f;
+                float energeSum=0;
+                for (int i = 0; i < frame.size(); i+=5) {
+                    energeSum+=frame.get(i);
+                    energeSum+=frame.get(i+1);
+                    energeSum+=frame.get(i+2);
+                    energeSum+=frame.get(i+3);
+                    energeSum+=frame.get(i+4);
+                    result.add(energeSum>judgeEnerge? 1:0);
+                    energeSum=0;
+
                 }
                 assert result.size()==100;
                 MACLayer.macBufferController.__receive(result);
