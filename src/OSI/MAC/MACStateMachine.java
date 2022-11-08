@@ -1,6 +1,7 @@
 package OSI.MAC;
 
 
+import OSI.Application.UserSettings;
 import utils.DebugHelper;
 
 public class MACStateMachine {
@@ -56,14 +57,16 @@ public class MACStateMachine {
                 //优先接收，然后再发
                 if(PacketDetected)
                 {
-                    DebugHelper.log("FrameDetection->Rx");
+                    if(UserSettings.printStateLog)
+                        DebugHelper.log("FrameDetection->Rx");
                     PacketDetected=false;
                     MACLayer.macStateMachine.macState=MACState.Rx;
                     break;
                 }
                 if(TxPending)
                 {
-                    DebugHelper.log("FrameDetection->Tx_waiting");
+                    if(UserSettings.printStateLog)
+                        DebugHelper.log("FrameDetection->Tx_waiting");
                     TxPending=false;
                     MACLayer.macStateMachine.macState=MACState.Tx_waiting;
                     break;
@@ -74,14 +77,16 @@ public class MACStateMachine {
                 if(MACLayer.isChannelReady)
                 {
                     //如果频道空闲，就发
-                    DebugHelper.log("Tx_waiting->Tx");
+                    if(UserSettings.printStateLog)
+                        DebugHelper.log("Tx_waiting->Tx");
                     MACLayer.macStateMachine.macState=MACState.Tx;
                 }
                 break;
             case Tx:
                 if(TxDone)
                 {
-                    DebugHelper.log("Tx->FrameDetection");
+                    if(UserSettings.printStateLog)
+                        DebugHelper.log("Tx->FrameDetection");
                     TxDone=false;
                     MACLayer.macStateMachine.macState=MACState.FrameDetection;
                 }
@@ -89,7 +94,8 @@ public class MACStateMachine {
             case Rx:
                 if(RxDone)
                 {
-                    DebugHelper.log("Rx->FrameDetection");
+                    if(UserSettings.printStateLog)
+                        DebugHelper.log("Rx->FrameDetection");
                     RxDone=false;
                     MACLayer.macStateMachine.macState=MACState.FrameDetection;
                     PacketDetected=false;
