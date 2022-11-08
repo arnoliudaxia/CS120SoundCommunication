@@ -33,7 +33,7 @@ public class FrameDetector implements CallBackStoreData {
             localEnergy*=19.f/20.f;
             localEnergy+=Math.abs(sampleP);
             MACLayer.isChannelReady= localEnergy < quietRef;
-            wave.add(localEnergy);
+//            wave.add(localEnergy);
             float wakeupRef = 0.09f;//header的触发电平
             switch (detectState) {
                 case lookingForHead:
@@ -46,7 +46,7 @@ public class FrameDetector implements CallBackStoreData {
                 case HeadWholeJudge:
                     headerJudgeCount++;
                     headerEngery+=sampleP;
-                    if (headerJudgeCount >= 20) {
+                    if (headerJudgeCount > 20) {
                         DebugHelper.log("Header Energy: " + headerEngery);
                         if(headerEngery>1.f&&headerEngery<20.f) {
                             //找到头了
@@ -64,6 +64,13 @@ public class FrameDetector implements CallBackStoreData {
                     writeFrameBuffer.add(sampleP);
                     readDatabitCount++;
                     if (readDatabitCount >= frameConfig.bitLength * frameConfig.bitSamples) {
+//                        csvFileHelper csv = new csvFileHelper();
+//                        String lyfHPURL = "C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
+//                        try {
+//                            csv.saveToCsv(lyfHPURL+"wave.csv",writeFrameBuffer);
+//                        } catch (IOException e) {
+//                            throw new RuntimeException(e);
+//                        }
                         //一个frame完整读取完毕
                         System.out.println("Frame Read Complete");
                         detectState = DetectState.lookingForHead;
@@ -135,8 +142,7 @@ public class FrameDetector implements CallBackStoreData {
                 float judgeDataRef = 0.03f;
                 //首先解析第一个数据点，接下来就是一个二元状态机
                 int state = frame.get(0) > judgeDataRef ? 1 : 0;
-                int bitCounter = 0;
-                float judgeEnerge = 0.15f;
+                float judgeEnerge = 0.3f;
                 float energeSum=0;
                 for (int i = 0; i < frame.size(); i+=5) {
                     energeSum+=frame.get(i);
