@@ -6,5 +6,4 @@ package OSI.Application;
 public class UserSettings {
     public static boolean isDebug = true;
     public static int Number_Frames_True = 5;
-    public static int MAX_RESEIEVE_FRAMES=52;
 }

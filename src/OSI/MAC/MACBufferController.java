@@ -151,7 +151,7 @@ public class MACBufferController {
             MACLayer.macStateMachine.TxPending = true;
         }
     }
-    public int dropCount = 0;
+    public int dropCount = 5;
     public void __receive(ArrayList<Integer> data) {
         if(dropCount<UserSettings.Number_Frames_True){
             DebugHelper.log("应该是自己的包，我直接丢");
@@ -179,7 +179,7 @@ public class MACBufferController {
 
                     }
 
-                    if (!receiveFramesSeq.contains(receivedFrame.seq) && receiveFramesSeq.size() < UserSettings.MAX_RESEIEVE_FRAMES) {
+                    if (!receiveFramesSeq.contains(receivedFrame.seq) ) {
                         //包没有问题就存下来
                         synchronized (upStreamQueue) {
                             upStreamQueue.add(receivedFrame);

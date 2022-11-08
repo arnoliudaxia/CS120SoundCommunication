@@ -132,6 +132,7 @@ public class Main {
                     }
                     if(MACLayer.macBufferController.upStreamQueue.size()>=103)
                     {
+                        MACLayer.macStateMachine.TxPending = true;
                         DebugHelper.log("数据接收全部完成");
                         break;
                     }
