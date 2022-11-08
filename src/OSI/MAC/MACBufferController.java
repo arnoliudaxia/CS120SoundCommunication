@@ -154,8 +154,14 @@ public class MACBufferController {
             MACLayer.macStateMachine.TxPending = true;
         }
     }
-
+    public int dropCount = 0;
     public void __receive(ArrayList<Integer> data) {
+        if(dropCount<UserSettings.Number_Frames_True){
+            DebugHelper.log("应该是自己的包，我直接丢");
+            dropCount++;
+            MACLayer.macStateMachine.RxDone = true;
+            return;
+        }
         var receivedFrame = new MACFrame(data);
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
         int checkCode_compute = CRC.crc16(receivedFrame.payload);

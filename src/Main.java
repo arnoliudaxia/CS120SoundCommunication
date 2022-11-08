@@ -57,9 +57,10 @@ public class Main {
                 //我先发
                 while (true) {
                     MACLayer.macBufferController.resend();
+                    MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait(4000);
+                        GlobalEvent.ALL_DATA_Recieved.wait();
                     }
                     if(MACLayer.macBufferController.upStreamQueue.size()>=52)
                     {
@@ -94,6 +95,7 @@ public class Main {
                         taskchoice=4;
                         break;
                     }
+                    MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait();
