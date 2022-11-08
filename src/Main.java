@@ -82,6 +82,7 @@ public class Main {
                 var inputData = smartConvertor.binInTextFile("res\\INPUT2.txt");
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
+                MACLayer.macBufferController.dropCount=5;
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     GlobalEvent.ALL_DATA_Recieved.wait();
                 }

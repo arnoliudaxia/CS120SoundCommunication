@@ -151,7 +151,7 @@ public class MACBufferController {
             MACLayer.macStateMachine.TxPending = true;
         }
     }
-    public int dropCount = 5;
+    public int dropCount = 0;
     public void __receive(ArrayList<Integer> data) {
         if(dropCount<UserSettings.Number_Frames_True){
             DebugHelper.log("应该是自己的包，我直接丢");
