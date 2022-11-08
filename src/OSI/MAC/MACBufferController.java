@@ -124,25 +124,22 @@ public class MACBufferController {
         MACFrame frame = downStreamQueue.poll();
         if (frame == null) {
             DebugHelper.log("发送队列里没有东西朋友!");
-            MACLayer.macStateMachine.TxDone = true;
-            MACLayer.macStateMachine.TxPending = true;
-            return;
         }
-        if (frame.frame_type == 0) {
-            LastSendFrames.add(frame);
+        else {
+            if (frame.frame_type == 0) {
+                LastSendFrames.add(frame);
+            }
+            DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
+            ArrayList<Integer> sendTemp = new ArrayList<>();
+            sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.seq, 10));
+            sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.frame_type, 2));
+            sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.src_mac, 2));
+            sendTemp.addAll(frame.payload);
+            sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.crc, 16));
+            assert sendTemp.size() == frameConfig.bitLength;
+            bitPacker.AppendData(sendTemp);
+            bitPacker.padding();
         }
-//            resendQueue.add(new Pair<Long, MACFrame>(System.currentTimeMillis(), frame));
-
-        DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
-        ArrayList<Integer> sendTemp = new ArrayList<>();
-        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.seq, 10));
-        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.frame_type, 2));
-        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.src_mac, 2));
-        sendTemp.addAll(frame.payload);
-        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.crc, 16));
-        assert sendTemp.size() == frameConfig.bitLength;
-        bitPacker.AppendData(sendTemp);
-        bitPacker.padding();
 
         framesSendCount++;
         MACLayer.macStateMachine.TxDone = true;
