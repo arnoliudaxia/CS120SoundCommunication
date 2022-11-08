@@ -70,6 +70,7 @@ public class Main {
                     }
                     DebugHelper.log("我收到了对方发的一轮包");
                     MACLayer.macBufferController.framesSendCount = 0;
+//                    break;
                 }
 
 
@@ -118,7 +119,7 @@ public class Main {
                     }
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.Receive_Frame) {
-                        GlobalEvent.Receive_Frame.wait();
+                        GlobalEvent.Receive_Frame.wait(4000);
                     }
                 }
             }
