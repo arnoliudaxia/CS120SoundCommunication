@@ -165,8 +165,26 @@ public class MACBufferController {
         }
         var receivedFrame = new MACFrame(data);
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
+        if(receivedFrame.seq==0){
+            //对ACK包忽略中间的内容
+            for (int i = 60; i < 160; i++) {
+                receivedFrame.payload.set(i,0);
+            }
+            receivedFrame.payload.set(160,1);
+            receivedFrame.payload.set(161,0);
+            receivedFrame.payload.set(162,1);
+            receivedFrame.payload.set(163,0);
+            receivedFrame.payload.set(164,1);
+            receivedFrame.payload.set(165,0);
+            receivedFrame.payload.set(166,1);
+            receivedFrame.payload.set(167,0);
+            receivedFrame.payload.set(168,1);
+            receivedFrame.payload.set(169,0);
+
+        }
         int checkCode_compute = CRC.crc16(receivedFrame.payload);
         DebugHelper.log(String.format("收到序号为%d包,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.crc, checkCode_compute));
+
         if (checkCode_compute != receivedFrame.crc) {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!", receivedFrame.seq));
         } else {
