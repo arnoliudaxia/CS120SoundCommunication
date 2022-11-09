@@ -91,7 +91,7 @@ public class Main {
 
                 while (true) {
                     MACLayer.macBufferController.resend();
-                    if(MACLayer.macBufferController.downStreamQueue.size()<=1)
+                    if(MACLayer.macBufferController.downStreamQueue.isEmpty())
                     {
                         DebugHelper.log("切换到4");
                         taskchoice=4;
