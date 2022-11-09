@@ -3,6 +3,7 @@ package OSI.MAC;
 
 import OSI.Application.UserSettings;
 import utils.DebugHelper;
+import OSI.MAC.MACBufferController;
 
 public class MACStateMachine {
     enum MACState {
@@ -16,6 +17,7 @@ public class MACStateMachine {
     public boolean RxDone=false;
     public boolean TxDone=false;
     public boolean TxPending=false;
+    private int preSum=0;
     /**
      * MAC状态改变notify机制，下层notify这个object来让MAC层状态转换，
      * 注意要在notify之前把事件置为true
@@ -42,6 +44,7 @@ public class MACStateMachine {
             }
             stateTransfer();
             processState();
+            throughputTest();
         }
 
     }
@@ -118,7 +121,18 @@ public class MACStateMachine {
         }
     }
 
+        long startTime = System.currentTimeMillis();
+    private void throughputTest(){
+        long endTime = System.currentTimeMillis();
+        long usedTime = (endTime - startTime);
+        if(usedTime>=1000){
+            int throughput=(MACLayer.macBufferController.upStreamQueue.size()-preSum)*70;
+            DebugHelper.log(String.format("带宽为",throughput));
+            preSum=MACLayer.macBufferController.upStreamQueue.size();
+            startTime=endTime;
+        }
 
+    }
 
 
 }
