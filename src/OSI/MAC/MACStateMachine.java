@@ -125,7 +125,7 @@ public class MACStateMachine {
         long endTime = System.currentTimeMillis();
         long usedTime = (endTime - startTime);
         if(usedTime>=1000){
-            int throughput=(MACLayer.macBufferController.upStreamQueue.size()-preSum)*70;
+            int throughput=(MACLayer.macBufferController.upStreamQueue.size()-preSum)*MACFrame.SEGEMENT[3];
             DebugHelper.log("带宽为"+throughput);
             preSum=MACLayer.macBufferController.upStreamQueue.size();
             startTime=endTime;
