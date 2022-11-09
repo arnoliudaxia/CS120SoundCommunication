@@ -100,7 +100,11 @@ public class MACBufferController {
         while (ACKs.size() > 0) {
             payload.addAll(smartConvertor.exactBitsOfNumber(ACKs.poll(), 10));
         }
-        while (payload.size() != payloadLength) {
+        while (payload.size() != payloadLength-10) {
+            payload.add(0);
+        }
+        for (int i = 0; i < 5; i++) {
+            payload.add(1);
             payload.add(0);
         }
         MACFrame frame = new MACFrame(0, payload, CRC.crc16(payload), 1, DeviceSettings.MACAddress);
