@@ -49,6 +49,7 @@ public class Main {
             ArrayList<Integer> information = new ArrayList<>();
 
             if (taskchoice == 1) {
+                DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 0;
                 //Node 1
                 var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
@@ -62,7 +63,7 @@ public class Main {
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait();
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()>=3640/MACFrame.SEGEMENT[3])
+                    if(MACLayer.macBufferController.upStreamQueue.size()>=5100/MACFrame.SEGEMENT[3])
                     {
                         DebugHelper.log("切换到3");
                         taskchoice=3;
@@ -76,6 +77,7 @@ public class Main {
 
             }
             if (taskchoice == 2) {
+                DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 1;
 
                 //我是Node2
@@ -132,7 +134,7 @@ public class Main {
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(4000);
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()>=3640/MACFrame.SEGEMENT[3]*2-1)
+                    if(MACLayer.macBufferController.upStreamQueue.size()>=5100/MACFrame.SEGEMENT[3]*2-1)
                     {
                         MACLayer.macStateMachine.TxPending = true;
                         DebugHelper.log("数据接收全部完成");
