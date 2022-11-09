@@ -99,6 +99,9 @@ public class smartConvertor {
     }
 
     public static ArrayList<Integer> exactBitsOfNumber(int number,int bitLength){
+        return exactBitsOfNumber((long)number,bitLength);
+    }
+    public static ArrayList<Integer> exactBitsOfNumber(long number,int bitLength) {
         int mask=0b1<<(bitLength-1);
         ArrayList<Integer> result=new ArrayList<>();
         for (int i = 0; i < bitLength; i++) {
@@ -107,7 +110,8 @@ public class smartConvertor {
         }
         return result;
     }
-    public static int mergeBitsToInteger(List<Integer> input){
+
+        public static int mergeBitsToInteger(List<Integer> input){
         int result=0;
         int mask=0b1<<(input.size()-1);
         for (Integer integer : input) {
