@@ -1,5 +1,6 @@
 package OSI.Link;
 
+import OSI.Application.DeviceSettings;
 import OSI.MAC.MACLayer;
 import dataAgent.CallBackStoreData;
 import utils.DebugHelper;
@@ -34,7 +35,7 @@ public class FrameDetector implements CallBackStoreData {
             localEnergy+=Math.abs(sampleP);
             MACLayer.isChannelReady= localEnergy < quietRef;
 //            wave.add(localEnergy);
-            float wakeupRef = 0.09f;//header的触发电平
+            float wakeupRef = DeviceSettings.wakeupRef;//header的触发电平
             switch (detectState) {
                 case lookingForHead:
                     if (sampleP > wakeupRef) {
