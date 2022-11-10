@@ -4,7 +4,9 @@ import OSI.Application.DeviceSettings;
 import OSI.MAC.MACLayer;
 import dataAgent.CallBackStoreData;
 import utils.DebugHelper;
+import utils.csvFileHelper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -73,7 +75,7 @@ public class FrameDetector implements CallBackStoreData {
 //                            throw new RuntimeException(e);
 //                        }
                         //一个frame完整读取完毕
-                        System.out.println("Frame Read Complete");
+//                        System.out.println("Frame Read Complete");
                         detectState = DetectState.lookingForHead;
                         readDatabitCount = 0;
                         synchronized (frames) {

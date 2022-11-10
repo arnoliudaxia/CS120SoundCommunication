@@ -167,7 +167,7 @@ public class MACBufferController {
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
         if(receivedFrame.seq==0){
             //对ACK包忽略中间的内容
-            for (int i = 60; i < 160; i++) {
+            for (int i = 50; i < 160; i++) {
                 receivedFrame.payload.set(i,0);
             }
             receivedFrame.payload.set(160,1);
@@ -185,7 +185,7 @@ public class MACBufferController {
         int checkCode_compute = CRC.crc16(receivedFrame.payload);
         DebugHelper.log(String.format("收到序号为%d包,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.crc, checkCode_compute));
 
-        if (checkCode_compute != receivedFrame.crc) {
+        if (receivedFrame.seq!=0&&checkCode_compute != receivedFrame.crc) {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!", receivedFrame.seq));
         } else {
             //如果是自己发的包不用管
