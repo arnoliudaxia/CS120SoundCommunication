@@ -61,8 +61,8 @@ public class Main {
                     MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait(3000);
-                        //threadBlockTime(220);
+                        GlobalEvent.ALL_DATA_Recieved.wait(1000);
+
                     }
                     if(MACLayer.macBufferController.upStreamQueue.size()>=6800/MACFrame.SEGEMENT[3])
                     {
@@ -85,10 +85,10 @@ public class Main {
                 var inputData = smartConvertor.binInTextFile("res\\INPUT2.txt");
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
-                MACLayer.macBufferController.dropCount=5;
+                MACLayer.macBufferController.dropCount=50;
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     GlobalEvent.ALL_DATA_Recieved.wait();
-                    //threadBlockTime(220);
+
 
                 }
                 DebugHelper.log("收到了对方的第一轮包");
@@ -137,12 +137,12 @@ public class Main {
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(4000);
-                        //threadBlockTime(220);
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()>=6800/MACFrame.SEGEMENT[3]*2-1)
+                    if(MACLayer.macBufferController.upStreamQueue.size()>=6800/MACFrame.SEGEMENT[3]*2)
                     {
                         MACLayer.macStateMachine.TxPending = true;
                         DebugHelper.log("数据接收全部完成");
+                        threadBlockTime(1000);
                         break;
                     }
 
