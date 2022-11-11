@@ -94,13 +94,13 @@ public class MACBufferController {
 
     public void sendACK() {
         ArrayList<Integer> payload = new ArrayList<>();
-        if (ACKs.size() > UserSettings.Number_Frames_True) {
+        if (ACKs.size() > UserSettings.Number_Frames_Trun) {
             DebugHelper.log("ACKs.size()>UserSettings.Number_Frames_True");
         }
         while (ACKs.size() > 0) {
             payload.addAll(smartConvertor.exactBitsOfNumber(ACKs.poll(), 10));
         }
-        while (payload.size() != payloadLength-10) {
+        while (payload.size() != payloadLength - 10) {
             payload.add(0);
         }
         for (int i = 0; i < 5; i++) {
@@ -129,8 +129,7 @@ public class MACBufferController {
         if (frame == null) {
             DebugHelper.log("发送队列里没有东西朋友!");
             dropCount++;
-        }
-        else {
+        } else {
             if (frame.frame_type == 0) {
                 LastSendFrames.add(frame);
             }
@@ -148,7 +147,7 @@ public class MACBufferController {
 
         framesSendCount++;
         MACLayer.macStateMachine.TxDone = true;
-        if (framesSendCount >= UserSettings.Number_Frames_True) {
+        if (framesSendCount >= UserSettings.Number_Frames_Trun) {
             //你已经发得够多了别贪
             DebugHelper.log("我发完了等待接收");
             framesSendCount = 0;
@@ -156,9 +155,11 @@ public class MACBufferController {
             MACLayer.macStateMachine.TxPending = true;
         }
     }
+
     public int dropCount = 0;
+
     public void __receive(ArrayList<Integer> data) {
-        if(dropCount<UserSettings.Number_Frames_True){
+        if (dropCount < UserSettings.Number_Frames_Trun) {
             DebugHelper.log("应该是自己的包，我直接丢");
             dropCount++;
             MACLayer.macStateMachine.RxDone = true;
@@ -166,80 +167,72 @@ public class MACBufferController {
         }
         var receivedFrame = new MACFrame(data);
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
-        if(receivedFrame.seq==0){
+        if (receivedFrame.seq == 0) {
             //对ACK包忽略中间的内容
             for (int i = 50; i < 160; i++) {
-                receivedFrame.payload.set(i,0);
+                receivedFrame.payload.set(i, 0);
             }
-            receivedFrame.payload.set(160,1);
-            receivedFrame.payload.set(161,0);
-            receivedFrame.payload.set(162,1);
-            receivedFrame.payload.set(163,0);
-            receivedFrame.payload.set(164,1);
-            receivedFrame.payload.set(165,0);
-            receivedFrame.payload.set(166,1);
-            receivedFrame.payload.set(167,0);
-            receivedFrame.payload.set(168,1);
-            receivedFrame.payload.set(169,0);
+            receivedFrame.payload.set(160, 1);
+            receivedFrame.payload.set(161, 0);
+            receivedFrame.payload.set(162, 1);
+            receivedFrame.payload.set(163, 0);
+            receivedFrame.payload.set(164, 1);
+            receivedFrame.payload.set(165, 0);
+            receivedFrame.payload.set(166, 1);
+            receivedFrame.payload.set(167, 0);
+            receivedFrame.payload.set(168, 1);
+            receivedFrame.payload.set(169, 0);
 
         }
         int checkCode_compute = CRC.crc16(receivedFrame.payload);
         DebugHelper.log(String.format("收到序号为%d包,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.crc, checkCode_compute));
 
-        if (receivedFrame.seq!=0&&checkCode_compute != receivedFrame.crc) {
+        if (receivedFrame.seq != 0 && checkCode_compute != receivedFrame.crc) {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!", receivedFrame.seq));
         } else {
             //如果是自己发的包不用管
-            if (receivedFrame.src_mac == DeviceSettings.MACAddress) {
-                DebugHelper.log("收到自己的包,不需要处理直接丢弃");
-                receiveFramesCount--;
-            } else {
-                //如果是数据包，需要发送ACK
-                if (receivedFrame.frame_type == 0) {
-                    if(!ACKs.contains(receivedFrame.seq))
-                    {
-                        ACKs.add(receivedFrame.seq);
-
-                    }
-
-                    if (!receiveFramesSeq.contains(receivedFrame.seq) ) {
-                        //包没有问题就存下来
-                        synchronized (upStreamQueue) {
-                            upStreamQueue.add(receivedFrame);
-                        }
-                        receiveFramesSeq.add(receivedFrame.seq);
-                    }
+            //如果是数据包，需要发送ACK
+            if (receivedFrame.frame_type == 0) {
+                if (!ACKs.contains(receivedFrame.seq)) {
+                    ACKs.add(receivedFrame.seq);
 
                 }
-                if (receivedFrame.frame_type == 1) {
-                    //如果是ACK包，需要从重发队列里删除对应的包
-                    //先解析ACK里包含哪些frame，payload里每10位是一个seq
-                    for (int i = 0; i < receivedFrame.payload.size() - 10; i += 10) {
-                        int recieveSeq = smartConvertor.mergeBitsToInteger(new ArrayList<>(receivedFrame.payload.subList(i, i + 10)));
-                        if (recieveSeq == 0) {
-                            break;
-                        }
-                        DebugHelper.log("包" + recieveSeq + "发送成功");
-                        
-                        if(!LastSendFrames.removeIf(x -> x.seq == recieveSeq)){
-                            downStreamQueue.removeIf(x -> x.seq == recieveSeq);
-                        }
 
+                if (!receiveFramesSeq.contains(receivedFrame.seq)) {
+                    //包没有问题就存下来
+                    synchronized (upStreamQueue) {
+                        upStreamQueue.add(receivedFrame);
                     }
+                    receiveFramesSeq.add(receivedFrame.seq);
                 }
-                //通知其他人有frame进来了
 
-                synchronized (GlobalEvent.Receive_Frame) {
-                    GlobalEvent.Receive_Frame.notifyAll();
+            }
+            if (receivedFrame.frame_type == 1) {
+                //如果是ACK包，需要从重发队列里删除对应的包
+                //先解析ACK里包含哪些frame，payload里每10位是一个seq
+                for (int i = 0; i < receivedFrame.payload.size() - 10; i += 10) {
+                    int recieveSeq = smartConvertor.mergeBitsToInteger(new ArrayList<>(receivedFrame.payload.subList(i, i + 10)));
+                    if (recieveSeq == 0) {
+                        break;
+                    }
+                    DebugHelper.log("包" + recieveSeq + "发送成功");
+
+                    if (!LastSendFrames.removeIf(x -> x.seq == recieveSeq)) {
+                        downStreamQueue.removeIf(x -> x.seq == recieveSeq);
+                    }
+
                 }
             }
+            //通知其他人有frame进来了
 
-
+            synchronized (GlobalEvent.Receive_Frame) {
+                GlobalEvent.Receive_Frame.notifyAll();
+            }
         }
 
 
         receiveFramesCount++;
-        if (receiveFramesCount >= UserSettings.Number_Frames_True) {
+        if (receiveFramesCount >= UserSettings.Number_Frames_Trun) {
             receiveFramesCount = 0;
             synchronized (GlobalEvent.ALL_DATA_Recieved) {
                 GlobalEvent.ALL_DATA_Recieved.notifyAll();
