@@ -38,7 +38,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 2;
+        int taskchoice = 1;
         //#endregion
 
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
@@ -52,7 +52,7 @@ public class Main {
                 DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 0;
                 //Node 1
-                var inputData = smartConvertor.binInTextFile("res\\INPUT.txt");
+                var inputData = smartConvertor.binInTextFile("res\\INPUT_6250.txt");
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
                 //我先发
@@ -64,7 +64,7 @@ public class Main {
                         GlobalEvent.ALL_DATA_Recieved.wait(1000);
 
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()>=6800/MACFrame.SEGEMENT[3])
+                    if(MACLayer.macBufferController.upStreamQueue.size()>=40000/MACFrame.SEGEMENT[3])
                     {
                         DebugHelper.log("切换到3");
                         taskchoice=3;
@@ -82,7 +82,7 @@ public class Main {
                 DeviceSettings.MACAddress = 1;
 
                 //我是Node2
-                var inputData = smartConvertor.binInTextFile("res\\INPUT2.txt");
+                var inputData = smartConvertor.binInTextFile("res\\INPUT2_5000.txt");
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
                 MACLayer.macBufferController.dropCount=50;
@@ -138,7 +138,7 @@ public class Main {
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(4000);
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()>=6800/MACFrame.SEGEMENT[3]*2)
+                    if(MACLayer.macBufferController.upStreamQueue.size()>=50000/MACFrame.SEGEMENT[3])
                     {
                         MACLayer.macStateMachine.TxPending = true;
                         DebugHelper.log("数据接收全部完成");
