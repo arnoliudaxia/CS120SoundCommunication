@@ -1,6 +1,7 @@
 import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
+import OSI.Application.UserSettings;
 import OSI.MAC.MACFrame;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
@@ -61,7 +62,7 @@ public class Main {
                     MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait(1000);
+                        GlobalEvent.ALL_DATA_Recieved.wait();
 
                     }
                     if(MACLayer.macBufferController.upStreamQueue.size()>=236)
@@ -124,6 +125,7 @@ public class Main {
                         DebugHelper.log("数据发送全部完成");
                         break;
                     }
+                    MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.Receive_Frame) {
                         GlobalEvent.Receive_Frame.wait(4000);
@@ -132,6 +134,7 @@ public class Main {
             }
             if(taskchoice==4)
             {
+                UserSettings.Number_Frames_Trun =1;
                 //我只需要听然后发送ACK
                 while(true){
                     MACLayer.macStateMachine.TxPending = true;
