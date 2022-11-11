@@ -220,7 +220,11 @@ public class MACBufferController {
                             break;
                         }
                         DebugHelper.log("包" + recieveSeq + "发送成功");
-                        LastSendFrames.removeIf(x -> x.seq == recieveSeq);
+                        
+                        if(!LastSendFrames.removeIf(x -> x.seq == recieveSeq)){
+                            downStreamQueue.removeIf(x -> x.seq == recieveSeq);
+                        }
+
                     }
                 }
                 //通知其他人有frame进来了
