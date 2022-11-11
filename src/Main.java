@@ -64,7 +64,7 @@ public class Main {
                         GlobalEvent.ALL_DATA_Recieved.wait(1000);
 
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()>=40000/MACFrame.SEGEMENT[3])
+                    if(MACLayer.macBufferController.upStreamQueue.size()>=236)
                     {
                         DebugHelper.log("切换到3");
                         taskchoice=3;
@@ -138,7 +138,7 @@ public class Main {
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(4000);
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()>=50000/MACFrame.SEGEMENT[3])
+                    if(MACLayer.macBufferController.upStreamQueue.size()>=295)
                     {
                         MACLayer.macStateMachine.TxPending = true;
                         DebugHelper.log("数据接收全部完成");
