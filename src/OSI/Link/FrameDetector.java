@@ -4,7 +4,9 @@ import OSI.Application.DeviceSettings;
 import OSI.MAC.MACLayer;
 import dataAgent.CallBackStoreData;
 import utils.DebugHelper;
+import utils.csvFileHelper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -31,19 +33,9 @@ public class FrameDetector implements CallBackStoreData {
     public void storeData(float[] data) {
         for (var sampleP : data) {
 //            wave.add(sampleP);//用来给matlab分析
-//            if(false&&wave.size()==48000*5){
-//                csvFileHelper csvHelper=new csvFileHelper();
-//                try {
-//                    String lyfHPURL = "C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
-//                    csvHelper.saveToCsv(lyfHPURL+"wave.csv",wave);
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
             localEnergy*=19.f/20.f;
             localEnergy+=Math.abs(sampleP);
-//            MACLayer.isChannelReady= localEnergy < quietRef;
-            MACLayer.isChannelReady=true;
+            MACLayer.isChannelReady= localEnergy < quietRef;
 //            wave.add(localEnergy);
             float wakeupRef = DeviceSettings.wakeupRef;//header的触发电平
             switch (detectState) {
