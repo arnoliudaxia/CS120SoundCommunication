@@ -128,6 +128,7 @@ public class MACBufferController {
         MACFrame frame = downStreamQueue.poll();
         if (frame == null) {
             DebugHelper.log("发送队列里没有东西朋友!");
+            dropCount++;
         }
         else {
             if (frame.frame_type == 0) {
