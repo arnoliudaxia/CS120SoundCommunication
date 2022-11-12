@@ -51,9 +51,9 @@ public class Main {
             if(command.contains("macperf")){
                 int taskchoice = -1;
                 if(command.contains("1")) {
-                    taskchoice = 0;
-                }else if(command.contains("0")) {
                     taskchoice = 1;
+                }else if(command.contains("2")) {
+                    taskchoice = 2;
                 }
                 if (taskchoice == 1) {
                     UserSettings.Number_bits=40000;
