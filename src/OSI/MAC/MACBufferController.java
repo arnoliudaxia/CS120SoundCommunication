@@ -78,7 +78,7 @@ public class MACBufferController {
                 var payload = data.subList(0, Math.min(payloadLength, data.size()));
                 while (payload.size() != payloadLength) {
                     payload.add(0);
-                    DebugHelper.log("填充数据!");
+//                    DebugHelper.log("填充数据!");
                 }
                 MACFrame frame = new MACFrame(seq, new ArrayList<>(payload), CRC.crc16(new ArrayList<>(payload)), 0, DeviceSettings.MACAddress);
                 downStreamQueue.add(frame);
