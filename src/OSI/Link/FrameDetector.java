@@ -54,18 +54,17 @@ public class FrameDetector implements CallBackStoreData {
                 case HeadWholeJudge:
                     headerJudgeCount++;
                     headerEngery.add(sampleP);
-                    if (headerJudgeCount > 20) {
+                    if (headerJudgeCount >= 20) {
                         //1010法检验包头
-                        boolean isHeader=true;
+                        int antiCount=0;
                         for (int i = 0; i < headerEngery.size(); i++) {
                             if((headerEngery.get(i+1)-headerEngery.get(i))*(headerEngery.get(i+2)-headerEngery.get(i+1))>0)
                             {
-                                isHeader=false;
-                                break;
+                                antiCount++;
                             }
                         }
 //                        DebugHelper.log("Found Header Score: " + HeaderScore);
-                        if (isHeader) {
+                        if (antiCount>1) {
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected = true;
                             detectState = DetectState.DataRetrive;
