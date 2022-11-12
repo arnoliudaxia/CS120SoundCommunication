@@ -95,7 +95,7 @@ public class MACBufferController {
     public void sendACK() {
         ArrayList<Integer> payload = new ArrayList<>();
         if (ACKs.size() > UserSettings.Number_Frames_Trun) {
-            DebugHelper.log("ACKs.size()>UserSettings.Number_Frames_True");
+//            DebugHelper.log("ACKs.size()>UserSettings.Number_Frames_True");
         }
         while (ACKs.size() > 0) {
             payload.addAll(smartConvertor.exactBitsOfNumber(ACKs.poll(), 10));
@@ -113,6 +113,8 @@ public class MACBufferController {
             downStreamQueue.add(0, frame);
         }
         DebugHelper.log("发送ACK,crc is" + frame.crc);
+        DebugHelper.log("发送PING");
+
     }
 
     public int framesSendCount = 0;
@@ -149,7 +151,7 @@ public class MACBufferController {
         MACLayer.macStateMachine.TxDone = true;
         if (framesSendCount >= UserSettings.Number_Frames_Trun) {
             //你已经发得够多了别贪
-            DebugHelper.log("我发完了等待接收");
+//            DebugHelper.log("我发完了等待接收");
             framesSendCount = 0;
         } else {
             MACLayer.macStateMachine.TxPending = true;
@@ -215,7 +217,7 @@ public class MACBufferController {
                     if (recieveSeq == 0) {
                         break;
                     }
-                    DebugHelper.log("包" + recieveSeq + "发送成功");
+//                    DebugHelper.log("包" + recieveSeq + "发送成功");
 
                     if (!LastSendFrames.removeIf(x -> x.seq == recieveSeq)) {
                         downStreamQueue.removeIf(x -> x.seq == recieveSeq);

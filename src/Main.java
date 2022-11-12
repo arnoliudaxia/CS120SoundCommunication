@@ -69,7 +69,7 @@ public class Main {
                         taskchoice = 3;
                         break;
                     }
-                    DebugHelper.log("我收到了对方发的一轮包");
+//                    DebugHelper.log("我收到了对方发的一轮包");
                     MACLayer.macBufferController.framesSendCount = 0;
 //                    break;
                 }
@@ -95,7 +95,7 @@ public class Main {
                 while (true) {
                     MACLayer.macBufferController.resend();
                     if (MACLayer.macBufferController.downStreamQueue.isEmpty()) {
-                        DebugHelper.log("切换到4");
+//                        DebugHelper.log("切换到4");
                         taskchoice = 4;
                         break;
                     }
