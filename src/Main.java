@@ -50,7 +50,7 @@ public class Main {
             ArrayList<Integer> information = new ArrayList<>();
 
             if (taskchoice == 1) {
-                UserSettings.Number_bits=50000;
+                UserSettings.Number_bits=40000;
                 DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 0;
                 //Node 1
@@ -79,7 +79,7 @@ public class Main {
 
             }
             if (taskchoice == 2) {
-                UserSettings.Number_bits=40000;
+                UserSettings.Number_bits=50000;
                 DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 1;
 
