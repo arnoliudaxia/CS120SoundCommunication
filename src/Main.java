@@ -139,7 +139,7 @@ public class Main {
                     synchronized (GlobalEvent.Receive_Frame) {
                         GlobalEvent.Receive_Frame.wait();
                     }
-                    DebugHelper.log("RTT" + (System.currentTimeMillis() - lastTime));
+                    DebugHelper.log("RTT " + (System.currentTimeMillis() - lastTime));
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait();
                     }
