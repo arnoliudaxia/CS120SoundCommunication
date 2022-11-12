@@ -52,7 +52,7 @@ public class Main {
                 int taskchoice = -1;
                 if(command.contains("1")) {
                     taskchoice = 0;
-                }else if(command.contains("1")) {
+                }else if(command.contains("0")) {
                     taskchoice = 1;
                 }
                 if (taskchoice == 1) {
