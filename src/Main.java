@@ -71,7 +71,7 @@ public class Main {
                         synchronized (GlobalEvent.ALL_DATA_Recieved) {
                             GlobalEvent.ALL_DATA_Recieved.wait(2000);
                         }
-                        if(MACLayer.macBufferController.upStreamQueue.size()>=236)
+                        if(MACLayer.macBufferController.upStreamQueue.size()>=4)
                         {
                             DebugHelper.log("切换到3");
                             taskchoice=3;
@@ -90,14 +90,12 @@ public class Main {
                     DeviceSettings.MACAddress = 1;
 
                     //我是Node2
-                    var inputData = smartConvertor.binInFile("res\\INPUT_5000.bin");
+                    var inputData = smartConvertor.binInTextFile("res\\Part5\\INPUT_TS.txt");
                     MessageSender messager = new MessageSender();
                     messager.sendBinary(inputData);//数据填充
                     MACLayer.macBufferController.dropCount=50;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait();
-
-
                     }
                     DebugHelper.log("收到了对方的第一轮包");
                     MACLayer.macBufferController.framesSendCount = 0;
