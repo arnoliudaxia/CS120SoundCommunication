@@ -49,6 +49,46 @@ public class Main {
         try {
             ArrayList<Integer> information = new ArrayList<>();
             if(command.contains("macperf")){
+                while (true) {
+                    //一直发就可以
+                    DeviceSettings.MACAddress = 0;
+                    DeviceSettings.wakeupRef=0.2f;
+//                    MACLayer.macBufferController.resend();
+                    MACLayer.macBufferController.dropCount=0;
+                    MACLayer.macStateMachine.TxPending = true;
+                    synchronized (GlobalEvent.Receive_Frame) {
+                        GlobalEvent.Receive_Frame.wait(4000);
+                    }
+                }
+            }
+            if(command.contains("macping")) {
+                DeviceSettings.wakeupRef=0.2f;
+                DeviceSettings.MACAddress = 1;
+                MACLayer.macBufferController.dropCount=50;
+                synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                    GlobalEvent.ALL_DATA_Recieved.wait();
+                }
+                DebugHelper.log("收到了对方的第一轮包");
+                MACLayer.macBufferController.framesSendCount = 0;
+                UserSettings.Number_Frames_Trun =1;
+
+
+                while(true){
+                    MACLayer.macBufferController.dropCount=0;
+                    MACLayer.macStateMachine.TxPending = true;
+                    var lastTime=System.currentTimeMillis();
+                    synchronized (GlobalEvent.Receive_Frame) {
+                        GlobalEvent.Receive_Frame.wait();
+                    }
+                    DebugHelper.log("RTT:+ "+(System.currentTimeMillis()-lastTime));
+                    lastTime=System.currentTimeMillis();
+                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                        GlobalEvent.ALL_DATA_Recieved.wait(3000);
+                    }
+                }
+            }
+
+            if(command.contains("macp213erf")){
                 int taskchoice = -1;
                 if(command.contains("1")) {
                     taskchoice = 0;
@@ -84,82 +124,12 @@ public class Main {
 
 
                 }
-                if (taskchoice == 2) {
-                    UserSettings.Number_bits=50000;
-                    DeviceSettings.wakeupRef=0.2f;
-                    DeviceSettings.MACAddress = 1;
 
-                    //我是Node2
-                    var inputData = smartConvertor.binInFile("res\\INPUT_5000.bin");
-                    MessageSender messager = new MessageSender();
-                    messager.sendBinary(inputData);//数据填充
-                    MACLayer.macBufferController.dropCount=50;
-                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait();
-
-
-                    }
-                    DebugHelper.log("收到了对方的第一轮包");
-                    MACLayer.macBufferController.framesSendCount = 0;
-
-                    while (true) {
-                        MACLayer.macBufferController.resend();
-                        if(MACLayer.macBufferController.downStreamQueue.isEmpty())
-                        {
-                            DebugHelper.log("切换到4");
-                            taskchoice=4;
-                            break;
-                        }
-                        MACLayer.macBufferController.dropCount=0;
-                        MACLayer.macStateMachine.TxPending = true;
-                        synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                            GlobalEvent.ALL_DATA_Recieved.wait();
-                            //threadBlockTime(220);
-                        }
-                        DebugHelper.log("收到了对方的一轮包");
-                        MACLayer.macBufferController.framesSendCount = 0;
-                    }
-
-
-                }
-                if(taskchoice==3) {
-                    //我只需要发送并且接受ACK
-//                UserSettings.Number_Frames_ShouldReceive =1;
-                    while (true) {
-                        MACLayer.macBufferController.resend();
-                        if(MACLayer.macBufferController.downStreamQueue.isEmpty()||System.currentTimeMillis()-programStartTime>55000)
-                        {
-                            //现在连我也发完数据了
-                            DebugHelper.log("数据发送全部完成");
-                            break;
-                        }
-                        MACLayer.macBufferController.dropCount=0;
-                        MACLayer.macStateMachine.TxPending = true;
-                        synchronized (GlobalEvent.Receive_Frame) {
-                            GlobalEvent.Receive_Frame.wait(4000);
-                        }
-                    }
-                }
                 if(taskchoice==4)
                 {
-                    UserSettings.Number_Frames_Trun =1;
 
                     //我只需要听然后发送ACK
-                    while(true){
-                        MACLayer.macBufferController.dropCount=0;
-                        MACLayer.macStateMachine.TxPending = true;
-                        synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                            GlobalEvent.ALL_DATA_Recieved.wait(3000);
-                        }
-                        if(MACLayer.macBufferController.upStreamQueue.size()>=295)
-                        {
-                            MACLayer.macStateMachine.TxPending = true;
-                            DebugHelper.log("数据接收全部完成");
-                            threadBlockTime(1000);
-                            break;
-                        }
 
-                    }
                 }
                 ArrayList<MACFrame> rFrames = new ArrayList<>();
                 synchronized (MACLayer.macBufferController.upStreamQueue) {
@@ -181,15 +151,6 @@ public class Main {
                 smartConvertor.binToFile("res\\OUTPUT.bin", information);
             }
 
-
-
-
-
-//            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
-//                for (var bit : information) {
-//                    input.write(bit.toString().getBytes());
-//                }
-//            }
 
 
         } catch (Exception e) {
