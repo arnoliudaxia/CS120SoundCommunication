@@ -127,13 +127,13 @@ public class MACBufferController {
         }
         MACFrame frame = downStreamQueue.poll();
         if (frame == null) {
-            DebugHelper.log("发送队列里没有东西朋友!");
+//            DebugHelper.log("发送队列里没有东西朋友!");
             dropCount++;
         } else {
             if (frame.frame_type == 0) {
                 LastSendFrames.add(frame);
             }
-            DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
+            if(frame.seq==0)DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
             ArrayList<Integer> sendTemp = new ArrayList<>();
             sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.seq, 10));
             sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.frame_type, 2));
@@ -160,7 +160,7 @@ public class MACBufferController {
 
     public void __receive(ArrayList<Integer> data) {
         if (dropCount < UserSettings.Number_Frames_Trun) {
-            DebugHelper.log("应该是自己的包，我直接丢");
+//            DebugHelper.log("应该是自己的包，我直接丢");
             dropCount++;
             MACLayer.macStateMachine.RxDone = true;
             return;
@@ -185,7 +185,7 @@ public class MACBufferController {
 
         }
         int checkCode_compute = CRC.crc16(receivedFrame.payload);
-        DebugHelper.log(String.format("收到序号为%d包,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.crc, checkCode_compute));
+        if(receivedFrame.seq!=0)DebugHelper.log(String.format("收到序号为%d包,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.crc, checkCode_compute));
 
         if (receivedFrame.seq != 0 && checkCode_compute != receivedFrame.crc) {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!", receivedFrame.seq));

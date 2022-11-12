@@ -19,7 +19,7 @@ public class MessageSender {
         MACLayer.macBufferController.trySend(data);
     }
     public void sendBinary(ArrayList<Integer> input) {
-        DebugHelper.log("发送二进制数据包");
+//        DebugHelper.log("发送二进制数据包");
         AudioHw.audioHwG.isPlay=true;
         MACLayer.macBufferController.trySend(input);
         MACLayer.macStateMachine.preSum=MACLayer.macBufferController.downStreamQueue.size();
