@@ -113,7 +113,7 @@ public class MACBufferController {
             downStreamQueue.add(0, frame);
         }
         DebugHelper.log("发送ACK,crc is" + frame.crc);
-        DebugHelper.log("发送PING");
+        if(DeviceSettings.MACAddress==1)DebugHelper.log("发送PING");
 
     }
 

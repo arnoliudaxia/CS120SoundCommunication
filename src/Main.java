@@ -65,7 +65,7 @@ public class Main {
                         GlobalEvent.ALL_DATA_Recieved.wait(2000);
                     }
                     if (MACLayer.macBufferController.upStreamQueue.size() >= 4) {
-                        DebugHelper.log("切换到3");
+//                        DebugHelper.log("切换到3");
                         taskchoice = 3;
                         break;
                     }
@@ -89,7 +89,7 @@ public class Main {
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     GlobalEvent.ALL_DATA_Recieved.wait();
                 }
-                DebugHelper.log("收到了对方的第一轮包");
+//                DebugHelper.log("收到了对方的第一轮包");
                 MACLayer.macBufferController.framesSendCount = 0;
 
                 while (true) {
@@ -105,7 +105,7 @@ public class Main {
                         GlobalEvent.ALL_DATA_Recieved.wait();
                         //threadBlockTime(220);
                     }
-                    DebugHelper.log("收到了对方的一轮包");
+//                    DebugHelper.log("收到了对方的一轮包");
                     MACLayer.macBufferController.framesSendCount = 0;
                 }
 
