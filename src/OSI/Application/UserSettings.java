@@ -8,4 +8,5 @@ public class UserSettings {
     public static int Number_Frames_Trun = 5;
     public static int Number_Frames_ShouldReceive = 5;
     public static boolean printStateLog = false;
+    public static boolean waitUntilQuite=true;
 }

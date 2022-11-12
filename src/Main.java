@@ -5,7 +5,6 @@ import OSI.Application.UserSettings;
 import OSI.MAC.MACFrame;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
-import com.github.psambit9791.wavfile.WavFileException;
 import dataAgent.StorgePolicy;
 import utils.DebugHelper;
 import utils.csvFileHelper;
@@ -27,7 +26,7 @@ public class Main {
     }
 
 
-    public static void main(final String[] args) throws IOException, WavFileException {
+    public static void main(final String[] args) throws IOException {
 
         csvFileHelper csv = new csvFileHelper();
 
