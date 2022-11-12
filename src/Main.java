@@ -139,9 +139,10 @@ public class Main {
 
                 //我只需要听然后发送ACK
                 while(true){
+                    MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait(4000);
+                        GlobalEvent.ALL_DATA_Recieved.wait(3000);
                     }
                     if(MACLayer.macBufferController.upStreamQueue.size()>=295)
                     {
