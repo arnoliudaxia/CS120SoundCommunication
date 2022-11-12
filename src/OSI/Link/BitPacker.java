@@ -19,10 +19,8 @@ public class BitPacker {
         frameConfig.fragmentLength= fragmentLength = (int) (fragmentTime * sampleFre);
         //丢弃原来的header，直接选用20采样点的高电平表示1
         signal = new float[headerLength+bitLength * fragmentLength];
-        //float数组默认初始化0，赋值1
-        for (int i = 0; i < headerLength; i++) {
-            signal[i] = 1;
-        }
+        //header改为1010（20位）
+        System.arraycopy(frameConfig.digitalHeader, 0, signal, 0, frameConfig.digitalHeaderLength);
         rawDataIndex = headerLength;
     }
 
@@ -74,7 +72,7 @@ public class BitPacker {
     private final float[] oneSignal;
     private final float[] zeroSignal;
 //    private final float[] header=frameConfig.header;
-    final int headerLength=20;
+    final int headerLength=frameConfig.digitalHeaderLength;
     private final int bitLength = frameConfig.bitLength;
     private int rawDataIndex;
 

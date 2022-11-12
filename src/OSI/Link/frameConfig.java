@@ -23,6 +23,7 @@ public class frameConfig {
     /**
      * header的采样点数量
      */
-    public static int digitalHeaderLength=20;
+    public static float[] digitalHeader={1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0};
+    public static int digitalHeaderLength=digitalHeader.length;
 
 }
