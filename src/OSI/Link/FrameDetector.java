@@ -50,6 +50,12 @@ public class FrameDetector implements CallBackStoreData {
                     headerJudgeCount++;
                     headerEngery.add(sampleP);
                     if (headerJudgeCount > 20) {
+                        //1010法检验包头
+                        float HeaderScore=0;
+                        HeaderScore+=headerEngery.subList(0,5).stream().mapToDouble(d->d).sum();
+                        HeaderScore-=headerEngery.subList(5,10).stream().mapToDouble(d->d).sum();
+                        HeaderScore+=headerEngery.subList(10,15).stream().mapToDouble(d->d).sum();
+                        HeaderScore-=headerEngery.subList(15,20).stream().mapToDouble(d->d).sum();
                         DebugHelper.log("Header Energy: " + headerEngery);
                         if(false) {
                             //找到头了
