@@ -144,7 +144,7 @@ public class FrameDetector implements CallBackStoreData {
                 float judgeDataRef = 0.03f;
                 //首先解析第一个数据点，接下来就是一个二元状态机
                 int state = frame.get(0) > judgeDataRef ? 1 : 0;
-                float judgeEnerge = 0.1f;
+                float judgeEnerge = 0.12f;
                 float energeSum=0;
                 for (int i = 0; i < frame.size(); i+=5) {
 //                    energeSum+=frame.get(i);

@@ -232,7 +232,7 @@ public class MACBufferController {
 
 
         receiveFramesCount++;
-        if (receiveFramesCount >= UserSettings.Number_Frames_Trun) {
+        if (receiveFramesCount >= UserSettings.Number_Frames_ShouldReceive) {
             receiveFramesCount = 0;
             synchronized (GlobalEvent.ALL_DATA_Recieved) {
                 GlobalEvent.ALL_DATA_Recieved.notifyAll();

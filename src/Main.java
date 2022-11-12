@@ -41,6 +41,7 @@ public class Main {
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
         int taskchoice = 1;
         //#endregion
+        long programStartTime = System.currentTimeMillis();
 
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
         String lyfHPURL = "C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
@@ -62,8 +63,7 @@ public class Main {
                     MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait();
-
+                        GlobalEvent.ALL_DATA_Recieved.wait(2000);
                     }
                     if(MACLayer.macBufferController.upStreamQueue.size()>=236)
                     {
@@ -117,9 +117,10 @@ public class Main {
             }
             if(taskchoice==3) {
                 //我只需要发送并且接受ACK
+//                UserSettings.Number_Frames_ShouldReceive =1;
                 while (true) {
                     MACLayer.macBufferController.resend();
-                    if(MACLayer.macBufferController.downStreamQueue.isEmpty())
+                    if(MACLayer.macBufferController.downStreamQueue.isEmpty()||System.currentTimeMillis()-programStartTime>55000)
                     {
                         //现在连我也发完数据了
                         DebugHelper.log("数据发送全部完成");
@@ -135,6 +136,7 @@ public class Main {
             if(taskchoice==4)
             {
                 UserSettings.Number_Frames_Trun =1;
+
                 //我只需要听然后发送ACK
                 while(true){
                     MACLayer.macStateMachine.TxPending = true;
