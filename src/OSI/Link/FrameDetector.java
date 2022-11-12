@@ -4,7 +4,6 @@ import OSI.Application.DeviceSettings;
 import OSI.Application.UserSettings;
 import OSI.MAC.MACLayer;
 import dataAgent.CallBackStoreData;
-import utils.DebugHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -49,7 +48,6 @@ public class FrameDetector implements CallBackStoreData {
                         detectState = DetectState.HeadWholeJudge;
                         headerJudgeCount = 1;
                         headerEngery.clear();
-                        ;
                         headerEngery.add(sampleP);
                     }
                     break;
@@ -58,13 +56,16 @@ public class FrameDetector implements CallBackStoreData {
                     headerEngery.add(sampleP);
                     if (headerJudgeCount > 20) {
                         //1010法检验包头
-                        float HeaderScore = 0;
-                        HeaderScore += headerEngery.subList(0, 5).stream().mapToDouble(d -> (1-d)).sum();
-                        HeaderScore += headerEngery.subList(5, 10).stream().mapToDouble(d -> d).sum();
-                        HeaderScore += headerEngery.subList(10, 15).stream().mapToDouble(d -> (1-d)).sum();
-                        HeaderScore += headerEngery.subList(15, 20).stream().mapToDouble(d -> d).sum();
-                        DebugHelper.log("Found Header Score: " + HeaderScore);
-                        if (HeaderScore > 7) {
+                        boolean isHeader=true;
+                        for (int i = 0; i < headerEngery.size(); i++) {
+                            if((headerEngery.get(i+1)-headerEngery.get(i))*(headerEngery.get(i+2)-headerEngery.get(i+1))>0)
+                            {
+                                isHeader=false;
+                                break;
+                            }
+                        }
+//                        DebugHelper.log("Found Header Score: " + HeaderScore);
+                        if (isHeader) {
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected = true;
                             detectState = DetectState.DataRetrive;
