@@ -11,7 +11,6 @@ import utils.DebugHelper;
 import utils.csvFileHelper;
 import utils.smartConvertor;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -51,6 +50,7 @@ public class Main {
             ArrayList<Integer> information = new ArrayList<>();
 
             if (taskchoice == 1) {
+                UserSettings.Number_bits=50000;
                 DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 0;
                 //Node 1
@@ -79,6 +79,7 @@ public class Main {
 
             }
             if (taskchoice == 2) {
+                UserSettings.Number_bits=40000;
                 DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 1;
 
@@ -172,12 +173,13 @@ public class Main {
                 }
             }
             rFrames.forEach(x -> information.addAll(x.payload));
-            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
-                for (var bit : information) {
-                    input.write(bit.toString().getBytes());
-                }
-            }
-//                csv.saveToCsv(lyfHPURL+"wave.csv",((FrameDetector)AudioHw.audioHwG.dataagent).wave);
+            information.subList(UserSettings.Number_bits, information.size()).clear();
+            smartConvertor.binToFile("res\\OUTPUT.bin", information);
+//            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
+//                for (var bit : information) {
+//                    input.write(bit.toString().getBytes());
+//                }
+//            }
 
 
         } catch (Exception e) {
