@@ -111,17 +111,17 @@ public class Main {
                     @Override
                     public void playOverCallback() {
                         AudioHw.audioHwG.isRecording = false;
-                        if(MACLayer.macBufferController.upStreamQueue.size()==0){
+                        if(MACLayer.macBufferController.upStreamQueue.size()!=0){
                             DebugHelper.log("link error");
-                        }
-                        else{
-                            DebugHelper.log("发送成功");
                         }
                     }
                 }
                 AudioHw.audioHwG.playOverCallback=new waitForReply();
                 MessageSender.messageSender.sendBinary(smartConvertor.binInTextFile("res\\INPUT.txt"));
                 threadBlockTime(12000);
+                if(MACLayer.macBufferController.upStreamQueue.size()!=0){
+                    DebugHelper.log("link error");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
