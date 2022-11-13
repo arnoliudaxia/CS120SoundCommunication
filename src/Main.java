@@ -53,7 +53,7 @@ public class Main {
                 DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 0;
                 //Node 1
-                var inputData = smartConvertor.binInTextFile("res\\INPUT_6250.txt");
+                var inputData = smartConvertor.binInFile("res\\INPUT_6250.bin");
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
                 //我先发
@@ -82,7 +82,7 @@ public class Main {
                 DeviceSettings.MACAddress = 1;
 
                 //我是Node2
-                var inputData = smartConvertor.binInTextFile("res\\INPUT2_5000.txt");
+                var inputData = smartConvertor.binInFile("res\\INPUT_5000.bin");
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
                 MACLayer.macBufferController.dropCount=50;
