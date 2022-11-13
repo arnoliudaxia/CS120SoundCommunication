@@ -37,7 +37,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 1;
+        int taskchoice = 2;
         //#endregion
         long programStartTime = System.currentTimeMillis();
 
@@ -49,7 +49,7 @@ public class Main {
             ArrayList<Integer> information = new ArrayList<>();
 
             if (taskchoice == 1) {
-                UserSettings.Number_bits=50000;
+                UserSettings.Number_bits=40000;
                 DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 0;
                 //Node 1
@@ -78,7 +78,7 @@ public class Main {
 
             }
             if (taskchoice == 2) {
-                UserSettings.Number_bits=40000;
+                UserSettings.Number_bits=50000;
                 DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 1;
 
