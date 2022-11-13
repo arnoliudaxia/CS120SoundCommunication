@@ -196,43 +196,47 @@ public class MACBufferController {
         } else {
             //如果是自己发的包不用管
             //如果是数据包，需要发送ACK
-            if (receivedFrame.frame_type == 0) {
-                if (!ACKs.contains(receivedFrame.seq)) {
-                    ACKs.add(receivedFrame.seq);
+            if(!(receivedFrame.src_mac==DeviceSettings.MACAddress))
+            {
+                if (receivedFrame.frame_type == 0) {
+                    if (!ACKs.contains(receivedFrame.seq)) {
+                        ACKs.add(receivedFrame.seq);
 
-                }
-
-                if (!receiveFramesSeq.contains(receivedFrame.seq)) {
-                    //包没有问题就存下来
-                    synchronized (upStreamQueue) {
-                        upStreamQueue.add(receivedFrame);
                     }
-                    receiveFramesSeq.add(receivedFrame.seq);
-                }
-                if(receivedFrame.seq==236){
-                    GlobalEvent.Receive_Frame_236=true;
-                }
-                if(receivedFrame.seq==295){
-                    GlobalEvent.Receive_Frame_236=true;
-                }
 
+                    if (!receiveFramesSeq.contains(receivedFrame.seq)) {
+                        //包没有问题就存下来
+                        synchronized (upStreamQueue) {
+                            upStreamQueue.add(receivedFrame);
+                        }
+                        receiveFramesSeq.add(receivedFrame.seq);
+                    }
+                    if(receivedFrame.seq==236){
+                        GlobalEvent.Receive_Frame_236=true;
+                    }
+                    if(receivedFrame.seq==295){
+                        GlobalEvent.Receive_Frame_236=true;
+                    }
+
+                }
+                if (receivedFrame.frame_type == 1) {
+                    //如果是ACK包，需要从重发队列里删除对应的包
+                    //先解析ACK里包含哪些frame，payload里每10位是一个seq
+                    for (int i = 0; i < receivedFrame.payload.size() - 10; i += 10) {
+                        int recieveSeq = smartConvertor.mergeBitsToInteger(new ArrayList<>(receivedFrame.payload.subList(i, i + 10)));
+                        if (recieveSeq == 0) {
+                            break;
+                        }
+                        DebugHelper.log("包" + recieveSeq + "发送成功");
+
+                        if (!LastSendFrames.removeIf(x -> x.seq == recieveSeq)) {
+                            downStreamQueue.removeIf(x -> x.seq == recieveSeq);
+                        }
+
+                    }
+                }
             }
-            if (receivedFrame.frame_type == 1) {
-                //如果是ACK包，需要从重发队列里删除对应的包
-                //先解析ACK里包含哪些frame，payload里每10位是一个seq
-                for (int i = 0; i < receivedFrame.payload.size() - 10; i += 10) {
-                    int recieveSeq = smartConvertor.mergeBitsToInteger(new ArrayList<>(receivedFrame.payload.subList(i, i + 10)));
-                    if (recieveSeq == 0) {
-                        break;
-                    }
-                    DebugHelper.log("包" + recieveSeq + "发送成功");
 
-                    if (!LastSendFrames.removeIf(x -> x.seq == recieveSeq)) {
-                        downStreamQueue.removeIf(x -> x.seq == recieveSeq);
-                    }
-
-                }
-            }
             //通知其他人有frame进来了
 
             synchronized (GlobalEvent.Receive_Frame) {
