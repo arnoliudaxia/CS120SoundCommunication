@@ -1,6 +1,5 @@
 import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
-import OSI.Link.FrameDetector;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import OSI.Physic.PlayOverCallback;
@@ -37,8 +36,8 @@ public class Main {
 //        threadBlockTime(20000);
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
-//        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 7;
+        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
+//        int taskchoice = 7;
         //#endregion
 
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
@@ -133,15 +132,6 @@ public class Main {
                 AudioHw.audioHwG.playOverCallback=new waitForReply();
                 MessageSender.messageSender.sendBinary(smartConvertor.binInTextFile("res\\INPUT.txt"));
                 threadBlockTime(12000);
-            }
-            if(taskchoice==8){
-                //接收完发一个回复
-                var s=new FrameDetector();
-                AudioHw.audioHwG.dataagent = s;
-                AudioHw.audioHwG.isRecording = true;
-
-                AudioHw.audioHwG.isRecording = false;
-
             }
         } catch (Exception e) {
             e.printStackTrace();
