@@ -63,8 +63,8 @@ public class FrameDetector implements CallBackStoreData {
                         HeaderScore += headerEngery.subList(5, 10).stream().mapToDouble(d -> d).sum();
                         HeaderScore += headerEngery.subList(10, 15).stream().mapToDouble(d -> (1-d)).sum();
                         HeaderScore += headerEngery.subList(15, 20).stream().mapToDouble(d -> d).sum();
-                        DebugHelper.log("Found Header Score: " + HeaderScore);
                         if (HeaderScore < 5) {
+                        DebugHelper.log("Found Header Score: " + HeaderScore);
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected = true;
                             detectState = DetectState.DataRetrive;
