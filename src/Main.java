@@ -39,19 +39,9 @@ public class Main {
         int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
 //        int taskchoice = 7;
         //#endregion
-
-        String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
-        String lyfHPURL = "C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
-        String lshURL = "D:\\桌面\\project1_sample\\";
+        
 
         try {
-            if (taskchoice == 4) {
-                new MessageSender();
-                MessageSender.messageSender.sendBinary(smartConvertor.binInTextFile("res\\INPUT.txt"));
-//            csv.saveToCsv(lyfdellURL+"send.csv",bitPacker.onepackage);
-                threadBlockTime(3000);
-                AudioHw.audioHwG.isPlay = false;
-            }
             AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
             AudioHw.audioHwG.isRecording = true;
 
