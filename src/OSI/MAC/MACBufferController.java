@@ -84,7 +84,9 @@ public class MACBufferController {
                 if(payload.size()>payloadLength){
                     data.subList(payloadLength,data.size() ).clear();
                 }
-                MACFrame frame = new MACFrame(seq, new ArrayList<>(payload), CRC.crc16(new ArrayList<>(payload)), 0, DeviceSettings.MACAddress);
+                MACFrame frame = new MACFrame(seq, new ArrayList<>(payload), -1, 0, DeviceSettings.MACAddress);
+                frame.crc=CRC.crc16(frame);
+
                 downStreamQueue.add(frame);
                 seq++;
                 data.subList(0, payloadLength).clear();
@@ -111,7 +113,10 @@ public class MACBufferController {
             payload.add(1);
             payload.add(0);
         }
-        MACFrame frame = new MACFrame(0, payload, CRC.crc16(payload), 1, DeviceSettings.MACAddress);
+        var crcP=payload;
+
+        MACFrame frame = new MACFrame(0, payload, -1, 1, DeviceSettings.MACAddress);
+        frame.crc=CRC.crc16(frame);
 
         synchronized (downStreamQueue) {
             downStreamQueue.add(0, frame);
@@ -188,7 +193,7 @@ public class MACBufferController {
             receivedFrame.payload.set(169, 0);
 
         }
-        int checkCode_compute = CRC.crc16(receivedFrame.payload);
+        int checkCode_compute = CRC.crc16(receivedFrame);
         DebugHelper.log(String.format("收到序号为%d包,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.crc, checkCode_compute));
 
         if (receivedFrame.seq != 0 && checkCode_compute != receivedFrame.crc) {

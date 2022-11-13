@@ -1,6 +1,8 @@
 package utils;
 
 
+import OSI.MAC.MACFrame;
+
 import java.util.ArrayList;
 
 public class CRC {
@@ -25,9 +27,10 @@ public class CRC {
      * @param Data 编码内容
      * @return 编码结果
      */
-    public static int crc16(ArrayList<Integer> inputData) {
+    public static int crc16(MACFrame macFrame) {
         ArrayList<Integer>Data=new ArrayList<>();
-        Data.addAll(inputData);
+        Data.addAll(smartConvertor.exactBitsOfNumber(macFrame.seq,10));
+        Data.addAll(macFrame.payload);
         ArrayList<Integer> bytes=new ArrayList<>();
         while(Data.size()>0){
             int len=Math.min(BITS_OF_BYTE, Data.size());
