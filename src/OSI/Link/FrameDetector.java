@@ -4,7 +4,6 @@ import OSI.Application.DeviceSettings;
 import OSI.Application.UserSettings;
 import OSI.MAC.MACLayer;
 import dataAgent.CallBackStoreData;
-import utils.DebugHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -64,7 +63,7 @@ public class FrameDetector implements CallBackStoreData {
                         HeaderScore += headerEngery.subList(10, 15).stream().mapToDouble(d -> (1-d)).sum();
                         HeaderScore += headerEngery.subList(15, 20).stream().mapToDouble(d -> d).sum();
                         if (HeaderScore < 5) {
-                        DebugHelper.log("Found Header Score: " + HeaderScore);
+//                        DebugHelper.log("Found Header Score: " + HeaderScore);
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected = true;
                             detectState = DetectState.DataRetrive;

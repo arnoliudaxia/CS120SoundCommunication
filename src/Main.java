@@ -64,7 +64,7 @@ public class Main {
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(2000);
                     }
-                    if(MACLayer.macBufferController.receiveFramesSeq.size()>=236||GlobalEvent.Receive_Frame_236)
+                    if(GlobalEvent.Receive_Frame_236)
                     {
                         DebugHelper.log("切换到3");
                         taskchoice=3;
