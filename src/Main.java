@@ -119,7 +119,7 @@ public class Main {
 //                UserSettings.Number_Frames_ShouldReceive =1;
                 while (true) {
                     MACLayer.macBufferController.resend();
-                    if(MACLayer.macBufferController.downStreamQueue.isEmpty()||System.currentTimeMillis()-programStartTime>55000)
+                    if(MACLayer.macBufferController.downStreamQueue.isEmpty())
                     {
                         //现在连我也发完数据了
                         DebugHelper.log("数据发送全部完成");
