@@ -95,6 +95,7 @@ public class smartConvertor {
             out.close();
             DebugHelper.log("写入文件:"+path);
         } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

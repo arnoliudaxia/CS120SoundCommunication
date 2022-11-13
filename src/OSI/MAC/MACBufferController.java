@@ -234,9 +234,7 @@ public class MACBufferController {
                         }
                         DebugHelper.log("包" + recieveSeq + "发送成功");
 
-                        if (!LastSendFrames.removeIf(x -> x.seq == recieveSeq)) {
-                            downStreamQueue.removeIf(x -> x.seq == recieveSeq);
-                        }
+                        LastSendFrames.removeIf(x -> x.seq == recieveSeq);
 
                     }
                 }
