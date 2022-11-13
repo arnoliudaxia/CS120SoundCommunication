@@ -38,7 +38,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 2;
+        int taskchoice = 1;
         //#endregion
         long programStartTime = System.currentTimeMillis();
 
@@ -143,7 +143,7 @@ public class Main {
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(3000);
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()>=295)
+                    if(GlobalEvent.Receive_Frame_295)
                     {
                         MACLayer.macStateMachine.TxPending = true;
                         DebugHelper.log("数据接收全部完成");
