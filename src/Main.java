@@ -38,7 +38,7 @@ public class Main {
         //#region 选择Task
         Scanner scanner = new Scanner(System.in); // 创建Scanner对象
 //        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 1;
+        int taskchoice = 2;
         //#endregion
         long programStartTime = System.currentTimeMillis();
 
@@ -64,7 +64,7 @@ public class Main {
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(2000);
                     }
-                    if(MACLayer.macBufferController.upStreamQueue.size()>=236)
+                    if(MACLayer.macBufferController.receiveFramesSeq.size()>=236||GlobalEvent.Receive_Frame_236)
                     {
                         DebugHelper.log("切换到3");
                         taskchoice=3;
@@ -82,7 +82,7 @@ public class Main {
                 DeviceSettings.MACAddress = 1;
 
                 //我是Node2
-                var inputData = smartConvertor.binInFile("res\\INPUT_5000.bin");
+                var inputData = smartConvertor.binInFile("res\\part3\\INPUT_5000.bin");
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
                 MACLayer.macBufferController.dropCount=50;

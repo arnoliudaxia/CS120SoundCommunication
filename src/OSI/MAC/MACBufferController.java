@@ -205,6 +205,9 @@ public class MACBufferController {
                     }
                     receiveFramesSeq.add(receivedFrame.seq);
                 }
+                if(receivedFrame.seq==236){
+                    GlobalEvent.Receive_Frame_236=true;
+                }
 
             }
             if (receivedFrame.frame_type == 1) {
