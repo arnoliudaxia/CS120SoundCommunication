@@ -9,7 +9,6 @@ import utils.DebugHelper;
 import utils.csvFileHelper;
 import utils.smartConvertor;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,11 +95,12 @@ public class Main {
                     information.addAll(MACLayer.macBufferController.upStreamQueue.poll());
                 }
                 information.subList(50000, information.size()).clear();
-                try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
-                    for (var bit : information) {
-                        input.write(bit.toString().getBytes());
-                    }
-                }
+                smartConvertor.binToFile( "D:\\test\\test.wav", (ArrayList<Integer>) information);
+//                try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
+//                    for (var bit : information) {
+//                        input.write(bit.toString().getBytes());
+//                    }
+//                }
 
             }
 
@@ -120,7 +120,7 @@ public class Main {
                     }
                 }
                 AudioHw.audioHwG.playOverCallback=new waitForReply();
-                MessageSender.messageSender.sendBinary(smartConvertor.binInTextFile("res\\INPUT.txt"));
+                MessageSender.messageSender.sendBinary(smartConvertor.binInFile("res\\INPUT.bin"));
                 threadBlockTime(12000);
             }
         } catch (Exception e) {
