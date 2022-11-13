@@ -78,7 +78,6 @@ public class Main {
                 DebugHelper.log("有信号接入!");
                 //需要马上发一个frame回复一下
                 new MessageSender();
-                MessageSender.messageSender.sendMessage("213");
                 //等接收完成的信号
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     try {
@@ -88,6 +87,7 @@ public class Main {
                     }
                 }
                 DebugHelper.log("全部接收完成");
+//                MessageSender.messageSender.sendMessage("213");
                 AudioHw.audioHwG.isRecording = false;
 
 
