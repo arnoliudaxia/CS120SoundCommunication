@@ -9,4 +9,5 @@ public class UserSettings {
     public static int Number_Frames_ShouldReceive = 5;
     public static boolean printStateLog = false;
     public static boolean waitUntilQuite=true;
+    public static int Number_bits=-1;
 }
