@@ -32,7 +32,7 @@ public class node1 {
         //设置ip
         DeviceSettings.IP = new IPv4("192.168.1.2");
         DebugHelper.log("My IP is " + DeviceSettings.IP.toString());
-        DeviceSettings.wakeupRef = 0.2f;
+        DeviceSettings.wakeupRef = 0.1f;
         DeviceSettings.MACAddress = 0;
         //拿取INPUT数据
         ArrayList<Integer> information = new ArrayList<>();
@@ -55,6 +55,7 @@ public class node1 {
         DebugHelper.log("INPUT数据读取成功");
         AudioHw.initAudioHw();
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
+        AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
         MessageSender messager = new MessageSender();
         messager.sendBinary(information);//数据填充
@@ -69,7 +70,7 @@ public class node1 {
             MACLayer.macStateMachine.TxPending = true;
             synchronized (GlobalEvent.Receive_Frame) {
                 try {
-                    GlobalEvent.Receive_Frame.wait();
+                    GlobalEvent.Receive_Frame.wait(2000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
