@@ -42,6 +42,10 @@ public class node1 {
             for (byte b : inputdata) {
                 information.addAll(smartConvertor.exactBitsOfNumber(b, 8));
             }
+            //终止符
+            for (byte b : "ç".getBytes()) {
+                information.addAll(smartConvertor.exactBitsOfNumber(b, 8));
+            }
 
         } catch (IOException e) {
             DebugHelper.log("读取INPUT失败");
@@ -65,7 +69,7 @@ public class node1 {
             MACLayer.macStateMachine.TxPending = true;
             synchronized (GlobalEvent.Receive_Frame) {
                 try {
-                    GlobalEvent.Receive_Frame.wait(2000);
+                    GlobalEvent.Receive_Frame.wait();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
