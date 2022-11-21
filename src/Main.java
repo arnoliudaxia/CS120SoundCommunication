@@ -13,7 +13,6 @@ import utils.smartConvertor;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Scanner;
 
 public class Main {
     static void threadBlockTime(int timems) {
@@ -34,24 +33,19 @@ public class Main {
         AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
 
-        //#region 选择Task
-        Scanner scanner = new Scanner(System.in); // 创建Scanner对象
-//        int taskchoice = scanner.nextInt(); // 读取一行输入并获取字符串
-        int taskchoice = 2;
-        //#endregion
         long programStartTime = System.currentTimeMillis();
 
         String lyfdellURL = "C:\\Users\\Arno\\Desktop\\快速临时处理文件夹\\计网pro\\";
         String lyfHPURL = "C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
         String lshURL = "D:\\桌面\\project1_sample\\";
-        var startTime = System.currentTimeMillis();
+
+        DeviceSettings.wakeupRef=0.2f;
+        DeviceSettings.MACAddress = 0;
+
         try {
             ArrayList<Integer> information = new ArrayList<>();
 
-            if (taskchoice == 1) {
-                UserSettings.Number_bits=40000;
-                DeviceSettings.wakeupRef=0.2f;
-                DeviceSettings.MACAddress = 0;
+            if (true) {
                 //Node 1
                 var inputData = smartConvertor.binInFile("res\\INPUT_6250.bin");
                 MessageSender messager = new MessageSender();
@@ -59,7 +53,6 @@ public class Main {
                 //我先发
                 while (true) {
                     MACLayer.macBufferController.resend();
-                    MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(2000);
@@ -67,7 +60,7 @@ public class Main {
                     if(GlobalEvent.Receive_Frame_236)
                     {
                         DebugHelper.log("切换到3");
-                        taskchoice=3;
+//                        taskchoice=3;
                         break;
                     }
                     DebugHelper.log("我收到了对方发的一轮包");
@@ -77,8 +70,7 @@ public class Main {
 
 
             }
-            if (taskchoice == 2) {
-                UserSettings.Number_bits=50000;
+            if (2 == 2) {
                 DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 1;
 
@@ -86,7 +78,6 @@ public class Main {
                 var inputData = smartConvertor.binInFile("res\\part3\\INPUT_5000.bin");
                 MessageSender messager = new MessageSender();
                 messager.sendBinary(inputData);//数据填充
-                MACLayer.macBufferController.dropCount=50;
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     GlobalEvent.ALL_DATA_Recieved.wait();
 
@@ -100,10 +91,9 @@ public class Main {
                     if(MACLayer.macBufferController.downStreamQueue.isEmpty())
                     {
                         DebugHelper.log("切换到4");
-                        taskchoice=4;
+//                        taskchoice=4;
                         break;
                     }
-                    MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait();
@@ -115,7 +105,7 @@ public class Main {
 
 
             }
-            if(taskchoice==3) {
+            if(3==3) {
                 //我只需要发送并且接受ACK
 //                UserSettings.Number_Frames_ShouldReceive =1;
                 while (true) {
@@ -126,20 +116,18 @@ public class Main {
                         DebugHelper.log("数据发送全部完成");
                         break;
                     }
-                    MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.Receive_Frame) {
                         GlobalEvent.Receive_Frame.wait(4000);
                     }
                 }
             }
-            if(taskchoice==4)
+            if(4==4)
             {
                 UserSettings.Number_Frames_Trun =1;
 
                 //我只需要听然后发送ACK
                 while(true){
-                    MACLayer.macBufferController.dropCount=0;
                     MACLayer.macStateMachine.TxPending = true;
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(3000);
@@ -172,7 +160,7 @@ public class Main {
                 }
             }
             rFrames.forEach(x -> information.addAll(x.payload));
-            information.subList(UserSettings.Number_bits, information.size()).clear();
+//            information.subList(UserSettings.Number_bits, information.size()).clear();
             smartConvertor.binToFile("res\\OUTPUT.bin", information);
 //            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {
 //                for (var bit : information) {

@@ -259,4 +259,8 @@ public class MACBufferController {
         }
 
     }
+    public boolean isAllSent()
+    {
+        return downStreamQueue.isEmpty();
+    }
 }
