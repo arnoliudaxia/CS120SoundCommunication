@@ -76,13 +76,13 @@ public class MACBufferController {
         synchronized (downStreamQueue) {
             while (data.size() > 0) {
                 var payload = data.subList(0, Math.min(payloadLength, data.size()));
+                if(payload.size()<payloadLength)
+                {
+                    DebugHelper.log("填充数据!");
+                }
                 while (payload.size() != payloadLength) {
                     payload.add(0);
                     payload.add(1);
-//                    DebugHelper.log("填充数据!");
-                }
-                if(payload.size()>payloadLength){
-                    data.subList(payloadLength,data.size() ).clear();
                 }
                 MACFrame frame = new MACFrame(seq, new ArrayList<>(payload), -1, 0, DeviceSettings.MACAddress);
                 frame.crc=CRC.crc16(frame);
@@ -137,7 +137,6 @@ public class MACBufferController {
         MACFrame frame = downStreamQueue.poll();
         if (frame == null) {
             DebugHelper.log("发送队列里没有东西朋友!");
-            dropCount++;
         } else {
             if (frame.frame_type == 0) {
                 LastSendFrames.add(frame);
@@ -165,15 +164,8 @@ public class MACBufferController {
         }
     }
 
-    public int dropCount = 0;
 
     public void __receive(ArrayList<Integer> data) {
-        if (dropCount < UserSettings.Number_Frames_Trun) {
-            DebugHelper.log("应该是自己的包，我直接丢");
-            dropCount++;
-            MACLayer.macStateMachine.RxDone = true;
-            return;
-        }
         var receivedFrame = new MACFrame(data);
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
         if (receivedFrame.seq == 0) {
