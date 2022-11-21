@@ -7,16 +7,18 @@ import utils.DebugHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Queue;
 
 public class FrameDetector implements CallBackStoreData {
     private int readDatabitCount = 0;
     private int headerJudgeCount = 0;
     private ArrayList<Float> headerEngery = new ArrayList<>();
     //用来判断是不是有其他的干扰源，原理是收集附近几个采样点的能量（绝对值）
+    public float localEnergy = 10;
+    private float quietRef = 0.01f;//认为localEnergy小于这个值就是没有干扰状态
 
-    //    private ArrayList<Float> writeFrameBuffer = new ArrayList<>();
-    private float[] writeFrameBuffer = new float[frameConfig.bitLength * frameConfig.bitSamples];
-
+    public final Queue<ArrayList<Float>> frames = new LinkedList<>();
+    private ArrayList<Float> writeFrameBuffer = new ArrayList<>();
 
     enum DetectState {
         lookingForHead, HeadWholeJudge, DataRetrive;
@@ -29,6 +31,8 @@ public class FrameDetector implements CallBackStoreData {
     @Override
     public void storeData(float[] data) {
         for (var sampleP : data) {
+//            wave.add(sampleP);//用来给matlab分析
+//            wave.add(localEnergy);
             float wakeupRef = DeviceSettings.wakeupRef;//header的触发电平
             switch (detectState) {
                 case lookingForHead:
@@ -51,11 +55,11 @@ public class FrameDetector implements CallBackStoreData {
 //                        HeaderScore += headerEngery.subList(10, 15).stream().mapToDouble(d -> (1 - d)).sum();
 //                        HeaderScore += headerEngery.subList(15, 20).stream().mapToDouble(d -> d).sum();
                         DebugHelper.log("Found Header Score: " + HeaderScore);
-                        if (HeaderScore > 10) {
+                        if (HeaderScore > 2) {
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected = true;
                             detectState = DetectState.DataRetrive;
-//                            writeFrameBuffer = new ArrayList<>(frameConfig.bitLength * frameConfig.bitSamples);
+                            writeFrameBuffer = new ArrayList<>();
                         } else {
                             detectState = DetectState.lookingForHead;
                             headerJudgeCount = 0;
@@ -63,10 +67,24 @@ public class FrameDetector implements CallBackStoreData {
                     }
                     break;
                 case DataRetrive:
-                    writeFrameBuffer[readDatabitCount++] = sampleP;
+                    writeFrameBuffer.add(sampleP);
+                    readDatabitCount++;
                     if (readDatabitCount >= frameConfig.bitLength * frameConfig.bitSamples) {
+//                        csvFileHelper csv = new csvFileHelper();
+//                        String lyfHPURL = "C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
+//                        try {
+//                            csv.saveToCsv(lyfHPURL+"wave.csv",writeFrameBuffer);
+//                        } catch (IOException e) {
+//                            throw new RuntimeException(e);
+//                        }
+                        //一个frame完整读取完毕
+//                        System.out.println("Frame Read Complete");
                         detectState = DetectState.lookingForHead;
                         readDatabitCount = 0;
+                        synchronized (frames) {
+                            frames.add(writeFrameBuffer);
+                            frames.notifyAll();
+                        }
                         //拿到一帧直接解析吧
                         decodeOneFrame();
 
@@ -82,6 +100,32 @@ public class FrameDetector implements CallBackStoreData {
         return null;
     }
 
+    /**
+     * 从队列里拿一个找到的frame出来
+     *
+     * @return 一个frame的原始数据
+     */
+    public ArrayList<Float> retriveFrame() {
+        synchronized (frames) {
+            if (frames.size() != 0) {
+                return frames.poll();
+            }
+        }
+        return null;
+
+    }
+
+    public void deCoder() {
+        while (true) {
+            synchronized (frames) {
+                try {
+                    frames.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
 
     /**
      * 解析收到的一个frame的数据（如果有找到frame）
@@ -92,9 +136,9 @@ public class FrameDetector implements CallBackStoreData {
 
 
         class decodeThread extends Thread {
-            final float[] frame;
+            final ArrayList<Float> frame;
 
-            decodeThread(float[] input) {
+            decodeThread(ArrayList<Float> input) {
                 frame = input;
             }
 
@@ -105,25 +149,25 @@ public class FrameDetector implements CallBackStoreData {
                 //现在要做的是将bitData中的数据转换成bit
                 float judgeDataRef = 0.03f;
                 //首先解析第一个数据点，接下来就是一个二元状态机
+                int state = frame.get(0) > judgeDataRef ? 1 : 0;
                 float judgeEnerge = 0.13f;
-                float energeSum = 0;
-                for (int i = 0; i < frame.length; i+=5) {
+                float energeSum=0;
+                for (int i = 0; i < frame.size(); i+=5) {
 //                    energeSum+=frame.get(i);
-                    energeSum += frame[i + 1];
-                    energeSum += frame[i + 2];
-                    energeSum += frame[i + 3];
-//                    energeSum+=frame[i+4);
+                    energeSum += frame.get(i + 1);
+                    energeSum += frame.get(i + 2);
+                    energeSum += frame.get(i + 3);
+//                    energeSum+=frame.get(i+4);
                     result.add(energeSum > judgeEnerge ? 1 : 0);
                     energeSum = 0;
 
                 }
-
                 assert result.size() == 100;
                 MACLayer.macBufferController.__receive(result);
             }
         }
 
-        decodeThread dt = new decodeThread(writeFrameBuffer);
+        decodeThread dt = new decodeThread(retriveFrame());
         dt.start();
 //        try {
 //            dt.join();
@@ -134,4 +178,7 @@ public class FrameDetector implements CallBackStoreData {
 
     }
 
+    public boolean isChannelQuiet() {
+        return localEnergy < quietRef;
+    }
 }

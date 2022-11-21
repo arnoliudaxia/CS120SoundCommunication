@@ -15,7 +15,7 @@ public class node2 {
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
         AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
-        DeviceSettings.wakeupRef=0.2f;
+        DeviceSettings.wakeupRef=0.1f;
         DeviceSettings.MACAddress = 1;
         UserSettings.Number_Frames_Trun=1;
         synchronized (GlobalEvent.ALL_DATA_Recieved) {
