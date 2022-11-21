@@ -43,15 +43,15 @@ public class FrameDetector implements CallBackStoreData {
                 case HeadWholeJudge:
                     headerJudgeCount++;
                     headerEngery.add(sampleP);
-                    if (headerJudgeCount > 20) {
+                    if (headerJudgeCount >= 20) {
                         //1010法检验包头
-                        float HeaderScore = 0;
-                        HeaderScore += headerEngery.subList(0, 5).stream().mapToDouble(d -> (1 - d)).sum();
-                        HeaderScore += headerEngery.subList(5, 10).stream().mapToDouble(d -> d).sum();
-                        HeaderScore += headerEngery.subList(10, 15).stream().mapToDouble(d -> (1 - d)).sum();
-                        HeaderScore += headerEngery.subList(15, 20).stream().mapToDouble(d -> d).sum();
+                        float HeaderScore = headerEngery.stream().reduce(0f, Float::sum);
+//                        HeaderScore += headerEngery.subList(0, 5).stream().mapToDouble(d -> (1 - d)).sum();
+//                        HeaderScore += headerEngery.subList(5, 10).stream().mapToDouble(d -> d).sum();
+//                        HeaderScore += headerEngery.subList(10, 15).stream().mapToDouble(d -> (1 - d)).sum();
+//                        HeaderScore += headerEngery.subList(15, 20).stream().mapToDouble(d -> d).sum();
                         DebugHelper.log("Found Header Score: " + HeaderScore);
-                        if (HeaderScore < 10) {
+                        if (HeaderScore > 10) {
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected = true;
                             detectState = DetectState.DataRetrive;
