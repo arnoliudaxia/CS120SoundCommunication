@@ -9,21 +9,22 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import utils.ReadTxt;
+
+import static utils.ReadTxt.readTxt;
+import static utils.ReadTxt.readTxtBytes;
 
 public class client{
     public static void main (String[] args) throws IOException{
         Scanner scanner = new Scanner(System.in);
         System.out.println("等待连接服务端！");
-        Socket socket = new Socket("10.20.101.61", 1111);
+        Socket socket = new Socket("localhost", 1111);
         System.out.println("连接服务端成功！");
-        File file = new File("res\\INPUT.txt");
         while (true) {
-            // 给服务端发信息
-            System.out.print("请输入：");
-            String s = scanner.next();
-            if ("out".equals(s)) {
-                break;
-            }
+            OutputStream outputStream = socket.getOutputStream();
+            String s=readTxt("res\\INPUT.txt")+"ç";
+            byte[] b=s.getBytes("utf-8");
+            outputStream.write(b);
         }
     }
 }
