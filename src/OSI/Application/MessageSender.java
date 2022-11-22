@@ -22,7 +22,6 @@ public class MessageSender {
         DebugHelper.log("发送二进制数据包");
         AudioHw.audioHwG.isPlay=true;
         MACLayer.macBufferController.trySend(input);
-        MACLayer.macStateMachine.preSum=MACLayer.macBufferController.downStreamQueue.size();
     }
     public void sendFile(String path) throws FileNotFoundException {
         DebugHelper.log("发送文件: "+path);

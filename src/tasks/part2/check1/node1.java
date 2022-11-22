@@ -70,15 +70,16 @@ public class node1 {
                     DebugHelper.log("全部发送成功");
                     break;
                 }
-                synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                synchronized (GlobalEvent.Recieved_Frame) {
                     try {
-                        GlobalEvent.ALL_DATA_Recieved.wait(2000);
+                        GlobalEvent.Recieved_Frame.wait(2000);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }
                 DebugHelper.log("我收到了对方发的ACK");
                 MACLayer.macBufferController.framesSendCount = 0;
+
             }
         }
 

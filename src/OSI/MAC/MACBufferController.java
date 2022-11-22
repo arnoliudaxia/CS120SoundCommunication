@@ -172,49 +172,32 @@ public class MACBufferController {
             isALLRecieve=false;
         } else {
             //如果是自己发的包不用管
-            if(!(receivedFrame.src_mac==DeviceSettings.MACAddress))
-            {
-                if (receivedFrame.frame_type == 0) {
-                    //数据包
-                    if (!ACKs.contains(receivedFrame.seq)) {
-                        ACKs.add(receivedFrame.seq);
-                    }
-                    if (!receiveFramesSeq.contains(receivedFrame.seq)) {
-                        //包没有问题就存下来
-                        synchronized (upStreamQueue) {
-                            upStreamQueue.add(receivedFrame);
-                        }
-                        receiveFramesSeq.add(receivedFrame.seq);
-                    }
-                    NumframesSinceLastEnd++;
+            if (receivedFrame.frame_type == 0) {
+                //数据包
+                ACKs.add(receivedFrame.seq);
+                synchronized (upStreamQueue) {
+                    upStreamQueue.add(receivedFrame);
                 }
-                if (receivedFrame.frame_type == 1) {
-                    //如果是ACK包，需要从重发队列里删除对应的包
-                    //先解析ACK里包含哪些frame，payload里每10位是一个seq
-                    for (int i = 0; i < receivedFrame.payload.size() - 10; i += 10) {
-                        int recieveSeq = smartConvertor.mergeBitsToInteger(new ArrayList<>(receivedFrame.payload.subList(i, i + 10)));
-                        if (recieveSeq == 0) {
-                            break;
-                        }
-                        DebugHelper.log("包" + recieveSeq + "发送成功");
-                        LastSendFrames.removeIf(x -> x.seq == recieveSeq);
+            }
+            if (receivedFrame.frame_type == 1) {
+                //如果是ACK包，需要从重发队列里删除对应的包
+                //先解析ACK里包含哪些frame，payload里每10位是一个seq
+                for (int i = 0; i < receivedFrame.payload.size() - 10; i += 10) {
+                    int recieveSeq = smartConvertor.mergeBitsToInteger(new ArrayList<>(receivedFrame.payload.subList(i, i + 10)));
+                    if (recieveSeq == 0) {
+                        break;
                     }
+                    DebugHelper.log("包" + recieveSeq + "发送成功");
+                    LastSendFrames.removeIf(x -> x.seq == recieveSeq);
                 }
-                if (receivedFrame.frame_type == 3) {
-                    //终止包
-                    DebugHelper.log("收到终止包");
-                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.notifyAll();
-                    }
-                    if(NumframesSinceLastEnd==0)
-                    {
-                        isEnd=true;
-                    }
-                    NumframesSinceLastEnd=0;
+            }
+            if (receivedFrame.frame_type == 3) {
+                //终止包
+                DebugHelper.log("收到终止包");
+                synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                    GlobalEvent.ALL_DATA_Recieved.notifyAll();
                 }
-
-                }
-
+            }
         }
         MACLayer.macStateMachine.RxDone = true;
         synchronized (GlobalEvent.Recieved_Frame) {
