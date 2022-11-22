@@ -133,6 +133,12 @@ public class MACBufferController {
         MACFrame frame = downStreamQueue.poll();
         MACLayer.macStateMachine.TxPending = true;
         if (frame == null) {
+            if(!DeviceSettings.isSendEndPackage)
+            {
+                MACLayer.macStateMachine.TxPending = false;
+                MACLayer.macStateMachine.TxDone = true;
+                return;
+            }
             DebugHelper.log("没有要发送的东西了，发送终止包");
             frame = new MACFrame(666, new ArrayList<>(Collections.nCopies(170,0)), -1, 3, DeviceSettings.MACAddress);
             MACLayer.macStateMachine.TxPending = false;

@@ -9,4 +9,5 @@ public class DeviceSettings {
     public static int MACAddress=-1;
     public static float wakeupRef=-1.f;
     public static IPv4 IP;
+    public static boolean isSendEndPackage=true;
 }

@@ -24,6 +24,7 @@ public class node2 {
         MACLayer.initMACLayer();
         DeviceSettings.wakeupRef=0.16f;
         DeviceSettings.MACAddress = 1;
+        DeviceSettings.isSendEndPackage=false;
         UserSettings.Number_Frames_Trun=1;
         //socket监听
         try(ServerSocket serverSocket = new ServerSocket(1111)) {
