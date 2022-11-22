@@ -1,30 +1,30 @@
-My hobby is listening to music. When I was
-a child I enjoy listening to music especially
-the cartoon music, I often lose myself in it.
-When I am in trouble, music can make me calm down.
-When I am very tired , it can make me comfortabl
-e . When I am angry with something , it aslo can
-make me happy again.Do you like listening to
-music? If not, I hope you can have a try, you w
-ill find it beneficial
-Before I was going to senior school, my father
-had never said a word to show his love to me,
-so that I thought he did not love me very muchand
-sometimes I was upset about it. However, when I
-left home for senior school, he called me frequen
-tly and just asked me some simple questions like:
-how’s your study and life? When do you come home? or
-jwoqjiewqjoi weioqeio qwdjiqowjew q
-dwq
-me although he would never say it out. So this i
-s father’
-s love, not so obvious but definitely deep
-the news of your accident just reached me this
-morning. i’m greatly shocked to learn that you were
-knocked down by a car yesterday. how are you fee
-ling today?　　the only good thing about it is that
-your mother told me that you are progressing nicely,
-i hope that you are doing well after the operation,
-and that you’ll be out of the hospital in about a
-wee. i’m coming to see you on sunday and trust t
-hat your condition will remarkably improve by then.　
+The first step to build a gateway is
+ to manipulate the TCP/IP traffic.
+ Although different operating
+systems handle network traffic differently,
+they provide a similar interface to send/
+receive TCP/IP
+packets: the Network Socket. Refer to the
+textbook for more information about socket
+programming
+in C/C++. You can also use Python wrapper
+for socket API. If you are using Java, be
+noted that
+native Java socket API lacks the ability to
+manipulate raw IP packets and thus you might
+need to
+either find third party Java packages for
+low level socket or integrate Java with
+other language to
+finish Part3.The first step to build a
+gateway is to manipulate the TCP/IP traffic.
+ Although different operating
+systems handle network traffic differently,
+they provide a similar interface to send/
+receive TCP/IP
+packets: the Network Socket.
+Refer to the textbook for more information
+about socket programming
+in C/C++. You can also use Python wrapper for
+socket API. If you are using Java, be noted that
+native Java socket API lacks the ability to 
