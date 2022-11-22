@@ -1,30 +1,30 @@
-The goal of this project is to build a
-gateway for the Athernet. In this way,
-Athernet devices are able
-to connect to the Internet. A network
-gateway may contain multiple network
-functions, including
-DHCP server, routing, switching and so on.
-This project focuses on the aspect of
-interconnecting
-different protocols, i.e., how to translate
-Athernet traffic to run on existing Internet
-infrastructure,
-and vice versa. After finishing this project,
-the TCP/IP traffic should be able to
-run over the Athernet
-network that you have built in Project2.
-The first step to build a gateway is to
- manipulate the TCP/IP traffic. Although
- different operating
+The first step to build a gateway is
+ to manipulate the TCP/IP traffic.
+ Although different operating
 systems handle network traffic differently,
-they provide a similar interface to
- send/receive TCP/IP
+they provide a similar interface to send/
+receive TCP/IP
 packets: the Network Socket. Refer to the
 textbook for more information about socket
-in C/C++. You can also use Python wrapper for
-socket API. If you are using Java, be noted that
+programming
+in C/C++. You can also use Python wrapper
+for socket API. If you are using Java, be
+noted that
 native Java socket API lacks the ability to
 manipulate raw IP packets and thus you might
-either find third party Java packages for low
-level socket or integrate Java with other
+need to
+either find third party Java packages for
+low level socket or integrate Java with
+other language to
+finish Part3.The first step to build a
+gateway is to manipulate the TCP/IP traffic.
+ Although different operating
+systems handle network traffic differently,
+they provide a similar interface to send/
+receive TCP/IP
+packets: the Network Socket.
+Refer to the textbook for more information
+about socket programming
+in C/C++. You can also use Python wrapper for
+socket API. If you are using Java, be noted that
+native Java socket API lacks the ability to 
