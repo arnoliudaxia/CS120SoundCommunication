@@ -246,4 +246,16 @@ public class MACBufferController {
     {
         return downStreamQueue.isEmpty();
     }
+
+    public ArrayList<MACFrame> getFramesReceive(){
+        ArrayList<MACFrame> rFrames = new ArrayList<>();
+        synchronized (MACLayer.macBufferController.upStreamQueue) {
+            while (!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
+                var frame = MACLayer.macBufferController.upStreamQueue.poll();
+                rFrames.add(frame);
+            }
+        }
+        rFrames.sort(Comparator.comparingInt(o -> o.seq));
+        return rFrames;
+    }
 }
