@@ -1,6 +1,7 @@
 package OSI.MAC;
 
 import OSI.Application.DeviceSettings;
+import OSI.Application.GlobalEvent;
 import OSI.Application.UserSettings;
 import OSI.Link.BitPacker;
 import OSI.Link.frameConfig;
@@ -158,7 +159,7 @@ public class MACBufferController {
         var receivedFrame = new MACFrame(data);
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
         int checkCode_compute = CRC.crc16(receivedFrame);
-        DebugHelper.log(String.format("收到序号为%d包,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.crc, checkCode_compute));
+        DebugHelper.log(String.format("收到序号为%d包,包的种类为%d,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.frame_type,receivedFrame.crc, checkCode_compute));
 
         if (receivedFrame.frame_type == 0 && checkCode_compute != receivedFrame.crc) {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!", receivedFrame.seq));
@@ -193,18 +194,18 @@ public class MACBufferController {
                         LastSendFrames.removeIf(x -> x.seq == recieveSeq);
                     }
                 }
-//                if (receivedFrame.frame_type == 3) {
-//                    //终止包
-//                    DebugHelper.log("收到终止包");
-//                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
-//                        GlobalEvent.ALL_DATA_Recieved.notifyAll();
-//                    }
-//                    if(NumframesSinceLastEnd==0)
-//                    {
-//                        isEnd=true;
-//                    }
-//                    NumframesSinceLastEnd=0;
-//                }
+                if (receivedFrame.frame_type == 3) {
+                    //终止包
+                    DebugHelper.log("收到终止包");
+                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                        GlobalEvent.ALL_DATA_Recieved.notifyAll();
+                    }
+                    if(NumframesSinceLastEnd==0)
+                    {
+                        isEnd=true;
+                    }
+                    NumframesSinceLastEnd=0;
+                }
 
                 }
         }

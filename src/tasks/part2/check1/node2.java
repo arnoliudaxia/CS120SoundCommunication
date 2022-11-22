@@ -7,11 +7,11 @@ import OSI.Application.UserSettings;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
+import utils.DebugHelper;
 import utils.smartConvertor;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 
 public class node2 {
@@ -22,14 +22,15 @@ public class node2 {
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
         AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
-        DeviceSettings.wakeupRef=0.2f;
+        DeviceSettings.wakeupRef=0.16f;
         DeviceSettings.MACAddress = 1;
         UserSettings.Number_Frames_Trun=1;
         //socket监听
         try(ServerSocket serverSocket = new ServerSocket(1111)) {
             System.out.println("等待连接");
-            Socket client = serverSocket.accept();
+//            Socket client = serverSocket.accept();
             System.out.println("连接成功！");
+            int sentSentences=0;
 
             while(true) {
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
@@ -41,6 +42,8 @@ public class node2 {
                 }
                 //吧接收到的每个frame通过socket发送出去
                 if(MACLayer.macBufferController.isALLRecieve) {
+                    DebugHelper.log("发socket");
+                    sentSentences++;
                     while (!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
                         var frames = MACLayer.macBufferController.getFramesReceive();
                         byte[] data = new byte[frames.size() * 170 / 8];
@@ -51,9 +54,11 @@ public class node2 {
                         for (int i = 0; i < information.size() - 8; i += 8) {
                             data[i / 8] = (byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
                         }
-                        client.getOutputStream().write(data);
+//                        client.getOutputStream().write(data);
                     }
-                    break;
+                    if(sentSentences==30){
+                        break;
+                    }
 
                 }
                 MACLayer.macBufferController.isALLRecieve=true;
