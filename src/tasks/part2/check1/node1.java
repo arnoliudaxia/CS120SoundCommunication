@@ -12,6 +12,7 @@ import utils.ReadTxt;
 import utils.smartConvertor;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class node1 {
@@ -34,51 +35,54 @@ public class node1 {
         DebugHelper.log("My IP is " + DeviceSettings.IP.toString());
         DeviceSettings.wakeupRef = 0.1f;
         DeviceSettings.MACAddress = 0;
-        //拿取INPUT数据
-        ArrayList<Integer> information = new ArrayList<>();
-        try {
-            byte[] inputdata = ReadTxt.readTxtBytes("res\\INPUT.txt");
-            //每一个byte转换为8个bit
-            for (byte b : inputdata) {
-                information.addAll(smartConvertor.exactBitsOfNumber(b, 8));
-            }
-            //终止符
-            for (byte b : "ç".getBytes()) {
-                information.addAll(smartConvertor.exactBitsOfNumber(b, 8));
-            }
-
-        } catch (IOException e) {
-            DebugHelper.log("读取INPUT失败");
-            shutdown();
-            throw new RuntimeException(e);
-        }
-        DebugHelper.log("INPUT数据读取成功");
         AudioHw.initAudioHw();
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
         AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
         MessageSender messager = new MessageSender();
-        messager.sendBinary(information);//数据填充
-        while (true) {
-            MACLayer.macBufferController.resend();
-            if(MACLayer.macBufferController.isAllSent())
-            {
-                //全部发送成功
-                DebugHelper.log("全部发送成功");
-                break;
-            }
-            MACLayer.macStateMachine.TxPending = true;
-            synchronized (GlobalEvent.Receive_Frame) {
-                try {
-                    GlobalEvent.Receive_Frame.wait(2000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            DebugHelper.log("我收到了对方发的ACK");
-            MACLayer.macBufferController.framesSendCount = 0;
-
+        //拿取INPUT数据
+        ArrayList<String> inputLines;
+        try {
+            inputLines=ReadTxt.readTxtLines("res\\INPUT.txt");
+        } catch (IOException e) {
+            DebugHelper.log("无法读取INPUT.txt");
+            throw new RuntimeException(e);
         }
+        DebugHelper.log("INPUT数据读取成功");
+        for(String line:inputLines)
+        {
+            ArrayList<Integer> information = new ArrayList<>();
+            //每一个byte转换为8个bit
+            for (byte b : line.getBytes(Charset.defaultCharset())) {
+                information.addAll(smartConvertor.exactBitsOfNumber(b, 8));
+            }
+//            //终止符
+//            for (byte b : "ç".getBytes()) {
+//                information.addAll(smartConvertor.exactBitsOfNumber(b, 8));
+//            }
+            messager.sendBinary(information);
+
+            while (true) {
+                MACLayer.macBufferController.resend();
+                if (MACLayer.macBufferController.isAllSent()) {
+                    //全部发送成功
+                    DebugHelper.log("全部发送成功");
+                    break;
+                }
+                MACLayer.macStateMachine.TxPending = true;
+                synchronized (GlobalEvent.Receive_Frame) {
+                    try {
+                        GlobalEvent.Receive_Frame.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                DebugHelper.log("我收到了对方发的ACK");
+                MACLayer.macBufferController.framesSendCount = 0;
+            }
+        }
+
+
         shutdown();
 
     }

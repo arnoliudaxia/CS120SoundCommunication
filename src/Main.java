@@ -2,7 +2,6 @@ import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
 import OSI.Application.UserSettings;
-import OSI.MAC.MACFrame;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
@@ -12,7 +11,6 @@ import utils.smartConvertor;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class Main {
     static void threadBlockTime(int timems) {
@@ -45,31 +43,6 @@ public class Main {
         try {
             ArrayList<Integer> information = new ArrayList<>();
 
-            if (true) {
-                //Node 1
-                var inputData = smartConvertor.binInFile("res\\INPUT_6250.bin");
-                MessageSender messager = new MessageSender();
-                messager.sendBinary(inputData);//数据填充
-                //我先发
-                while (true) {
-                    MACLayer.macBufferController.resend();
-                    MACLayer.macStateMachine.TxPending = true;
-                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.wait(2000);
-                    }
-                    if(GlobalEvent.Receive_Frame_236)
-                    {
-                        DebugHelper.log("切换到3");
-//                        taskchoice=3;
-                        break;
-                    }
-                    DebugHelper.log("我收到了对方发的一轮包");
-                    MACLayer.macBufferController.framesSendCount = 0;
-//                    break;
-                }
-
-
-            }
             if (2 == 2) {
                 DeviceSettings.wakeupRef=0.2f;
                 DeviceSettings.MACAddress = 1;
@@ -144,22 +117,15 @@ public class Main {
             }
 
 
-            ArrayList<MACFrame> rFrames = new ArrayList<>();
-            synchronized (MACLayer.macBufferController.upStreamQueue) {
-                while (!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
-                    var frame = MACLayer.macBufferController.upStreamQueue.poll();
-                    rFrames.add(frame);
-                }
-            }
-            rFrames.sort(Comparator.comparingInt(o -> o.seq));
-            for (int i = 0; i < rFrames.size(); i++) {
-                if (rFrames.get(i).seq != i+1) {
-                    DebugHelper.log("在" + (int)(i+1) + "处断开");
-                    rFrames.subList(i, rFrames.size()).clear();
-                    break;
-                }
-            }
-            rFrames.forEach(x -> information.addAll(x.payload));
+//
+//            for (int i = 0; i < rFrames.size(); i++) {
+//                if (rFrames.get(i).seq != i+1) {
+//                    DebugHelper.log("在" + (int)(i+1) + "处断开");
+//                    rFrames.subList(i, rFrames.size()).clear();
+//                    break;
+//                }
+//            }
+//            rFrames.forEach(x -> information.addAll(x.payload));
 //            information.subList(UserSettings.Number_bits, information.size()).clear();
             smartConvertor.binToFile("res\\OUTPUT.bin", information);
 //            try (FileOutputStream input = new FileOutputStream("res\\OUTPUT.txt")) {

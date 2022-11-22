@@ -46,10 +46,6 @@ public class MACBufferController {
      */
     public final Queue<MACFrame> upStreamQueue = new LinkedList<>();
 
-    /**
-     * 记录在该阶段中收到了多少个包
-     */
-    public int receiveFramesCount = 0;
 
     public HashSet<Integer> receiveFramesSeq = new HashSet<>();
 
@@ -136,30 +132,24 @@ public class MACBufferController {
         }
         MACFrame frame = downStreamQueue.poll();
         if (frame == null) {
-            DebugHelper.log("发送队列里没有东西朋友!");
-        } else {
-            if (frame.frame_type == 0) {
-                LastSendFrames.add(frame);
-            }
-            DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
-            ArrayList<Integer> sendTemp = new ArrayList<>();
-            sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.seq, 10));
-            sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.frame_type, 2));
-            sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.src_mac, 2));
-            sendTemp.addAll(frame.payload);
-            sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.crc, 16));
-            assert sendTemp.size() == frameConfig.bitLength;
-            bitPacker.AppendData(sendTemp);
-            bitPacker.padding();
+            DebugHelper.log("没有要发送的东西了，发送终止包");
+            frame = new MACFrame(666, new ArrayList<>(Collections.nCopies(170,0)), -1, 3, DeviceSettings.MACAddress);
         }
-
-        framesSendCount++;
+        if (frame.frame_type == 0) {
+            LastSendFrames.add(frame);
+        }
+        DebugHelper.log(String.format("发送序号为%d的包,效验码为%d", frame.seq, frame.crc));
+        ArrayList<Integer> sendTemp = new ArrayList<>();
+        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.seq, 10));
+        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.frame_type, 2));
+        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.src_mac, 2));
+        sendTemp.addAll(frame.payload);
+        sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.crc, 16));
+        assert sendTemp.size() == frameConfig.bitLength;
+        bitPacker.AppendData(sendTemp);
+        bitPacker.padding();
         MACLayer.macStateMachine.TxDone = true;
-        if (framesSendCount >= UserSettings.Number_Frames_Trun) {
-            //你已经发得够多了别贪
-            DebugHelper.log("我发完了等待接收");
-            framesSendCount = 0;
-        } else {
+        if(!downStreamQueue.isEmpty()) {
             MACLayer.macStateMachine.TxPending = true;
         }
     }
@@ -179,23 +169,16 @@ public class MACBufferController {
             if(!(receivedFrame.src_mac==DeviceSettings.MACAddress))
             {
                 if (receivedFrame.frame_type == 0) {
+                    //数据包
                     if (!ACKs.contains(receivedFrame.seq)) {
                         ACKs.add(receivedFrame.seq);
-
                     }
-
                     if (!receiveFramesSeq.contains(receivedFrame.seq)) {
                         //包没有问题就存下来
                         synchronized (upStreamQueue) {
                             upStreamQueue.add(receivedFrame);
                         }
                         receiveFramesSeq.add(receivedFrame.seq);
-                    }
-                    if(receivedFrame.seq==236){
-                        GlobalEvent.Receive_Frame_236=true;
-                    }
-                    if(receivedFrame.seq==295){
-                        GlobalEvent.Receive_Frame_236=true;
                     }
 
                 }
@@ -208,26 +191,23 @@ public class MACBufferController {
                             break;
                         }
                         DebugHelper.log("包" + recieveSeq + "发送成功");
-
                         LastSendFrames.removeIf(x -> x.seq == recieveSeq);
-
                     }
                 }
-            }
+                if (receivedFrame.frame_type == 3) {
+                    //终止包
+                    DebugHelper.log("收到终止包");
+                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                        GlobalEvent.ALL_DATA_Recieved.notifyAll();
+                    }
+                }
+
+                }
 
             //通知其他人有frame进来了
 
             synchronized (GlobalEvent.Receive_Frame) {
                 GlobalEvent.Receive_Frame.notifyAll();
-            }
-        }
-
-
-        receiveFramesCount++;
-        if (receiveFramesCount >= UserSettings.Number_Frames_ShouldReceive) {
-            receiveFramesCount = 0;
-            synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                GlobalEvent.ALL_DATA_Recieved.notifyAll();
             }
         }
         MACLayer.macStateMachine.RxDone = true;
@@ -244,7 +224,7 @@ public class MACBufferController {
     }
     public boolean isAllSent()
     {
-        return downStreamQueue.isEmpty();
+        return downStreamQueue.isEmpty()&&LastSendFrames.isEmpty();
     }
 
     public ArrayList<MACFrame> getFramesReceive(){

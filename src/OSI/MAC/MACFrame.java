@@ -32,7 +32,7 @@ public class MACFrame {
 
 
     public int seq;//10位
-    public int frame_type; //2位，0是data，1是ack
+    public int frame_type; //2位，0是data，1是ack,3是终止包
     public int src_mac;//2位，发送方mac地址
     public ArrayList<Integer> payload;
     public int crc;//crc16
