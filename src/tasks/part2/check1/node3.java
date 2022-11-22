@@ -14,23 +14,40 @@ public class node3 {
         try(Socket socket = new Socket("localhost", remotePort);) {
             DebugHelper.log("连接服务端成功！");
             while(true) {
-                byte[] bytes = new byte[1024];
+                byte[] bytes = new byte[2048];
                 int read;
-                while ((read = socket.getInputStream().read(bytes)) != -1) {
-                    DebugHelper.log("收到来自"+socket.getInetAddress().getHostAddress()+"的"+socket.getPort()+"端口消息：");
-                    String s=new String(bytes, 0, read, Charset.defaultCharset());
-                    int endindex;
-                    if((endindex=s.lastIndexOf('ç'))!=-1)
-                    {
-                        s=s.substring(0,endindex);
-                    }
-                    System.out.println(s);
-                    if(!socket.isConnected())
-                    {
-                        DebugHelper.log("Socket连接结束");
-                        return;
-                    }
+                read = socket.getInputStream().read(bytes);
+                DebugHelper.log("收到来自"+socket.getInetAddress().getHostAddress()+"的"+socket.getPort()+"端口消息：");
+                String s=new String(bytes, 0, read, Charset.defaultCharset());
+                int endindex;
+                if((endindex=s.lastIndexOf('ç'))!=-1)
+                {
+                    s=s.substring(0,endindex);
                 }
+                System.out.println(s);
+                if(!socket.isConnected())
+                {
+                    DebugHelper.log("Socket连接结束");
+                    break;
+                }
+
+
+
+//                while ((read = socket.getInputStream().read(bytes)) != -1) {
+//                    DebugHelper.log("收到来自"+socket.getInetAddress().getHostAddress()+"的"+socket.getPort()+"端口消息：");
+//                    String s=new String(bytes, 0, read, Charset.defaultCharset());
+//                    int endindex;
+//                    if((endindex=s.lastIndexOf('ç'))!=-1)
+//                    {
+//                        s=s.substring(0,endindex);
+//                    }
+//                    System.out.println(s);
+//                    if(!socket.isConnected())
+//                    {
+//                        DebugHelper.log("Socket连接结束");
+//                        return;
+//                    }
+//                }
             }
 
         } catch (IOException e) {
