@@ -1,7 +1,6 @@
 package OSI.MAC;
 
 import OSI.Application.DeviceSettings;
-import OSI.Application.GlobalEvent;
 import OSI.Application.UserSettings;
 import OSI.Link.BitPacker;
 import OSI.Link.frameConfig;
@@ -153,6 +152,7 @@ public class MACBufferController {
         MACLayer.macStateMachine.TxDone = true;
     }
     public boolean isEnd=false;
+    public boolean isALLRecieve=true;
     private int NumframesSinceLastEnd=0;
     public void __receive(ArrayList<Integer> data) {
         var receivedFrame = new MACFrame(data);
@@ -162,6 +162,7 @@ public class MACBufferController {
 
         if (receivedFrame.frame_type == 0 && checkCode_compute != receivedFrame.crc) {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!", receivedFrame.seq));
+            isALLRecieve=false;
         } else {
             //如果是自己发的包不用管
             if(!(receivedFrame.src_mac==DeviceSettings.MACAddress))
@@ -192,18 +193,18 @@ public class MACBufferController {
                         LastSendFrames.removeIf(x -> x.seq == recieveSeq);
                     }
                 }
-                if (receivedFrame.frame_type == 3) {
-                    //终止包
-                    DebugHelper.log("收到终止包");
-                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                        GlobalEvent.ALL_DATA_Recieved.notifyAll();
-                    }
-                    if(NumframesSinceLastEnd==0)
-                    {
-                        isEnd=true;
-                    }
-                    NumframesSinceLastEnd=0;
-                }
+//                if (receivedFrame.frame_type == 3) {
+//                    //终止包
+//                    DebugHelper.log("收到终止包");
+//                    synchronized (GlobalEvent.ALL_DATA_Recieved) {
+//                        GlobalEvent.ALL_DATA_Recieved.notifyAll();
+//                    }
+//                    if(NumframesSinceLastEnd==0)
+//                    {
+//                        isEnd=true;
+//                    }
+//                    NumframesSinceLastEnd=0;
+//                }
 
                 }
         }

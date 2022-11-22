@@ -7,7 +7,6 @@ import OSI.Application.UserSettings;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
-import utils.DebugHelper;
 import utils.smartConvertor;
 
 import java.io.IOException;
@@ -23,7 +22,7 @@ public class node2 {
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
         AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
-        DeviceSettings.wakeupRef=0.1f;
+        DeviceSettings.wakeupRef=0.2f;
         DeviceSettings.MACAddress = 1;
         UserSettings.Number_Frames_Trun=1;
         //socket监听
@@ -31,9 +30,8 @@ public class node2 {
             System.out.println("等待连接");
             Socket client = serverSocket.accept();
             System.out.println("连接成功！");
-            boolean manStop=true;
 
-            while(manStop) {
+            while(true) {
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     try {
                         GlobalEvent.ALL_DATA_Recieved.wait();
@@ -41,9 +39,8 @@ public class node2 {
                         throw new RuntimeException(e);
                     }
                 }
-                DebugHelper.log("收到终止包");
                 //吧接收到的每个frame通过socket发送出去
-                if(MACLayer.macBufferController.isEnd) {
+                if(MACLayer.macBufferController.isALLRecieve) {
                     while (!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
                         var frames = MACLayer.macBufferController.getFramesReceive();
                         byte[] data = new byte[frames.size() * 170 / 8];
@@ -56,12 +53,14 @@ public class node2 {
                         }
                         client.getOutputStream().write(data);
                     }
-                    //发ACK
-                    MACLayer.macBufferController.framesSendCount = 0;
-                    MACLayer.macBufferController.resend();
-                    MACLayer.macStateMachine.TxPending = true;
-                }
+                    break;
 
+                }
+                MACLayer.macBufferController.isALLRecieve=true;
+                //发ACK
+                MACLayer.macBufferController.framesSendCount = 0;
+                MACLayer.macBufferController.resend();
+                MACLayer.macStateMachine.TxPending = true;
 
 
             }
