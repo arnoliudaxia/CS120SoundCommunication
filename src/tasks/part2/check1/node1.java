@@ -56,10 +56,10 @@ public class node1 {
             for (byte b : line.getBytes(Charset.defaultCharset())) {
                 information.addAll(smartConvertor.exactBitsOfNumber(b, 8));
             }
-//            //终止符
-//            for (byte b : "ç".getBytes()) {
-//                information.addAll(smartConvertor.exactBitsOfNumber(b, 8));
-//            }
+            //终止符
+            for (byte b : "ç".getBytes()) {
+                information.addAll(smartConvertor.exactBitsOfNumber(b, 8));
+            }
             messager.sendBinary(information);
 
             while (true) {
@@ -70,9 +70,9 @@ public class node1 {
                     break;
                 }
                 MACLayer.macStateMachine.TxPending = true;
-                synchronized (GlobalEvent.Receive_Frame) {
+                synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     try {
-                        GlobalEvent.Receive_Frame.wait();
+                        GlobalEvent.ALL_DATA_Recieved.wait();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }

@@ -90,9 +90,9 @@ public class Main {
                         break;
                     }
                     MACLayer.macStateMachine.TxPending = true;
-                    synchronized (GlobalEvent.Receive_Frame) {
-                        GlobalEvent.Receive_Frame.wait(4000);
-                    }
+//                    synchronized (GlobalEvent.Receive_Frame) {
+//                        GlobalEvent.Receive_Frame.wait(4000);
+//                    }
                 }
             }
             if(4==4)

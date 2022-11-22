@@ -201,12 +201,6 @@ public class MACBufferController {
                 }
 
                 }
-
-            //通知其他人有frame进来了
-
-            synchronized (GlobalEvent.Receive_Frame) {
-                GlobalEvent.Receive_Frame.notifyAll();
-            }
         }
         MACLayer.macStateMachine.RxDone = true;
 
