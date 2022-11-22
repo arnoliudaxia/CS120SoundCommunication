@@ -7,4 +7,7 @@ public class DebugHelper {
     public static <T> void log(T message) {
         System.out.println(df.format(System.currentTimeMillis())+": "+message);
     }
+    public static <T> void logErr(T message) {
+        System.err.println(df.format(System.currentTimeMillis())+": "+message);
+    }
 }
