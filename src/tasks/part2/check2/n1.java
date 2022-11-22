@@ -2,6 +2,7 @@ package tasks.part2.check2;
 
 import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
+import OSI.Application.SystemController;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
@@ -57,11 +58,15 @@ public class n1 {
                     }
                     information.clear();
                     String message=new String(data, Charset.defaultCharset());
-                    DebugHelper.log("Message: " +message.substring(0,message.indexOf("ç")));
+                    DebugHelper.logColorful(message.substring(0,message.indexOf("ç")),DebugHelper.printColor.GREEN);
                 }
             }
             MACLayer.macBufferController.resend();
             MACLayer.macStateMachine.TxPending = true;
+            if(sentSentences==30){
+                break;
+            }
         }
+        SystemController.shutdown();
     }
 }
