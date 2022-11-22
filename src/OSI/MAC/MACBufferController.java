@@ -160,11 +160,10 @@ public class MACBufferController {
         int checkCode_compute = CRC.crc16(receivedFrame);
         DebugHelper.log(String.format("收到序号为%d包,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.crc, checkCode_compute));
 
-        if (receivedFrame.seq != 0 && checkCode_compute != receivedFrame.crc) {
+        if (receivedFrame.frame_type == 0 && checkCode_compute != receivedFrame.crc) {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!", receivedFrame.seq));
         } else {
             //如果是自己发的包不用管
-            //如果是数据包，需要发送ACK
             if(!(receivedFrame.src_mac==DeviceSettings.MACAddress))
             {
                 if (receivedFrame.frame_type == 0) {
