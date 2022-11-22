@@ -27,9 +27,11 @@ public class n2 {
         MACLayer.initMACLayer();
         DeviceSettings.wakeupRef=0.16f;
         DeviceSettings.MACAddress = 0;
-
+        final int remote_port=1111;
         // 服务端监听 1111 端口
-        try (ServerSocket serverSocket = new ServerSocket(1111)) {
+        try (ServerSocket serverSocket = new ServerSocket(remote_port)) {
+            String ip = serverSocket.getInetAddress().getHostAddress();
+            String port=String.valueOf(remote_port);
             System.out.println("等待连接");
             Socket client = serverSocket.accept();
             System.out.println("连接成功！");
@@ -46,7 +48,7 @@ public class n2 {
                     if(index==-1) {
                         break;
                     }
-                    readLines.add(s.substring(0, index));
+                    readLines.add(ip+":"+port+"    "+s.substring(0, index));
                     s = s.substring(index + 1);
                 }
                 for (String line : readLines) {
@@ -68,7 +70,7 @@ public class n2 {
                         }
                         synchronized (GlobalEvent.Recieved_Frame) {
                             try {
-                                GlobalEvent.Recieved_Frame.wait();
+                                GlobalEvent.Recieved_Frame.wait(2000);
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
@@ -79,20 +81,6 @@ public class n2 {
                 }
 
             }
-//            Files.writeString(Paths.get(FileName),s.substring(0,index));
-//            if (!file.exists()){
-//                file.createNewFile();
-//            }
-//            BufferedInputStream in = new BufferedInputStream(inputStream);
-//            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(FileName));
-//            int len=-1;
-//            byte[] b=new byte[1024];
-//            while((len=in.read(b))!=-1){
-//                out.write(b,0,len);
-//            }
-//            in.close();
-//            out.flush();
-//            out.close();
         }
     }
 }
