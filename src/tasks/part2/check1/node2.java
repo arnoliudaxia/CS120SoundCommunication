@@ -6,6 +6,7 @@ import OSI.Application.UserSettings;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
+import utils.DebugHelper;
 
 public class node2 {
 
@@ -18,12 +19,18 @@ public class node2 {
         DeviceSettings.wakeupRef=0.1f;
         DeviceSettings.MACAddress = 1;
         UserSettings.Number_Frames_Trun=1;
-        synchronized (GlobalEvent.ALL_DATA_Recieved) {
-            try {
-                GlobalEvent.ALL_DATA_Recieved.wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        while(true) {
+            synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                try {
+                    GlobalEvent.ALL_DATA_Recieved.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
+            DebugHelper.log("接受到一轮");
+            MACLayer.macBufferController.framesSendCount = 0;
+            MACLayer.macBufferController.resend();
+            MACLayer.macStateMachine.TxPending = true;
         }
     }
 }
