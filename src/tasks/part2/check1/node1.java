@@ -79,7 +79,7 @@ public class node1 {
             MACLayer.macBufferController.framesSendCount = 0;
 
         }
-
+        shutdown();
 
     }
 }
