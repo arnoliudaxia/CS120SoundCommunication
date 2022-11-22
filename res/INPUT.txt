@@ -1,30 +1,30 @@
-The first step to build a gateway is
- to manipulate the TCP/IP traffic.
- Although different operating
-systems handle network traffic differently,
-they provide a similar interface to send/
-receive TCP/IP
-packets: the Network Socket. Refer to the
-textbook for more information about socket
-programming
-in C/C++. You can also use Python wrapper
-for socket API. If you are using Java, be
-noted that
-native Java socket API lacks the ability to
-manipulate raw IP packets and thus you might
-need to
-either find third party Java packages for
-low level socket or integrate Java with
-other language to
-finish Part3.The first step to build a
-gateway is to manipulate the TCP/IP traffic.
- Although different operating
-systems handle network traffic differently,
-they provide a similar interface to send/
-receive TCP/IP
-packets: the Network Socket.
-Refer to the textbook for more information
-about socket programming
-in C/C++. You can also use Python wrapper for
-socket API. If you are using Java, be noted that
-native Java socket API lacks the ability to 
+Betsy Bakker-Nort (1874–1946)
+was a Dutch feminist lawyer,
+and politician who served as
+a member of the House of
+Representatives for the Free-thinking
+Democratic League (VDB) from 1922 to
+1942. Born in Groningen, she became
+involved with the
+feminist movement in 1894.
+At age 34, Bakker-Nort started
+studying law
+, realising that the fight
+for women's rights required
+ a thorough understanding of the law.
+In the 1922 general election,
+the first in which women
+were allowed to vote
+, she was elected to parliament
+and became the VDB's first
+female representative.
+She was re-elected four times
+and was an advocate
+for more women's rights with
+respect to marriage
+and labour law. She took a
+leading role in preparations
+for a 1930 League of Nations
+conference.
+After the German
+invasion of the Netherlands in May 1940
