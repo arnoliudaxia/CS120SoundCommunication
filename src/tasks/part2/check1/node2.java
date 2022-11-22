@@ -62,7 +62,6 @@ public class node2 {
                         MACLayer.macBufferController.framesSendCount = 0;
                         MACLayer.macBufferController.resend();
                         MACLayer.macStateMachine.TxPending = true;
-                        SystemController.threadBlockTime(1000);
                         break;
                     }
 
@@ -80,6 +79,7 @@ public class node2 {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        SystemController.threadBlockTime(1000);
         SystemController.shutdown();
 
 
