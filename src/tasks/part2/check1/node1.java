@@ -64,12 +64,12 @@ public class node1 {
 
             while (true) {
                 MACLayer.macBufferController.resend();
+                MACLayer.macStateMachine.TxPending = true;
                 if (MACLayer.macBufferController.isAllSent()) {
                     //全部发送成功
                     DebugHelper.log("全部发送成功");
                     break;
                 }
-                MACLayer.macStateMachine.TxPending = true;
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     try {
                         GlobalEvent.ALL_DATA_Recieved.wait(2000);

@@ -152,8 +152,8 @@ public class MACBufferController {
         bitPacker.padding();
         MACLayer.macStateMachine.TxDone = true;
     }
-
-
+    public boolean isEnd=false;
+    private int NumframesSinceLastEnd=0;
     public void __receive(ArrayList<Integer> data) {
         var receivedFrame = new MACFrame(data);
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
@@ -178,7 +178,7 @@ public class MACBufferController {
                         }
                         receiveFramesSeq.add(receivedFrame.seq);
                     }
-
+                    NumframesSinceLastEnd++;
                 }
                 if (receivedFrame.frame_type == 1) {
                     //如果是ACK包，需要从重发队列里删除对应的包
@@ -198,6 +198,11 @@ public class MACBufferController {
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.notifyAll();
                     }
+                    if(NumframesSinceLastEnd==0)
+                    {
+                        isEnd=true;
+                    }
+                    NumframesSinceLastEnd=0;
                 }
 
                 }

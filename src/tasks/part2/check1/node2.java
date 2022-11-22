@@ -43,7 +43,7 @@ public class node2 {
                 }
                 DebugHelper.log("收到终止包");
                 //吧接收到的每个frame通过socket发送出去
-                if(MACLayer.macBufferController.upStreamQueue.size()>=2) {
+                if(MACLayer.macBufferController.isEnd) {
                     while (!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
                         var frames = MACLayer.macBufferController.getFramesReceive();
                         byte[] data = new byte[frames.size() * 170 / 8];
@@ -56,8 +56,6 @@ public class node2 {
                         }
                         client.getOutputStream().write(data);
                     }
-
-
                     //发ACK
                     MACLayer.macBufferController.framesSendCount = 0;
                     MACLayer.macBufferController.resend();
