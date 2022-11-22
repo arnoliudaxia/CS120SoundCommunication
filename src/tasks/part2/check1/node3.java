@@ -16,7 +16,12 @@ public class node3 {
             while(true) {
                 byte[] bytes = new byte[2048];
                 int read;
-                read = socket.getInputStream().read(bytes);
+                try {
+                    read = socket.getInputStream().read(bytes);
+                } catch (java.net.SocketException e) {
+                    DebugHelper.log("服务端断开连接！");
+                    break;
+                }
                 DebugHelper.log("收到来自"+socket.getInetAddress().getHostAddress()+"的"+socket.getPort()+"端口消息：");
                 String s=new String(bytes, 0, read, Charset.defaultCharset());
                 int endindex;
@@ -25,12 +30,6 @@ public class node3 {
                     s=s.substring(0,endindex);
                 }
                 System.out.println(s);
-                if(!socket.isConnected())
-                {
-                    DebugHelper.log("Socket连接结束");
-                    break;
-                }
-
 
 
 //                while ((read = socket.getInputStream().read(bytes)) != -1) {
