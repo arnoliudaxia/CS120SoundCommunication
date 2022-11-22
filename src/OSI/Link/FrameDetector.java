@@ -13,10 +13,6 @@ public class FrameDetector implements CallBackStoreData {
     private int readDatabitCount = 0;
     private int headerJudgeCount = 0;
     private ArrayList<Float> headerEngery = new ArrayList<>();
-    //用来判断是不是有其他的干扰源，原理是收集附近几个采样点的能量（绝对值）
-    public float localEnergy = 10;
-    private float quietRef = 0.01f;//认为localEnergy小于这个值就是没有干扰状态
-
     public final Queue<ArrayList<Float>> frames = new LinkedList<>();
     private ArrayList<Float> writeFrameBuffer = new ArrayList<>();
 
@@ -31,8 +27,6 @@ public class FrameDetector implements CallBackStoreData {
     @Override
     public void storeData(float[] data) {
         for (var sampleP : data) {
-//            wave.add(sampleP);//用来给matlab分析
-//            wave.add(localEnergy);
             float wakeupRef = DeviceSettings.wakeupRef;//header的触发电平
             switch (detectState) {
                 case lookingForHead:
@@ -50,10 +44,6 @@ public class FrameDetector implements CallBackStoreData {
                     if (headerJudgeCount >= 20) {
                         //1010法检验包头
                         float HeaderScore = headerEngery.stream().reduce(0f, Float::sum);
-//                        HeaderScore += headerEngery.subList(0, 5).stream().mapToDouble(d -> (1 - d)).sum();
-//                        HeaderScore += headerEngery.subList(5, 10).stream().mapToDouble(d -> d).sum();
-//                        HeaderScore += headerEngery.subList(10, 15).stream().mapToDouble(d -> (1 - d)).sum();
-//                        HeaderScore += headerEngery.subList(15, 20).stream().mapToDouble(d -> d).sum();
                         DebugHelper.log("Found Header Score: " + HeaderScore);
                         if (HeaderScore > 2) {
                             //找到头了
@@ -70,13 +60,6 @@ public class FrameDetector implements CallBackStoreData {
                     writeFrameBuffer.add(sampleP);
                     readDatabitCount++;
                     if (readDatabitCount >= frameConfig.bitLength * frameConfig.bitSamples) {
-//                        csvFileHelper csv = new csvFileHelper();
-//                        String lyfHPURL = "C:\\Users\\Arnoliu\\Desktop\\快速临时处理文件夹\\计网pro\\";
-//                        try {
-//                            csv.saveToCsv(lyfHPURL+"wave.csv",writeFrameBuffer);
-//                        } catch (IOException e) {
-//                            throw new RuntimeException(e);
-//                        }
                         //一个frame完整读取完毕
 //                        System.out.println("Frame Read Complete");
                         detectState = DetectState.lookingForHead;
@@ -113,18 +96,6 @@ public class FrameDetector implements CallBackStoreData {
         }
         return null;
 
-    }
-
-    public void deCoder() {
-        while (true) {
-            synchronized (frames) {
-                try {
-                    frames.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
     }
 
     /**
@@ -169,16 +140,5 @@ public class FrameDetector implements CallBackStoreData {
 
         decodeThread dt = new decodeThread(retriveFrame());
         dt.start();
-//        try {
-//            dt.join();
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-
-
-    }
-
-    public boolean isChannelQuiet() {
-        return localEnergy < quietRef;
     }
 }
