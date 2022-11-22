@@ -19,7 +19,7 @@ public class n1 {
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
         AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
-        DeviceSettings.wakeupRef=0.16f;
+        DeviceSettings.wakeupRef=0.1f;
         DeviceSettings.MACAddress = 1;
         DeviceSettings.isSendEndPackage=false;
         UserSettings.Number_Frames_Trun=1;
@@ -31,30 +31,32 @@ public class n1 {
                     throw new RuntimeException(e);
                 }
             }
-            if(MACLayer.macBufferController.isALLRecieve){
-                while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
-                    var frames = MACLayer.macBufferController.getFramesReceive();
-                    byte[] data=new byte[frames.size()*170/8];
-                    ArrayList<Integer> information = new ArrayList<>();
-                    int read=0;
-                    for (var frame : frames) {
-                        information.addAll(frame.payload);
-                    }
-                    for (int i = 0; i < information.size() - 8; i += 8) {
-                        data[i / 8] = (byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
-                        read=i/8;
-                    }
-                    String s=new String(data, 0, read, Charset.defaultCharset());
-                    int endindex;
-                    if((endindex=s.lastIndexOf('ç'))!=-1)
-                    {
-                        s=s.substring(0,endindex);
-                        System.out.println(s);
-                        break;
-                    }
-                    System.out.println(s);
+            while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
+                var frames = MACLayer.macBufferController.getFramesReceive();
+                byte[] data=new byte[frames.size()*170/8];
+                ArrayList<Integer> information = new ArrayList<>();
+                int read=0;
+                for (var frame : frames) {
+                    information.addAll(frame.payload);
                 }
+                for (int i = 0; i < information.size() - 8; i += 8) {
+                    data[i / 8] = (byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
+                    read=i/8;
+                }
+                String s=new String(data, 0, read, Charset.defaultCharset());
+                int endindex;
+                if((endindex=s.lastIndexOf('ç'))!=-1)
+                {
+                    s=s.substring(0,endindex);
+                    MACLayer.macBufferController.resend();
+                    MACLayer.macStateMachine.TxPending = true;
+                    System.out.println(s);
+                    break;
+                }
+                System.out.println(s);
             }
+            MACLayer.macBufferController.resend();
+            MACLayer.macStateMachine.TxPending = true;
         }
     }
 }
