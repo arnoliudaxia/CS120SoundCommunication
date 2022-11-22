@@ -174,9 +174,14 @@ public class MACBufferController {
             //如果是自己发的包不用管
             if (receivedFrame.frame_type == 0) {
                 //数据包
-                ACKs.add(receivedFrame.seq);
-                synchronized (upStreamQueue) {
-                    upStreamQueue.add(receivedFrame);
+                if (!ACKs.contains(receivedFrame.seq)) {
+                    ACKs.add(receivedFrame.seq);
+                }
+                if (!receiveFramesSeq.contains(receivedFrame.seq)) {
+                    //包没有问题就存下来
+                    synchronized (upStreamQueue) {
+                        upStreamQueue.add(receivedFrame);
+                    }
                 }
             }
             if (receivedFrame.frame_type == 1) {
