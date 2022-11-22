@@ -3,13 +3,11 @@ package tasks.part2.check2;
 import utils.DebugHelper;
 import utils.ReadTxt;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.io.IOException;
-import java.io.OutputStream;
-
-import static utils.ReadTxt.readTxt;
 
 public class n3 {
     public static void main (String[] args) throws IOException{
@@ -25,13 +23,13 @@ public class n3 {
             throw new IOException(e);
         }
         DebugHelper.log("读取input成功");
-        String s="";
+        StringBuilder s= new StringBuilder();
         for(int i=0;i<inputLines.size();i++){
-            s+=inputLines.get(i);
-            s+="ç";
+            s.append(inputLines.get(i));
+            s.append("ç");
         }
 //        String s=readTxt("res\\INPUT.txt")+"ç";
-        byte[] b=s.getBytes("utf-8");
+        byte[] b= s.toString().getBytes("utf-8");
         outputStream.write(b);
     }
 }
