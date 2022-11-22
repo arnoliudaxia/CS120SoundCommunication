@@ -44,7 +44,7 @@ public class MACBufferController {
     /**
      * MAC层接受到的一个个frame加入这个队列
      */
-    public final Queue<MACFrame> upStreamQueue = new LinkedList<>();
+    public final PriorityQueue<MACFrame> upStreamQueue = new PriorityQueue<>(MACFrame.cmp);
 
 
     public HashSet<Integer> receiveFramesSeq = new HashSet<>();
@@ -176,8 +176,6 @@ public class MACBufferController {
                 //数据包
                 if (!ACKs.contains(receivedFrame.seq)) {
                     ACKs.add(receivedFrame.seq);
-                }
-                if (!receiveFramesSeq.contains(receivedFrame.seq)) {
                     //包没有问题就存下来
                     synchronized (upStreamQueue) {
                         upStreamQueue.add(receivedFrame);
@@ -223,15 +221,22 @@ public class MACBufferController {
         return downStreamQueue.isEmpty()&&LastSendFrames.isEmpty();
     }
 
+    private int hassentIndex = 0;
     public ArrayList<MACFrame> getFramesReceive(){
         ArrayList<MACFrame> rFrames = new ArrayList<>();
         synchronized (MACLayer.macBufferController.upStreamQueue) {
             while (!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
-                var frame = MACLayer.macBufferController.upStreamQueue.poll();
+                var frame = MACLayer.macBufferController.upStreamQueue.peek();
+                if(frame.seq!=hassentIndex+1)
+                {
+                    break;
+                }
+                hassentIndex++;
+                MACLayer.macBufferController.upStreamQueue.poll();
                 rFrames.add(frame);
             }
         }
-        rFrames.sort(Comparator.comparingInt(o -> o.seq));
+//        rFrames.sort(Comparator.comparingInt(o -> o.seq));
         return rFrames;
     }
 }

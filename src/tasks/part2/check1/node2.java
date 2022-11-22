@@ -13,6 +13,7 @@ import utils.smartConvertor;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class node2 {
@@ -27,6 +28,8 @@ public class node2 {
         DeviceSettings.MACAddress = 1;
         DeviceSettings.isSendEndPackage=false;
         UserSettings.Number_Frames_Trun=1;
+        ArrayList<Integer> information = new ArrayList<>();
+
         //socket监听
         try(ServerSocket serverSocket = new ServerSocket(1111)) {
             System.out.println("等待连接");
@@ -43,20 +46,35 @@ public class node2 {
                     }
                 }
                 //吧接收到的每个frame通过socket发送出去
-                if(MACLayer.macBufferController.isALLRecieve) {
-                    DebugHelper.log("发socket");
-                    sentSentences++;
-                    while (!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
-                        var frames = MACLayer.macBufferController.getFramesReceive();
-                        byte[] data = new byte[frames.size() * 170 / 8];
-                        ArrayList<Integer> information = new ArrayList<>();
-                        for (var frame : frames) {
-                            information.addAll(frame.payload);
+                if(true) {
+
+                    var frames = MACLayer.macBufferController.getFramesReceive();
+                    for (var frame : frames) {
+                        information.addAll(frame.payload);
+                    }
+                    //先检查是否有ç
+                    boolean isContainEnd=false;
+                    for (int i = 0; i < information.size()-16; i+=4) {
+                        byte[] charbyte=new byte[2];
+                        charbyte[0]=(byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
+                        charbyte[1]=(byte) smartConvertor.mergeBitsToInteger(information.subList(i+8, i + 16));
+                        var aa="ç".getBytes(Charset.defaultCharset());
+                        if(new String(charbyte).equals("ç"))
+                        {
+                            isContainEnd=true;
+                            break;
                         }
+                    }
+                    DebugHelper.log("Size of information is "+information.size());
+                    if(isContainEnd) {
+                        DebugHelper.log("发socket");
+                        sentSentences++;
+                        byte[] data = new byte[2048];
                         for (int i = 0; i < information.size() - 8; i += 8) {
                             data[i / 8] = (byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
                         }
                         client.getOutputStream().write(data);
+                        information.clear();
                     }
                     if(sentSentences==30){
                         MACLayer.macBufferController.framesSendCount = 0;

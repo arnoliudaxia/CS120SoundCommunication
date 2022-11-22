@@ -4,8 +4,16 @@ import OSI.Link.frameConfig;
 import utils.smartConvertor;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+
 
 public class MACFrame {
+    static Comparator<MACFrame> cmp = new Comparator<MACFrame>() {
+        @Override
+        public int compare(MACFrame o1, MACFrame o2) {
+            return ((MACFrame)o1).seq-((MACFrame)o2).seq;
+        }
+    };
     MACFrame(int iseq, ArrayList<Integer> idata,int icrc,int iframe_type,int srcMac) {
         seq = iseq;
         payload = idata;
@@ -31,10 +39,12 @@ public class MACFrame {
     }
 
 
+
     public int seq;//10位
     public int frame_type; //2位，0是data，1是ack,3是终止包
     public int src_mac;//2位，发送方mac地址
     public ArrayList<Integer> payload;
     public int crc;//crc16
     public static final int[] SEGEMENT= {10,2,2,frameConfig.bitLength-10-2-2-16,16};
+
 }
