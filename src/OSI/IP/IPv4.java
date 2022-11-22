@@ -51,6 +51,6 @@ public class IPv4 {
         return true;
     }
 
-    ArrayList<Integer> ipsegment;
+    public ArrayList<Integer> ipsegment;
 
 }
