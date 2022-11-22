@@ -32,7 +32,8 @@ public class node3 {
                     s=s.substring(0,endindex);
                 }
                 DebugHelper.log("收到来自"+socket.getInetAddress().getHostAddress()+"的"+socket.getPort()+"端口消息：");
-                System.out.println(s);
+//                System.out.println(s);
+                DebugHelper.logColorful(s,DebugHelper.printColor.GREEN);
 
             }
 
