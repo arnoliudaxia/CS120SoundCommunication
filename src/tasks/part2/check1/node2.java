@@ -43,26 +43,26 @@ public class node2 {
                 }
                 DebugHelper.log("收到终止包");
                 //吧接收到的每个frame通过socket发送出去
-                while(!MACLayer.macBufferController.upStreamQueue.isEmpty())
-                {
-                    var frames=MACLayer.macBufferController.getFramesReceive();
-                    byte[] data=new byte[frames.size()*170/8];
-                    ArrayList<Integer> information=new ArrayList<>();
-                    for(var frame:frames)
-                    {
-                        information.addAll(frame.payload);
+                if(MACLayer.macBufferController.upStreamQueue.size()>=2) {
+                    while (!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
+                        var frames = MACLayer.macBufferController.getFramesReceive();
+                        byte[] data = new byte[frames.size() * 170 / 8];
+                        ArrayList<Integer> information = new ArrayList<>();
+                        for (var frame : frames) {
+                            information.addAll(frame.payload);
+                        }
+                        for (int i = 0; i < information.size() - 8; i += 8) {
+                            data[i / 8] = (byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
+                        }
+                        client.getOutputStream().write(data);
                     }
-                    for (int i = 0; i < information.size()-8; i+=8) {
-                        data[i/8]= (byte) smartConvertor.mergeBitsToInteger(information.subList(i,i+8));
-                    }
-                    client.getOutputStream().write(data);
+
+
+                    //发ACK
+                    MACLayer.macBufferController.framesSendCount = 0;
+                    MACLayer.macBufferController.resend();
+                    MACLayer.macStateMachine.TxPending = true;
                 }
-
-
-                //发ACK
-                MACLayer.macBufferController.framesSendCount = 0;
-                MACLayer.macBufferController.resend();
-                MACLayer.macStateMachine.TxPending = true;
 
 
 

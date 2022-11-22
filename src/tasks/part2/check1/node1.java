@@ -72,7 +72,7 @@ public class node1 {
                 MACLayer.macStateMachine.TxPending = true;
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     try {
-                        GlobalEvent.ALL_DATA_Recieved.wait();
+                        GlobalEvent.ALL_DATA_Recieved.wait(2000);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
