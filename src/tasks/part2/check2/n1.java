@@ -56,7 +56,8 @@ public class n1 {
                         data[i / 8] = (byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
                     }
                     information.clear();
-                    DebugHelper.log("Message: " + new String(data, Charset.defaultCharset()));
+                    String message=new String(data, Charset.defaultCharset());
+                    DebugHelper.log("Message: " +message.substring(0,message.indexOf("ç")));
                 }
             }
             MACLayer.macBufferController.resend();
