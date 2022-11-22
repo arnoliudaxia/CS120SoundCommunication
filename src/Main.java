@@ -1,7 +1,6 @@
 import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
-import OSI.Application.UserSettings;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
@@ -97,8 +96,6 @@ public class Main {
             }
             if(4==4)
             {
-                UserSettings.Number_Frames_Trun =1;
-
                 //我只需要听然后发送ACK
                 while(true){
                     MACLayer.macStateMachine.TxPending = true;

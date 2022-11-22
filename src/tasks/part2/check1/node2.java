@@ -3,7 +3,6 @@ package tasks.part2.check1;
 import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
 import OSI.Application.SystemController;
-import OSI.Application.UserSettings;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
@@ -27,7 +26,6 @@ public class node2 {
         DeviceSettings.wakeupRef=0.16f;
         DeviceSettings.MACAddress = 1;
         DeviceSettings.isSendEndPackage=false;
-        UserSettings.Number_Frames_Trun=1;
         ArrayList<Integer> information = new ArrayList<>();
 
         //socket监听
@@ -84,7 +82,6 @@ public class node2 {
                     }
 
                 }
-                MACLayer.macBufferController.isALLRecieve=true;
                 //发ACK
                 MACLayer.macBufferController.framesSendCount = 0;
                 MACLayer.macBufferController.resend();
