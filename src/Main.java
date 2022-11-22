@@ -105,13 +105,6 @@ public class Main {
                     synchronized (GlobalEvent.ALL_DATA_Recieved) {
                         GlobalEvent.ALL_DATA_Recieved.wait(3000);
                     }
-                    if(GlobalEvent.Receive_Frame_295)
-                    {
-                        MACLayer.macStateMachine.TxPending = true;
-                        DebugHelper.log("数据接收全部完成");
-                        threadBlockTime(1000);
-                        break;
-                    }
 
                 }
             }

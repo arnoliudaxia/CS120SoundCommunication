@@ -131,9 +131,11 @@ public class MACBufferController {
             sendACK();
         }
         MACFrame frame = downStreamQueue.poll();
+        MACLayer.macStateMachine.TxPending = true;
         if (frame == null) {
             DebugHelper.log("没有要发送的东西了，发送终止包");
             frame = new MACFrame(666, new ArrayList<>(Collections.nCopies(170,0)), -1, 3, DeviceSettings.MACAddress);
+            MACLayer.macStateMachine.TxPending = false;
         }
         if (frame.frame_type == 0) {
             LastSendFrames.add(frame);
@@ -149,9 +151,6 @@ public class MACBufferController {
         bitPacker.AppendData(sendTemp);
         bitPacker.padding();
         MACLayer.macStateMachine.TxDone = true;
-        if(!downStreamQueue.isEmpty()) {
-            MACLayer.macStateMachine.TxPending = true;
-        }
     }
 
 
