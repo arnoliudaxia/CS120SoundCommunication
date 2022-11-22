@@ -2,14 +2,13 @@ package tasks.part2.check2;
 
 import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
-import OSI.Application.UserSettings;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
+import utils.DebugHelper;
 import utils.smartConvertor;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -22,7 +21,8 @@ public class n1 {
         DeviceSettings.wakeupRef=0.1f;
         DeviceSettings.MACAddress = 1;
         DeviceSettings.isSendEndPackage=false;
-        UserSettings.Number_Frames_Trun=1;
+        ArrayList<Integer> information = new ArrayList<>();
+        int sentSentences=0;
         while(true){
             synchronized (GlobalEvent.ALL_DATA_Recieved){
                 try{
@@ -33,27 +33,31 @@ public class n1 {
             }
             while(!MACLayer.macBufferController.upStreamQueue.isEmpty()){
                 var frames = MACLayer.macBufferController.getFramesReceive();
-                byte[] data=new byte[frames.size()*170/8];
-                ArrayList<Integer> information = new ArrayList<>();
-                int read=0;
                 for (var frame : frames) {
                     information.addAll(frame.payload);
                 }
-                for (int i = 0; i < information.size() - 8; i += 8) {
-                    data[i / 8] = (byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
-                    read=i/8;
+                //先检查是否有ç
+                boolean isContainEnd=false;
+                for (int i = 0; i < information.size()-16; i+=4) {
+                    byte[] charbyte=new byte[2];
+                    charbyte[0]=(byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
+                    charbyte[1]=(byte) smartConvertor.mergeBitsToInteger(information.subList(i+8, i + 16));
+                    var aa="ç".getBytes(Charset.defaultCharset());
+                    if(new String(charbyte).equals("ç"))
+                    {
+                        isContainEnd=true;
+                        break;
+                    }
                 }
-                String s=new String(data, 0, read, Charset.defaultCharset());
-                int endindex;
-                if((endindex=s.lastIndexOf('ç'))!=-1)
-                {
-                    s=s.substring(0,endindex);
-                    MACLayer.macBufferController.resend();
-                    MACLayer.macStateMachine.TxPending = true;
-                    System.out.println(s);
-                    break;
+                if(isContainEnd) {
+                    sentSentences++;
+                    byte[] data = new byte[information.size()/8+1];
+                    for (int i = 0; i < information.size() - 8; i += 8) {
+                        data[i / 8] = (byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
+                    }
+                    information.clear();
+                    DebugHelper.log("Message: " + new String(data, Charset.defaultCharset()));
                 }
-                System.out.println(s);
             }
             MACLayer.macBufferController.resend();
             MACLayer.macStateMachine.TxPending = true;
