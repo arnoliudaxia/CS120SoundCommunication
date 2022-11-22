@@ -208,9 +208,12 @@ public class MACBufferController {
                 }
 
                 }
+
         }
         MACLayer.macStateMachine.RxDone = true;
-
+        synchronized (GlobalEvent.Recieved_Frame) {
+            GlobalEvent.Recieved_Frame.notifyAll();
+        }
     }
 
     public void resend() {
