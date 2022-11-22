@@ -25,7 +25,7 @@ public class node3 {
                         s=s.substring(0,endindex);
                     }
                     System.out.println("服务端：" + s);
-                    if(socket.isClosed())
+                    if(!socket.isConnected())
                     {
                         DebugHelper.log("Socket连接结束");
                         return;

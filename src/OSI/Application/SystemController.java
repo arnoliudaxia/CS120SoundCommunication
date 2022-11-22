@@ -14,4 +14,11 @@ public class SystemController {
         }
 
     }
+    public static void threadBlockTime(int timems) {
+        try {
+            Thread.sleep(timems);
+        } catch (InterruptedException e) {
+            System.exit(1);
+        }
+    }
 }

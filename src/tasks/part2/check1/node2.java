@@ -12,6 +12,7 @@ import utils.smartConvertor;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 
 public class node2 {
@@ -29,7 +30,7 @@ public class node2 {
         //socket监听
         try(ServerSocket serverSocket = new ServerSocket(1111)) {
             System.out.println("等待连接");
-//            Socket client = serverSocket.accept();
+            Socket client = serverSocket.accept();
             System.out.println("连接成功！");
             int sentSentences=0;
 
@@ -55,9 +56,13 @@ public class node2 {
                         for (int i = 0; i < information.size() - 8; i += 8) {
                             data[i / 8] = (byte) smartConvertor.mergeBitsToInteger(information.subList(i, i + 8));
                         }
-//                        client.getOutputStream().write(data);
+                        client.getOutputStream().write(data);
                     }
                     if(sentSentences==30){
+                        MACLayer.macBufferController.framesSendCount = 0;
+                        MACLayer.macBufferController.resend();
+                        MACLayer.macStateMachine.TxPending = true;
+                        SystemController.threadBlockTime(1000);
                         break;
                     }
 
