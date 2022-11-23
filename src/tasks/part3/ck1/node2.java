@@ -2,9 +2,11 @@ package tasks.part3.ck1;
 
 import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
+import OSI.Application.MessageSender;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
+import utils.DebugHelper;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -12,7 +14,6 @@ import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static utils.smartConvertor.mergeBitsToInteger;
@@ -25,7 +26,8 @@ public class node2 {
         MACLayer.initMACLayer();
         DeviceSettings.wakeupRef = 0.16f;
         DeviceSettings.MACAddress = 0;
-        try (ServerSocket serverSocket = new ServerSocket(1111)) {
+        MessageSender messager = new MessageSender();
+        try (ServerSocket serverSocket = new ServerSocket(46569)) {
             System.out.println("等待连接");
             Socket client = serverSocket.accept();
             System.out.println("连接成功！");
@@ -37,20 +39,20 @@ public class node2 {
                         throw new RuntimeException(e);
                     }
                 }
-                var frames = MACLayer.macBufferController.getFramesReceive();
-                ArrayList<String> IPs = new ArrayList<>();
-                for (int i = 0; i < frames.size(); i++) {
-                    List<Integer> rawData = frames.get(i).payload.subList(0, 32);
-                    ArrayList<Integer> IP = new ArrayList<>();
-                    for (int j = 0; j < 4; j++) {
-                        IP.add(mergeBitsToInteger(rawData.subList(i * 8, (i + 1) * 8)));
-                    }
-                    String str = IP.stream().map(integer -> integer.toString()).collect(Collectors.joining("."));
-                    IPs.add(str);
+                var frame = MACLayer.macBufferController.upStreamQueue.poll();
+                assert frame != null;
+                List<Integer> rawData = frame.payload.subList(0, 32);
+                ArrayList<Integer> IP = new ArrayList<>();
+                for (int j = 0; j < 4; j++) {
+                    IP.add(mergeBitsToInteger(rawData.subList(j * 8, (j + 1) * 8)));
                 }
-                for(int i=0;i< IPs.size();i++){
-                    client.getOutputStream().write(IPs.get(i).getBytes(Charset.defaultCharset()));
-                }
+                String ip = IP.stream().map(Object::toString).collect(Collectors.joining("."));
+                DebugHelper.logColorful("告诉python", DebugHelper.printColor.BLUE);
+                client.getOutputStream().write(ip.getBytes(Charset.defaultCharset()));
+
+                byte[] bytes = new byte[1024];
+                int read = client.getInputStream().read(bytes);
+                MACLayer.macStateMachine.TxPending = true;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
