@@ -53,7 +53,6 @@ public class node2 {
 
                 byte[] bytes = new byte[1024];
                 int read = client.getInputStream().read(bytes);
-                messager.sendBytes(bytes);
                 DebugHelper.logColorful("收到python", DebugHelper.printColor.GREEN);
                 MACLayer.macStateMachine.TxPending = true;
             }
