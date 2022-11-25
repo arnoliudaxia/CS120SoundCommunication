@@ -1,0 +1,3 @@
+1. 先node1启动预热
+2. node2启动java，再启动python
+3. node1敲回车开始
