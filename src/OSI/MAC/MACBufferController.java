@@ -78,6 +78,9 @@ public class MACBufferController {
                 while (payload.size() != payloadLength) {
                     payload.add(0);
                     payload.add(1);
+                    if(payload.size()==payloadLength-1){
+                        payload.add(0);break;
+                    }
                 }
                 MACFrame frame = new MACFrame(seq, new ArrayList<>(payload), -1, 0, DeviceSettings.MACAddress);
                 frame.crc=CRC.crc16(frame);
