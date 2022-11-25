@@ -22,7 +22,6 @@ public class node2 {
     public static void main(String[] args) {
         AudioHw.initAudioHw();
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
-        AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
         DeviceSettings.wakeupRef = 0.16f;
         DeviceSettings.MACAddress = 0;
@@ -31,6 +30,7 @@ public class node2 {
             System.out.println("等待连接");
             Socket client = serverSocket.accept();
             System.out.println("连接成功！");
+            AudioHw.audioHwG.isRecording = true;
             while (true) {
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     try {
