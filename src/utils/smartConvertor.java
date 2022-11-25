@@ -1,8 +1,12 @@
 package utils;
 
+import OSI.MAC.MACFrame;
+
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class smartConvertor {
@@ -116,5 +120,11 @@ public class smartConvertor {
             mask = mask >> 1;
         }
         return result;
+    }
+    public static String receivePayload (String frame){
+        Random random=new Random();
+        byte[] payload=new byte[56];
+        random.nextBytes(payload);
+        return new String(payload, Charset.defaultCharset());
     }
 }
