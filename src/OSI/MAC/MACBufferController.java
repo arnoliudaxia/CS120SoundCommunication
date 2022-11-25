@@ -136,7 +136,7 @@ public class MACBufferController {
                 return;
             }
             DebugHelper.logColorful("没有要发送的东西了，发送终止包", DebugHelper.printColor.RED);
-            frame = new MACFrame(1024, new ArrayList<>(Collections.nCopies(170,0)), -1, 3, DeviceSettings.MACAddress);
+            frame = new MACFrame(1023, new ArrayList<>(Collections.nCopies(170,0)), -1, 3, DeviceSettings.MACAddress);
             MACLayer.macStateMachine.TxPending = false;
         }
         if (frame.frame_type == 0) {
@@ -188,7 +188,7 @@ public class MACBufferController {
                     LastSendFrames.removeIf(x -> x.seq == recieveSeq);
                 }
             }
-            if (receivedFrame.frame_type == 3 ||receivedFrame.seq==1024) {
+            if (receivedFrame.frame_type == 3 ||receivedFrame.seq==1023) {
                 //终止包
                 DebugHelper.logColorful("收到终止包", DebugHelper.printColor.RED);
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
