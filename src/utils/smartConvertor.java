@@ -1,13 +1,12 @@
 package utils;
 
-import OSI.MAC.MACFrame;
-
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class smartConvertor {
     public static float[] doubleToFloatArray(double[] input)
@@ -124,7 +123,32 @@ public class smartConvertor {
     public static String receivePayload (String frame){
         Random random=new Random();
         byte[] payload=new byte[56];
-        random.nextBytes(payload);
+        boolean ischeck=false;
+        ArrayList<Integer> data= new ArrayList<>(200);
+        var rawdata=data.subList(0,32);
+        if(ischeck) {
+            ArrayList<Integer> IP = new ArrayList<>();
+            for (int j = 0; j < 4; j++) {
+                IP.add(mergeBitsToInteger(rawdata.subList(j * 8, (j + 1) * 8)));
+            }
+            String receiveIP = IP.stream().map(Object::toString).collect(Collectors.joining("."));
+//        var payload=data.subList(32,data.size());
+            byte[] bytes = new byte[2048];
+            for (int i = 0; i < data.size() - 8; i += 8) {
+                bytes[i / 8] = (byte) smartConvertor.mergeBitsToInteger(data.subList(i, i + 8));
+            }
+            String s = new String(bytes, 0, bytes.length, Charset.defaultCharset());
+            int endindex;
+            if ((endindex = s.lastIndexOf('ç')) != -1) {
+                s = s.substring(0, endindex);
+            }
+        }
+        else {
+            random.nextBytes(payload);
+            return "PmWMBhmoK5PzGJ4QVaWEoh7WnUTYOeRbZ3DixmLsti9FlW7Awyqzef0Z";
+
+        }
+
         return new String(payload, Charset.defaultCharset());
     }
 }
