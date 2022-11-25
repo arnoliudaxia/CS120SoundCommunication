@@ -29,11 +29,12 @@ public class node2 {
         try (ServerSocket serverSocket = new ServerSocket(46569)) {
             System.out.println("等待连接");
             Socket client = serverSocket.accept();
-            System.out.println("连接成功！");
+            System .out.println("连接成功！");
             AudioHw.audioHwG.isRecording = true;
             while (true) {
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     try {
+                        DebugHelper.logColorful("等待中", DebugHelper.printColor.GREEN);
                         GlobalEvent.ALL_DATA_Recieved.wait();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
@@ -52,6 +53,7 @@ public class node2 {
 
                 byte[] bytes = new byte[1024];
                 int read = client.getInputStream().read(bytes);
+                DebugHelper.logColorful("收到python", DebugHelper.printColor.GREEN);
                 MACLayer.macStateMachine.TxPending = true;
             }
         } catch (IOException e) {
