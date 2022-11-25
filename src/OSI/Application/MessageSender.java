@@ -15,7 +15,6 @@ public class MessageSender {
         ArrayList<Integer> data=new ArrayList<>();
         data.add(1);
         data.add(1);
-        data.add(1);
         MACLayer.macBufferController.trySend(data);
     }
     public void sendBinary(ArrayList<Integer> input) {
