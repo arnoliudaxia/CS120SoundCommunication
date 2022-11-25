@@ -34,7 +34,6 @@ public class FrameDetector implements CallBackStoreData {
                         detectState = DetectState.HeadWholeJudge;
                         headerJudgeCount = 1;
                         headerEngery.clear();
-                        ;
                         headerEngery.add(sampleP);
                     }
                     break;
@@ -45,7 +44,7 @@ public class FrameDetector implements CallBackStoreData {
                         //1010法检验包头
                         float HeaderScore = headerEngery.stream().reduce(0f, Float::sum);
                         DebugHelper.log("Found Header Score: " + HeaderScore);
-                        if (HeaderScore > 2) {
+                        if (HeaderScore > 1.8) {
                             //找到头了
                             MACLayer.macStateMachine.PacketDetected = true;
                             detectState = DetectState.DataRetrive;
