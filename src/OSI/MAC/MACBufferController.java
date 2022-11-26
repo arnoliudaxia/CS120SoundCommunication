@@ -2,6 +2,7 @@ package OSI.MAC;
 
 import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
+import OSI.Application.SystemController;
 import OSI.Link.BitPacker;
 import OSI.Link.frameConfig;
 import utils.CRC;
@@ -240,6 +241,13 @@ public class MACBufferController {
     }
 
     public String getMessage() {
+        boolean hasContent= false;
+        while(!hasContent){
+            synchronized (upStreamQueue) {
+                hasContent = !upStreamQueue.isEmpty();
+            }
+            SystemController.threadBlockTime(10);
+        }
         synchronized (upStreamQueue) {
             var data = Objects.requireNonNull(upStreamQueue.poll()).payload;
             byte[] bytes = new byte[2048];
@@ -247,7 +255,7 @@ public class MACBufferController {
                 bytes[i / 8] = (byte) smartConvertor.mergeBitsToInteger(data.subList(i, i + 8));
             }
             String s = new String(bytes, 0, bytes.length, Charset.defaultCharset());
-            s = s.substring(0, s.lastIndexOf('ç'));
+            s = s.substring(0, s.lastIndexOf('ç')-1);
             return s;
         }
     }

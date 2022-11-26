@@ -16,7 +16,7 @@ public class node1 {
         MACLayer.initMACLayer();
         DeviceSettings.wakeupRef=0.1f;
         MessageSender messager = new MessageSender();
-
+        String message = "";
         while(true)
         {
             synchronized (GlobalEvent.ALL_DATA_Recieved)
@@ -28,7 +28,9 @@ public class node1 {
                     throw new RuntimeException(e);
                 }
             }
-            String message=MACLayer.macBufferController.getMessage();
+            if(message.equals("")){
+                message=MACLayer.macBufferController.getMessage();
+            }
             DebugHelper.logColorful("收到ICMP来自"+message, DebugHelper.printColor.BLUE);
             DebugHelper.logColorful("Reply INCMP"+message, DebugHelper.printColor.BLUE);
             messager.sendMessage("192.168.1.2");
