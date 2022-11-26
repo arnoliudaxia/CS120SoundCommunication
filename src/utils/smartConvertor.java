@@ -121,12 +121,12 @@ public class smartConvertor {
         return result;
     }
     public static String receivePayload (String frame){
+        boolean ischeck=false;
         Random random=new Random();
         byte[] payload=new byte[56];
-        boolean ischeck=false;
-        ArrayList<Integer> data= new ArrayList<>(200);
-        var rawdata=data.subList(0,32);
         if(ischeck) {
+            ArrayList<Integer> data= new ArrayList<>(200);
+            var rawdata=data.subList(0,32);
             ArrayList<Integer> IP = new ArrayList<>();
             for (int j = 0; j < 4; j++) {
                 IP.add(mergeBitsToInteger(rawdata.subList(j * 8, (j + 1) * 8)));
