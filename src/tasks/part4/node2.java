@@ -26,24 +26,28 @@ public class node2 {
         try (ServerSocket serverSocket = new ServerSocket(46569)) {
             Socket client = serverSocket.accept();
             DebugHelper.logColorful("InterNet is running", DebugHelper.printColor.GREEN);
-            //wait for ICMP
-            byte[] bytes = new byte[1024];
-            int read = client.getInputStream().read(bytes);
-            //notify node1
-            String sendMessage=new String(bytes,0,read, Charset.defaultCharset());
-            sendMessage+="ç";
-            messager.sendMessage(sendMessage);
-            MACLayer.macStateMachine.TxPending=true;
-            //wait for node1
-            synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                try {
-                    DebugHelper.logColorful("等待Node1中", DebugHelper.printColor.GREEN);
-                    GlobalEvent.ALL_DATA_Recieved.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+            while(true) {
+                //wait for ICMP
+                byte[] bytes = new byte[1024];
+                DebugHelper.logColorful("等待外部ICMP", DebugHelper.printColor.CYAN);
+                int read = client.getInputStream().read(bytes);
+                DebugHelper.logColorful("收到外部ICMP", DebugHelper.printColor.CYAN);
+                //notify node1
+                String sendMessage = new String(bytes, 0, read, Charset.defaultCharset());
+                sendMessage += "ç";
+                messager.sendMessage(sendMessage);
+                MACLayer.macStateMachine.TxPending = true;
+                //wait for node1
+                synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                    try {
+                        DebugHelper.logColorful("等待Node1中", DebugHelper.printColor.GREEN);
+                        GlobalEvent.ALL_DATA_Recieved.wait(1300);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
+//                client.getOutputStream().write("Pong".getBytes());
             }
-            client.getOutputStream().write("Pong".getBytes());
 
 
         } catch (IOException e) {
