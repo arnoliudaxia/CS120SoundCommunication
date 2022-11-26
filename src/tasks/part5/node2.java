@@ -3,6 +3,7 @@ package tasks.part5;
 import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
+import OSI.Application.SystemController;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
@@ -66,7 +67,7 @@ public class node2 {
                     }
                 }).start();
 
-
+            SystemController.threadBlockTime(999999999);
 
 
         } catch (IOException e) {
