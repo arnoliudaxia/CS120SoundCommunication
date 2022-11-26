@@ -167,7 +167,7 @@ public class MACBufferController {
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
         int checkCode_compute = CRC.crc16(receivedFrame);
         DebugHelper.log(String.format("收到序号为%d包,包的种类为%d,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.frame_type, receivedFrame.crc, checkCode_compute));
-
+        NumframesSinceLastEnd++;
         if (receivedFrame.frame_type == 0 && checkCode_compute != receivedFrame.crc) {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!", receivedFrame.seq));
         } else {
@@ -197,15 +197,22 @@ public class MACBufferController {
             if (receivedFrame.frame_type == 3 || receivedFrame.seq == 527) {
                 //终止包
                 DebugHelper.logColorful("收到终止包", DebugHelper.printColor.RED);
-                synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                    GlobalEvent.ALL_DATA_Recieved.notifyAll();
-                }
+//                synchronized (GlobalEvent.ALL_DATA_Recieved) {
+//                    GlobalEvent.ALL_DATA_Recieved.notifyAll();
+//                }
             }
         }
         MACLayer.macStateMachine.RxDone = true;
         synchronized (GlobalEvent.Recieved_Frame) {
             GlobalEvent.Recieved_Frame.notifyAll();
         }
+        if(NumframesSinceLastEnd == 2){
+            NumframesSinceLastEnd = 0;
+            synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                GlobalEvent.ALL_DATA_Recieved.notifyAll();
+            }
+        }
+
     }
 
     public void resend() {
