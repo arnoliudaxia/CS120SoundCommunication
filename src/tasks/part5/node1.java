@@ -29,13 +29,6 @@ public class node1 {
                 IPv4 ip = new IPv4(nextLine.substring(nextLine.indexOf("-")+2));
                 messager.sendMessage(ip+"ç");
                 MACLayer.macStateMachine.TxPending = true;
-                synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                    try {
-                        GlobalEvent.ALL_DATA_Recieved.wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
                 DebugHelper.logColorful("收到ICMP来自"+ip, DebugHelper.printColor.BLUE);
             }
         }).start();
