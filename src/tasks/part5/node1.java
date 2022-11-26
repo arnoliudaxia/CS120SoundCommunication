@@ -21,33 +21,36 @@ public class node1 {
         MACLayer.initMACLayer();
         DeviceSettings.wakeupRef = 0.1f;
         MessageSender messager = new MessageSender();
-        ArrayList<Integer> information = new ArrayList<>();
-        MACLayer.macStateMachine.TxPending = true;
         new Thread(() -> {
             while (true) {
                 Scanner scanner=new Scanner(System.in);
+                DebugHelper.log("输入IP地址");
                 String nextLine = scanner.nextLine();
-                IPv4 ip = new IPv4(nextLine);
-                for(var ipp:ip.ipsegment){
-                    information.addAll(smartConvertor.exactBitsOfNumber(ipp,8));
-                }
-                messager.sendBinary(information);
+                IPv4 ip = new IPv4(nextLine.substring(nextLine.indexOf("-")+2));
+                messager.sendMessage(ip+"ç");
                 MACLayer.macStateMachine.TxPending = true;
-                information.clear();
+                synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                    try {
+                        GlobalEvent.ALL_DATA_Recieved.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                DebugHelper.logColorful("收到ICMP来自"+ip, DebugHelper.printColor.BLUE);
             }
         }).start();
         new Thread(() -> {
             while (true) {
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     try {
-                        GlobalEvent.ALL_DATA_Recieved.wait(1000);
+                        GlobalEvent.ALL_DATA_Recieved.wait();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }
-                System.out.println("Recieved");
                 String message=MACLayer.macBufferController.getMessage();
                 DebugHelper.logColorful("收到ICMP来自"+message, DebugHelper.printColor.BLUE);
+                DebugHelper.logColorful("Reply"+message, DebugHelper.printColor.BLUE);
             }
         }).start();
     }
