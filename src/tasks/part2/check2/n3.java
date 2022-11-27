@@ -18,7 +18,7 @@ public class n3 {
         OutputStream outputStream = socket.getOutputStream();
         ArrayList<String> inputLines=new ArrayList<>();
         try{
-            inputLines= ReadTxt.readTxtLines("res\\INPUT.txt");
+            inputLines= ReadTxt.readTxtLines("res\\ck2\\INPUT2.txt");
         }catch(IOException e){
             throw new IOException(e);
         }

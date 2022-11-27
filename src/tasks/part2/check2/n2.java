@@ -3,6 +3,7 @@ package tasks.part2.check2;
 import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
+import OSI.Application.UserSettings;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
@@ -16,11 +17,9 @@ import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class n2 {
     public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(System.in);
         AudioHw.initAudioHw();
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
         AudioHw.audioHwG.isRecording = true;
@@ -28,6 +27,7 @@ public class n2 {
         DeviceSettings.wakeupRef=0.16f;
         DeviceSettings.MACAddress = 0;
         final int remote_port=1111;
+        UserSettings.printStateLog=true;
         // 服务端监听 1111 端口
         try (ServerSocket serverSocket = new ServerSocket(remote_port)) {
             String ip = serverSocket.getInetAddress().getHostAddress();
@@ -70,7 +70,7 @@ public class n2 {
                         }
                         synchronized (GlobalEvent.Recieved_Frame) {
                             try {
-                                GlobalEvent.Recieved_Frame.wait(2000);
+                                GlobalEvent.Recieved_Frame.wait(4000);
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
