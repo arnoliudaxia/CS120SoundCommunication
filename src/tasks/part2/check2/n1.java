@@ -19,7 +19,7 @@ public class n1 {
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
         AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
-        DeviceSettings.wakeupRef=0.1f;
+        DeviceSettings.wakeupRef=0.08f;
         DeviceSettings.MACAddress = 1;
         DeviceSettings.isSendEndPackage=false;
         ArrayList<Integer> information = new ArrayList<>();
