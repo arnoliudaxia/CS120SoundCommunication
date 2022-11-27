@@ -71,19 +71,19 @@ public class MACBufferController {
         synchronized (downStreamQueue) {
             while (data.size() > 0) {
                 var payload = data.subList(0, Math.min(payloadLength, data.size()));
-                if(payload.size()<payloadLength)
-                {
+                if (payload.size() < payloadLength) {
                     DebugHelper.log("填充数据!");
                 }
                 while (payload.size() != payloadLength) {
                     payload.add(0);
                     payload.add(1);
-                    if(payload.size()==payloadLength-1){
-                        payload.add(0);break;
+                    if (payload.size() == payloadLength - 1) {
+                        payload.add(0);
+                        break;
                     }
                 }
                 MACFrame frame = new MACFrame(seq, new ArrayList<>(payload), -1, 0, DeviceSettings.MACAddress);
-                frame.crc=CRC.crc16(frame);
+                frame.crc = CRC.crc16(frame);
 
                 downStreamQueue.add(frame);
                 seq++;
@@ -108,10 +108,10 @@ public class MACBufferController {
             payload.add(1);
             payload.add(0);
         }
-        var crcP=payload;
+        var crcP = payload;
 
         MACFrame frame = new MACFrame(0, payload, -1, 1, DeviceSettings.MACAddress);
-        frame.crc=CRC.crc16(frame);
+        frame.crc = CRC.crc16(frame);
 
         synchronized (downStreamQueue) {
             downStreamQueue.add(0, frame);
@@ -132,14 +132,13 @@ public class MACBufferController {
         MACFrame frame = downStreamQueue.poll();
         MACLayer.macStateMachine.TxPending = true;
         if (frame == null) {
-            if(!DeviceSettings.isSendEndPackage)
-            {
+            if (!DeviceSettings.isSendEndPackage) {
                 MACLayer.macStateMachine.TxPending = false;
                 MACLayer.macStateMachine.TxDone = true;
                 return;
             }
             DebugHelper.logColorful("没有要发送的东西了，发送终止包", DebugHelper.printColor.RED);
-            frame = new MACFrame(527, new ArrayList<>(Collections.nCopies(170,0)), -1, 3, DeviceSettings.MACAddress);
+            frame = new MACFrame(527, new ArrayList<>(Collections.nCopies(170, 0)), -1, 3, DeviceSettings.MACAddress);
             MACLayer.macStateMachine.TxPending = false;
         }
         if (frame.frame_type == 0) {
@@ -157,17 +156,20 @@ public class MACBufferController {
         bitPacker.padding();
         MACLayer.macStateMachine.TxDone = true;
     }
-    public boolean isEnd=false;
-    private int NumframesSinceLastEnd=0;
+
+    public boolean isEnd = false;
+    private int NumframesSinceLastEnd = 0;
+
     public void __receive(ArrayList<Integer> data) {
         var receivedFrame = new MACFrame(data);
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
         int checkCode_compute = CRC.crc16(receivedFrame);
-        DebugHelper.log(String.format("收到序号为%d包,包的种类为%d,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.frame_type,receivedFrame.crc, checkCode_compute));
+        DebugHelper.log(String.format("收到序号为%d包,包的种类为%d,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.frame_type, receivedFrame.crc, checkCode_compute));
 
         if (receivedFrame.frame_type == 0 && checkCode_compute != receivedFrame.crc) {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!", receivedFrame.seq));
         } else {
+            NumframesSinceLastEnd++;
             //如果是自己发的包不用管
             if (receivedFrame.frame_type == 0) {
                 //数据包
@@ -191,18 +193,23 @@ public class MACBufferController {
                     LastSendFrames.removeIf(x -> x.seq == recieveSeq);
                 }
             }
-            if (receivedFrame.frame_type == 3 ||receivedFrame.seq==527) {
+            if (receivedFrame.frame_type == 3 || receivedFrame.seq == 527) {
                 //终止包
                 DebugHelper.logColorful("收到终止包", DebugHelper.printColor.RED);
-                synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                    GlobalEvent.ALL_DATA_Recieved.notifyAll();
-                }
+
             }
         }
         MACLayer.macStateMachine.RxDone = true;
         synchronized (GlobalEvent.Recieved_Frame) {
             GlobalEvent.Recieved_Frame.notifyAll();
         }
+        if (NumframesSinceLastEnd == 2) {
+            NumframesSinceLastEnd = 0;
+            synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                GlobalEvent.ALL_DATA_Recieved.notifyAll();
+            }
+        }
+
     }
 
     public void resend() {
@@ -213,19 +220,19 @@ public class MACBufferController {
         }
 
     }
-    public boolean isAllSent()
-    {
-        return downStreamQueue.isEmpty()&&LastSendFrames.isEmpty();
+
+    public boolean isAllSent() {
+        return downStreamQueue.isEmpty() && LastSendFrames.isEmpty();
     }
 
     private int hassentIndex = 0;
-    public ArrayList<MACFrame> getFramesReceive(){
+
+    public ArrayList<MACFrame> getFramesReceive() {
         ArrayList<MACFrame> rFrames = new ArrayList<>();
         synchronized (MACLayer.macBufferController.upStreamQueue) {
             while (!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
                 var frame = MACLayer.macBufferController.upStreamQueue.peek();
-                if(frame.seq!=hassentIndex+1)
-                {
+                if (frame.seq != hassentIndex + 1) {
                     break;
                 }
                 hassentIndex++;
