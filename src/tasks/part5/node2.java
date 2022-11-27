@@ -29,6 +29,7 @@ public class node2 {
             DebugHelper.logColorful("InterNet is running", DebugHelper.printColor.GREEN);
                 //线程1，帮Node1发出去
                 new Thread(() -> {
+                    DebugHelper.logColorful("线程1启动", DebugHelper.printColor.GREEN);
                     while(true) {
                         synchronized (GlobalEvent.ALL_DATA_Recieved) {
                             try {
@@ -42,14 +43,22 @@ public class node2 {
                         DebugHelper.logColorful("告诉python", DebugHelper.printColor.BLUE);
                         try {
                             client.getOutputStream().write(iptoping.getBytes(Charset.defaultCharset()));
+//                            byte[] bytes = new byte[1024];
+//                            int read = client.getInputStream().read(bytes);
+//                            DebugHelper.logColorful("收到python", DebugHelper.printColor.GREEN);
+////                            String tosend= new String(bytes, 0, read, Charset.defaultCharset());
+//                            messager.sendMessage("dwwd"+"ç");
+
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
+//                        MACLayer.macStateMachine.TxPending = true;
                     }
 
                 }).start();
                 //线程2，如果收到外面的ping那么告诉node1
                 new Thread(() -> {
+                    DebugHelper.logColorful("线程2启动", DebugHelper.printColor.GREEN);
                     while(true) {
                         try {
                             byte[] bytes = new byte[1024];
