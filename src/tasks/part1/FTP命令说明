@@ -10,12 +10,15 @@ PWD
 
 CWD
 改变当前目录
+例如 CWD /BSD
 
 PASV
 当FTP控制连接已经完成，client发送PASV命令进入被动FTP模式
 
 LIST
-显示目录下的文件
+获得FTP上指定目录下的文件列表信息
+例如：LIST，获取当面目录信息
+例如：LIST /BSD，获取BSD文件夹下的信息
 
 RETR
 从server拿文件
