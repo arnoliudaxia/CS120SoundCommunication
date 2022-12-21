@@ -15,6 +15,10 @@ import java.net.Socket;
 import java.nio.charset.Charset;
 
 public class node2 {
+    private static boolean isNeedCallBack(String command)
+    {
+        return command.contains("PWD")||command.contains("LIST")||command.contains("RETR");
+    }
     public static void main(String[] args) {
         AudioHw.initAudioHw();
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
@@ -43,11 +47,26 @@ public class node2 {
                         DebugHelper.logColorful("告诉python", DebugHelper.printColor.BLUE);
                         try {
                             client.getOutputStream().write(iptoping.getBytes(Charset.defaultCharset()));
-//                            byte[] bytes = new byte[1024];
-//                            int read = client.getInputStream().read(bytes);
-//                            DebugHelper.logColorful("收到python", DebugHelper.printColor.GREEN);
-////                            String tosend= new String(bytes, 0, read, Charset.defaultCharset());
-//                            messager.sendMessage("dwwd"+"ç");
+                            //处理结果
+
+                            if(isNeedCallBack(iptoping)) {
+                                boolean isMultiLines=false;
+                                do {
+                                    byte[] bytes = new byte[1024];
+                                    int read = client.getInputStream().read(bytes);
+                                    DebugHelper.logColorful("收到回送", DebugHelper.printColor.CYAN);
+                                    String sendMessage = new String(bytes, 0, read, Charset.defaultCharset());
+                                    DebugHelper.logColorful("发送" + sendMessage, DebugHelper.printColor.CYAN);
+                                    messager.sendMessage(sendMessage);
+                                    if (iptoping.contains("LIST")) {
+                                        isMultiLines= !sendMessage.contains("end===");
+                                    }
+                                    MACLayer.macStateMachine.TxPending = true;
+                                    SystemController.threadBlockTime(500);
+
+                                } while (isMultiLines);
+                            }
+                            DebugHelper.logColorful("回送处理完成", DebugHelper.printColor.BLUE);
 
                         } catch (IOException e) {
                             throw new RuntimeException(e);
