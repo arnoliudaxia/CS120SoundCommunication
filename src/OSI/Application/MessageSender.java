@@ -12,15 +12,17 @@ import java.util.ArrayList;
 public class MessageSender {
     public void sendMessage(String message) {
         DebugHelper.log("发送字符串");
-        if(message.length()<40)
+//        sendBytes((message).getBytes(Charset.defaultCharset()));
+        final int cutIndex=15;
+        if(message.length()<cutIndex)
         {
             sendBytes((message+"çç").getBytes(Charset.defaultCharset()));
         }
         else {
-            while(message.length()>=40)
+            while(message.length()>=cutIndex)
             {
-                sendBytes((message.substring(0,40)+"ç").getBytes(Charset.defaultCharset()));
-                message=message.substring(40);
+                sendBytes((message.substring(0,cutIndex)+"ç").getBytes(Charset.defaultCharset()));
+                message=message.substring(cutIndex);
             }
             sendBytes((message+"çç").getBytes(Charset.defaultCharset()));
         }
@@ -31,9 +33,9 @@ public class MessageSender {
         for(byte b:message){
             data.addAll(smartConvertor.exactBitsOfNumber(b,8));
         }
-        for (byte b : "ç".getBytes()) {
-            data.addAll(smartConvertor.exactBitsOfNumber(b, 8));
-        }
+//        for (byte b : "ç".getBytes()) {
+//            data.addAll(smartConvertor.exactBitsOfNumber(b, 8));
+//        }
         MACLayer.macBufferController.trySend(data);
     }
     public void sendBinary(ArrayList<Integer> input) {
