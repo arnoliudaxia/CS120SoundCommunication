@@ -197,21 +197,21 @@ public class MACBufferController {
             if (receivedFrame.frame_type == 3 || receivedFrame.seq == 527) {
                 //终止包
                 DebugHelper.logColorful("收到终止包", DebugHelper.printColor.RED);
-//                synchronized (GlobalEvent.ALL_DATA_Recieved) {
-//                    GlobalEvent.ALL_DATA_Recieved.notifyAll();
-//                }
+                synchronized (GlobalEvent.ALL_DATA_Recieved) {
+                    GlobalEvent.ALL_DATA_Recieved.notifyAll();
+                }
             }
         }
         MACLayer.macStateMachine.RxDone = true;
         synchronized (GlobalEvent.Recieved_Frame) {
             GlobalEvent.Recieved_Frame.notifyAll();
         }
-        if(NumframesSinceLastEnd == 2){
-            NumframesSinceLastEnd = 0;
-            synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                GlobalEvent.ALL_DATA_Recieved.notifyAll();
-            }
-        }
+//        if(NumframesSinceLastEnd == 2){
+//            NumframesSinceLastEnd = 0;
+//            synchronized (GlobalEvent.ALL_DATA_Recieved) {
+//                GlobalEvent.ALL_DATA_Recieved.notifyAll();
+//            }
+//        }
 
     }
 
