@@ -12,16 +12,18 @@ import java.util.ArrayList;
 public class MessageSender {
     public void sendMessage(String message) {
         DebugHelper.log("发送字符串");
-        sendBytes(message.getBytes(Charset.defaultCharset()));
-//        var dataInBytes=message.getBytes(Charset.defaultCharset());
-//        ArrayList<Integer> data=new ArrayList<>();
-//        for(byte b:dataInBytes){
-//            data.addAll(smartConvertor.exactBitsOfNumber(b,8));
-//        }
-//        for (byte b : "ç".getBytes()) {
-//            data.addAll(smartConvertor.exactBitsOfNumber(b, 8));
-//        }
-//        MACLayer.macBufferController.trySend(data);
+        if(message.length()<40)
+        {
+            sendBytes((message+"çç").getBytes(Charset.defaultCharset()));
+        }
+        else {
+            while(message.length()>=40)
+            {
+                sendBytes((message.substring(0,40)+"ç").getBytes(Charset.defaultCharset()));
+                message=message.substring(40);
+            }
+            sendBytes((message+"çç").getBytes(Charset.defaultCharset()));
+        }
     }
     public void sendBytes(byte[] message) {
         DebugHelper.log("发送bytes");
