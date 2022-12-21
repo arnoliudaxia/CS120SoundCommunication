@@ -255,15 +255,21 @@ public class MACBufferController {
             }
             SystemController.threadBlockTime(10);
         }
+        String result="";
+        boolean isover=false;
         synchronized (upStreamQueue) {
-            var data = Objects.requireNonNull(upStreamQueue.poll()).payload;
-            byte[] bytes = new byte[2048];
-            for (int i = 0; i < data.size() - 8; i += 8) {
-                bytes[i / 8] = (byte) smartConvertor.mergeBitsToInteger(data.subList(i, i + 8));
-            }
-            String s = new String(bytes, 0, bytes.length, Charset.defaultCharset());
-            s = s.substring(0, s.lastIndexOf('ç')-1);
-            return s;
+            String s;
+            do {
+                var data = Objects.requireNonNull(upStreamQueue.poll()).payload;
+                byte[] bytes = new byte[2048];
+                for (int i = 0; i < data.size() - 8; i += 8) {
+                    bytes[i / 8] = (byte) smartConvertor.mergeBitsToInteger(data.subList(i, i + 8));
+                }
+                s = new String(bytes, 0, bytes.length, Charset.defaultCharset());
+//                s = s.substring(0, s.lastIndexOf('ç'));
+                result+=s.substring(0, s.lastIndexOf('ç'));
+            } while (!s.contains("çç"));
+            return result;
         }
     }
 }

@@ -18,6 +18,7 @@ import static utils.Lcs.s;
 
 public class node1 {
     private static String[] commands={"USER", "PASS", "PWD", "CWD", "PASV", "LIST", "RETR"};
+    private static String ss="";
     public static void main(String[] args) {
         AudioHw.initAudioHw();
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
@@ -30,9 +31,11 @@ public class node1 {
                 Scanner scanner=new Scanner(System.in);
                 DebugHelper.log("输入命令");
                 String nextLine = scanner.nextLine();
+                String cc=nextLine.substring(0,nextLine.indexOf(" "));
+                String content=nextLine.substring(nextLine.indexOf(" ")+1);
                 String[] subsequence = {};
                 for (int i = 0; i < commands.length; i++) {
-                    LcsLength(commands[i].toCharArray(), nextLine.toCharArray());
+                    LcsLength(commands[i].toCharArray(), cc.toCharArray());
                     subsequence = smartConvertor.insert(subsequence, s);
                 }
                 int len=0;
@@ -51,18 +54,18 @@ public class node1 {
                 }
                 String command="";
                 if(cnt==1){
-                    command=commands[Index.get(0)];
+                    command=commands[Index.get(0)]+" "+content;
                 } else if (cnt>1){
                     DebugHelper.logColorful("请选择", DebugHelper.printColor.BLUE);
                     for(int j=0;j<cnt;j++){
-                        System.out.print(commands[Index.get(j)]);
+                        System.out.print(commands[Index.get(j)]+"  ");
                     }
+                    DebugHelper.log("重新输入命令");
+                    command = scanner.nextLine();
                 }else{
                     DebugHelper.logColorful("invalid command",DebugHelper.printColor.RED);
                 }
-                DebugHelper.log("重新输入命令");
-                command = scanner.nextLine();
-                messager.sendMessage(command+"ç");
+                messager.sendMessage(command);
                 MACLayer.macStateMachine.TxPending = true;
             }
         }).start();
@@ -76,8 +79,12 @@ public class node1 {
                     }
                 }
                 String message=MACLayer.macBufferController.getMessage();
-                DebugHelper.logColorful("收到ICMP来自"+message, DebugHelper.printColor.BLUE);
-                DebugHelper.logColorful("Reply"+message, DebugHelper.printColor.BLUE);
+                if(!message.contains("ç")){
+                    ss+=message;
+                    DebugHelper.logColorful(ss, DebugHelper.printColor.BLUE);
+                }else{
+                    DebugHelper.logColorful(message.substring(0,message.indexOf('ç')), DebugHelper.printColor.BLUE);
+                }
             }
         }).start();
     }
