@@ -101,7 +101,13 @@ public class smartConvertor {
             e.printStackTrace();
         }
     }
-
+    public static String[] insert(String[] arr,String s){
+        int len=arr.length;
+        String[] temp=new String[len+1];
+        System.arraycopy(arr, 0, temp, 0, len);
+        temp[len] = s;
+        return temp;
+    }
     public static ArrayList<Integer> exactBitsOfNumber(int number,int bitLength){
         int mask=0b1<<(bitLength-1);
         ArrayList<Integer> result=new ArrayList<>();
