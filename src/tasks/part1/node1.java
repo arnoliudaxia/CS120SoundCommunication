@@ -1,7 +1,6 @@
 package tasks.part1;
 
 import OSI.Application.DeviceSettings;
-import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
 import OSI.IP.IPv4;
 import OSI.MAC.MACLayer;
@@ -28,20 +27,6 @@ public class node1 {
                 messager.sendMessage(ip+"ç");
                 MACLayer.macStateMachine.TxPending = true;
                 DebugHelper.logColorful("收到ICMP来自"+ip, DebugHelper.printColor.BLUE);
-            }
-        }).start();
-        new Thread(() -> {
-            while (true) {
-                synchronized (GlobalEvent.ALL_DATA_Recieved) {
-                    try {
-                        GlobalEvent.ALL_DATA_Recieved.wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                String message=MACLayer.macBufferController.getMessage();
-                DebugHelper.logColorful("收到ICMP来自"+message, DebugHelper.printColor.BLUE);
-                DebugHelper.logColorful("Reply"+message, DebugHelper.printColor.BLUE);
             }
         }).start();
     }

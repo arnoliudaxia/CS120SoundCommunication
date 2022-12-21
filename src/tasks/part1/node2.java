@@ -56,25 +56,6 @@ public class node2 {
                     }
 
                 }).start();
-                //线程2，如果收到外面的ping那么告诉node1
-                new Thread(() -> {
-                    DebugHelper.logColorful("线程2启动", DebugHelper.printColor.GREEN);
-                    while(true) {
-                        try {
-                            byte[] bytes = new byte[1024];
-                            DebugHelper.logColorful("等待外部ICMP", DebugHelper.printColor.CYAN);
-                            int read = client.getInputStream().read(bytes);
-                            DebugHelper.logColorful("收到外部ICMP", DebugHelper.printColor.CYAN);
-                            //notify node1
-                            String sendMessage = new String(bytes, 0, read, Charset.defaultCharset());
-                            sendMessage += "ç";
-                            messager.sendMessage(sendMessage);
-                            MACLayer.macStateMachine.TxPending = true;
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }).start();
 
             SystemController.threadBlockTime(999999999);
 
