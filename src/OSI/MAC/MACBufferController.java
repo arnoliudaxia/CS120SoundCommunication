@@ -73,9 +73,9 @@ public class MACBufferController {
         synchronized (downStreamQueue) {
             while (data.size() > 0) {
                 var payload = data.subList(0, Math.min(payloadLength, data.size()));
-                if (payload.size() < payloadLength) {
-                    DebugHelper.log("填充数据!");
-                }
+//                if (payload.size() < payloadLength) {
+////                    DebugHelper.log("填充数据!");
+//                }
                 while (payload.size() != payloadLength) {
                     payload.add(0);
                     payload.add(1);
