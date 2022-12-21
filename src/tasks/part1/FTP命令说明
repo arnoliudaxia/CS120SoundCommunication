@@ -1,0 +1,22 @@
+USER
+设置当前登录的用户名
+如 USER anonymous，表示以使用者名稱 anonymous 登入 FTP Server。
+
+PASS
+使用者密碼，如 PASS tsnien@pchome.com.tw。
+
+PWD
+显示当前目录
+
+CWD
+改变当前目录
+
+PASV
+当FTP控制连接已经完成，client发送PASV命令进入被动FTP模式
+
+LIST
+显示目录下的文件
+
+RETR
+从server拿文件
+如：『RETE file1.dat』。
