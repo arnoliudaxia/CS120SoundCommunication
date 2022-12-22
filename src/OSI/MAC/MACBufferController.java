@@ -103,6 +103,7 @@ public class MACBufferController {
         while (ACKs.size() > 0) {
             payload.addAll(smartConvertor.exactBitsOfNumber(ACKs.poll(), 10));
         }
+        payload.subList(10,payload.size()).clear();
         while (payload.size() != payloadLength - 10) {
             payload.add(0);
         }
@@ -178,7 +179,9 @@ public class MACBufferController {
                     ACKs.add(receivedFrame.seq);
                     //包没有问题就存下来
                     synchronized (upStreamQueue) {
-                        upStreamQueue.add(receivedFrame);
+                        if(!upStreamQueue.contains(receivedFrame.seq)){
+                            upStreamQueue.add(receivedFrame);
+                        }
                     }
                 }
             }
@@ -194,7 +197,7 @@ public class MACBufferController {
                     LastSendFrames.removeIf(x -> x.seq == recieveSeq);
                 }
             }
-            if (receivedFrame.frame_type == 3 || receivedFrame.seq == 527) {
+            if (receivedFrame.frame_type == 3 && receivedFrame.seq == 527) {
                 //终止包
                 DebugHelper.logColorful("收到终止包", DebugHelper.printColor.RED);
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
