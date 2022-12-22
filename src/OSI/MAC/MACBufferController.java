@@ -128,9 +128,9 @@ public class MACBufferController {
      */
     public void __send() {
 
-        if (ACKs.size() > 0) {
-            sendACK();
-        }
+//        if (ACKs.size() > 0) {
+////            sendACK();
+//        }
         MACFrame frame = downStreamQueue.poll();
         MACLayer.macStateMachine.TxPending = true;
         if (frame == null) {
