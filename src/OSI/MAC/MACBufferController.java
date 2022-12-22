@@ -21,6 +21,7 @@ public class MACBufferController {
     private int seq = 1;
 
     public final int payloadLength = MACFrame.SEGEMENT[3];
+    public int sendMultiCounter=2;
 
     MACBufferController() {
         if (MACLayer.macBufferController == null) {
@@ -37,6 +38,7 @@ public class MACBufferController {
      * 然后真正send的时候从这里拿数据
      */
     public final LinkedList<MACFrame> downStreamQueue = new LinkedList<>();
+    public final LinkedList<MACFrame> resendQueue = new LinkedList<>();
 
     /**
      * 发送之后的MACFrame会被放在这里，等待ACK，超时就重新加入downStreamQueue
@@ -88,6 +90,9 @@ public class MACBufferController {
                 frame.crc = CRC.crc16(frame);
 
                 downStreamQueue.add(frame);
+                downStreamQueue.add(frame);
+                downStreamQueue.add(frame);
+                resendQueue.add(frame);
                 seq++;
                 data.subList(0, payloadLength).clear();
             }
@@ -130,8 +135,13 @@ public class MACBufferController {
     public void __send() {
 
 //        if (ACKs.size() > 0) {
-////            sendACK();
+//            sendACK();
 //        }
+        if(downStreamQueue.isEmpty()&&!resendQueue.isEmpty())
+        {
+            downStreamQueue.addAll(resendQueue);
+            resendQueue.clear();
+        }
         MACFrame frame = downStreamQueue.poll();
         MACLayer.macStateMachine.TxPending = true;
         if (frame == null) {
@@ -160,15 +170,11 @@ public class MACBufferController {
         MACLayer.macStateMachine.TxDone = true;
     }
 
-    public boolean isEnd = false;
-    private int NumframesSinceLastEnd = 0;
-
     public void __receive(ArrayList<Integer> data) {
         var receivedFrame = new MACFrame(data);
         //checkCode是包里的crc,checkCode_compute是这里根据payload算出来的crc
         int checkCode_compute = CRC.crc16(receivedFrame);
         DebugHelper.log(String.format("收到序号为%d包,包的种类为%d,效验码内容为%d,计算为%d", receivedFrame.seq, receivedFrame.frame_type, receivedFrame.crc, checkCode_compute));
-        NumframesSinceLastEnd++;
         if (receivedFrame.frame_type == 0 && checkCode_compute != receivedFrame.crc) {
             DebugHelper.log(String.format("Warning: 包%d效验不通过,丢弃数据包!", receivedFrame.seq));
         } else {
@@ -197,7 +203,7 @@ public class MACBufferController {
                     LastSendFrames.removeIf(x -> x.seq == recieveSeq);
                 }
             }
-            if (receivedFrame.frame_type == 3 && (receivedFrame.seq == 527||receivedFrame.crc == 16383||receivedFrame.crc == 65535)) {
+            if (receivedFrame.frame_type == 3 && (receivedFrame.seq == 527||receivedFrame.seq == 775||receivedFrame.crc == 16383||receivedFrame.crc == 65535)) {
                 //终止包
                 DebugHelper.logColorful("收到终止包", DebugHelper.printColor.RED);
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
@@ -209,12 +215,6 @@ public class MACBufferController {
         synchronized (GlobalEvent.Recieved_Frame) {
             GlobalEvent.Recieved_Frame.notifyAll();
         }
-//        if(NumframesSinceLastEnd == 2){
-//            NumframesSinceLastEnd = 0;
-//            synchronized (GlobalEvent.ALL_DATA_Recieved) {
-//                GlobalEvent.ALL_DATA_Recieved.notifyAll();
-//            }
-//        }
 
     }
 
@@ -224,7 +224,6 @@ public class MACBufferController {
                 downStreamQueue.addFirst(LastSendFrames.poll());
             }
         }
-
     }
 
     public boolean isAllSent() {
@@ -259,7 +258,6 @@ public class MACBufferController {
             SystemController.threadBlockTime(10);
         }
         StringBuilder result= new StringBuilder();
-        boolean isover=false;
         synchronized (upStreamQueue) {
             String s;
             do {
