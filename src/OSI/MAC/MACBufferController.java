@@ -255,7 +255,7 @@ public class MACBufferController {
             }
             SystemController.threadBlockTime(10);
         }
-        String result="";
+        StringBuilder result= new StringBuilder();
         boolean isover=false;
         synchronized (upStreamQueue) {
             String s;
@@ -267,9 +267,9 @@ public class MACBufferController {
                 }
                 s = new String(bytes, 0, bytes.length, Charset.defaultCharset());
 //                s = s.substring(0, s.lastIndexOf('ç'));
-                result+=s.substring(0, s.lastIndexOf('ç'));
+                result.append(s, 0, s.indexOf('ç'));
             } while (!s.contains("çç"));
-            return result;
+            return result.toString();
         }
     }
 }
