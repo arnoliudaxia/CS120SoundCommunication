@@ -10,6 +10,8 @@ import dataAgent.StorgePolicy;
 import utils.DebugHelper;
 import utils.smartConvertor;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -19,12 +21,14 @@ import static utils.Lcs.s;
 public class node1 {
     private static String[] commands={"USER", "PASS", "PWD", "CWD", "PASV", "LIST", "RETR"};
     private static String ss="";
+    private static boolean isWriteFile=false;
+    private static String fileName="";
     public static void main(String[] args) {
         AudioHw.initAudioHw();
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
         AudioHw.audioHwG.isRecording = true;
         MACLayer.initMACLayer();
-        DeviceSettings.wakeupRef = 0.1f;
+        DeviceSettings.wakeupRef = 0.06f;
         MessageSender messager = new MessageSender();
         new Thread(() -> {
             while (true) {
@@ -65,6 +69,10 @@ public class node1 {
                 }else{
                     DebugHelper.logColorful("invalid command",DebugHelper.printColor.RED);
                 }
+                if(command.contains("RETR")){
+                    isWriteFile=true;
+                    fileName=command.substring(command.indexOf(" ")+1);
+                }
                 messager.sendMessage(command);
                 MACLayer.macStateMachine.TxPending = true;
             }
@@ -78,12 +86,24 @@ public class node1 {
                         throw new RuntimeException(e);
                     }
                 }
-                String message=MACLayer.macBufferController.getMessage();
-                if(!message.contains("ç")){
-                    ss+=message;
-                    DebugHelper.logColorful(ss, DebugHelper.printColor.BLUE);
-                }else{
-                    DebugHelper.logColorful(message.substring(0,message.indexOf('ç')), DebugHelper.printColor.BLUE);
+                while(!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
+                    String message = MACLayer.macBufferController.getMessage();
+//                    if(message.contains("end==="))
+//                    {
+//                        continue;
+//                    }
+                    DebugHelper.logColorful(message, DebugHelper.printColor.BLUE);
+                    if(isWriteFile)
+                    {
+                        isWriteFile=false;
+                        try {
+                            FileWriter writer = new FileWriter("./"+fileName);
+                            writer.write(message);
+                            writer.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
                 }
             }
         }).start();
