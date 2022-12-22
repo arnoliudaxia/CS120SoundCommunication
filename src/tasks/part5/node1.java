@@ -23,6 +23,7 @@ public class node1 {
     private static String ss="";
     private static boolean isWriteFile=false;
     private static String fileName="";
+    private static String fileContent="";
     public static void main(String[] args) {
         AudioHw.initAudioHw();
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
@@ -88,20 +89,21 @@ public class node1 {
                 }
                 while(!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
                     String message = MACLayer.macBufferController.getMessage();
-//                    if(message.contains("end==="))
-//                    {
-//                        continue;
-//                    }
-                    DebugHelper.logColorful(message, DebugHelper.printColor.BLUE);
-                    if(isWriteFile)
+                    if(!message.contains("end==="))
                     {
-                        isWriteFile=false;
-                        try {
-                            FileWriter writer = new FileWriter("./"+fileName);
-                            writer.write(message);
-                            writer.close();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                        fileContent+=message;
+                    }else {
+                        fileContent+=message.substring(0,message.indexOf("end==="));
+                        DebugHelper.logColorful(fileContent, DebugHelper.printColor.BLUE);
+                        if (isWriteFile) {
+                            isWriteFile = false;
+                            try {
+                                FileWriter writer = new FileWriter("./" + fileName);
+                                writer.write(fileContent);
+                                writer.close();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     }
                 }

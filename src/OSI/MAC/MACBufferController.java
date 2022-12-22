@@ -197,7 +197,7 @@ public class MACBufferController {
                     LastSendFrames.removeIf(x -> x.seq == recieveSeq);
                 }
             }
-            if (receivedFrame.frame_type == 3 && receivedFrame.seq == 527) {
+            if (receivedFrame.frame_type == 3 && (receivedFrame.seq == 527||receivedFrame.crc == 16383||receivedFrame.crc == 65535)) {
                 //终止包
                 DebugHelper.logColorful("收到终止包", DebugHelper.printColor.RED);
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
