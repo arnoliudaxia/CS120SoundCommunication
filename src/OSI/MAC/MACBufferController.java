@@ -138,6 +138,7 @@ public class MACBufferController {
 //        if (ACKs.size() > 0) {
 //            sendACK();
 //        }
+        boolean isNeedResend = false;
         if(downStreamQueue.isEmpty()&&!resendQueue.isEmpty())
         {
             downStreamQueue.addAll(resendQueue);
@@ -153,6 +154,7 @@ public class MACBufferController {
             }
             DebugHelper.logColorful("没有要发送的东西了，发送终止包", DebugHelper.printColor.RED);
             frame = new MACFrame(527, new ArrayList<>(Collections.nCopies(170, 0)), -1, 3, DeviceSettings.MACAddress);
+            isNeedResend=true;
             MACLayer.macStateMachine.TxPending = false;
         }
         if (frame.frame_type == 0) {
@@ -166,6 +168,12 @@ public class MACBufferController {
         sendTemp.addAll(frame.payload);
         sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.crc, 16));
         assert sendTemp.size() == frameConfig.bitLength;
+        if(isNeedResend)
+        {
+            bitPacker.AppendData(sendTemp);
+            bitPacker.padding();
+            isNeedResend=false;
+        }
         bitPacker.AppendData(sendTemp);
         bitPacker.padding();
         MACLayer.macStateMachine.TxDone = true;
