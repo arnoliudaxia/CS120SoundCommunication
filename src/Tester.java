@@ -15,9 +15,12 @@ public class Tester {
             DebugHelper.log("正在登录");
             ftpClient.login("anonymous", "");
             DebugHelper.log("登录成功");
-
-            FileOutputStream fos = new FileOutputStream("README.txt");
-            if(ftpClient.retrieveFile("README", fos))
+            ftpClient.changeWorkingDirectory("/video");
+            DebugHelper.log("切换目录");
+            String downFilename="README";
+            downFilename="fry720.jpg";
+            FileOutputStream fos = new FileOutputStream(downFilename);
+            if(ftpClient.retrieveFile(downFilename, fos))
             {
                 DebugHelper.log("下载成功");
             }
