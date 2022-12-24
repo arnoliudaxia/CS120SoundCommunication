@@ -13,7 +13,7 @@ public class MessageSender {
     public void sendMessage(String message) {
         DebugHelper.log("发送字符串");
 //        sendBytes((message).getBytes(Charset.defaultCharset()));
-        final int cutIndex=15;
+        final int cutIndex=18;
         if(message.length()<cutIndex)
         {
             sendBytes((message+"çç").getBytes(Charset.defaultCharset()));
