@@ -138,7 +138,7 @@ public class MACBufferController {
 //        if (ACKs.size() > 0) {
 //            sendACK();
 //        }
-        boolean isNeedResend = false;
+        int isNeedResend = 0;
         if(downStreamQueue.isEmpty()&&!resendQueue.isEmpty())
         {
             downStreamQueue.addAll(resendQueue);
@@ -154,7 +154,7 @@ public class MACBufferController {
             }
             DebugHelper.logColorful("没有要发送的东西了，发送终止包", DebugHelper.printColor.RED);
             frame = new MACFrame(527, new ArrayList<>(Collections.nCopies(170, 0)), -1, 3, DeviceSettings.MACAddress);
-            isNeedResend=true;
+            isNeedResend=5;
             MACLayer.macStateMachine.TxPending = false;
         }
         if (frame.frame_type == 0) {
@@ -168,11 +168,11 @@ public class MACBufferController {
         sendTemp.addAll(frame.payload);
         sendTemp.addAll(smartConvertor.exactBitsOfNumber(frame.crc, 16));
         assert sendTemp.size() == frameConfig.bitLength;
-        if(isNeedResend)
+        while(isNeedResend>0)
         {
             bitPacker.AppendData(sendTemp);
             bitPacker.padding();
-            isNeedResend=false;
+            isNeedResend--;
         }
         bitPacker.AppendData(sendTemp);
         bitPacker.padding();
@@ -212,7 +212,9 @@ public class MACBufferController {
                     LastSendFrames.removeIf(x -> x.seq == recieveSeq);
                 }
             }
-            if (receivedFrame.frame_type == 3 && (receivedFrame.seq == 527||receivedFrame.seq == 775||receivedFrame.seq == 899||receivedFrame.crc == 16383||receivedFrame.crc == 65535)) {
+            if (receivedFrame.seq == 512||
+                    receivedFrame.frame_type == 3 &&
+                            (receivedFrame.seq == 527||receivedFrame.seq == 775||receivedFrame.seq == 899||receivedFrame.crc == 16383||receivedFrame.crc == 65535)) {
                 //终止包
                 DebugHelper.logColorful("收到终止包", DebugHelper.printColor.RED);
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
