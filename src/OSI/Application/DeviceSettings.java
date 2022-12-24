@@ -10,4 +10,13 @@ public class DeviceSettings {
     public static float wakeupRef=-1.f;
     public static IPv4 IP;
     public static boolean isSendEndPackage=true;
+
+    @FunctionalInterface
+    public interface Function3 <A, B,C, R> {
+        //R is like Return, but doesn't have to be last in the list nor named R.
+        public R apply (A a, B b,C c);
+    }
+    public static Function3<Integer,Integer,Integer, Boolean> stopPackageJudge=(seq, crc,frametype)->{
+        return false;
+    };
 }
