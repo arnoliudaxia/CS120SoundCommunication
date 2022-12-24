@@ -1,3 +1,7 @@
+DEST
+设置访问的ftp服务器
+例如 DEST ftp.gnu.org
+
 USER
 设置当前登录的用户名
 如 USER anonymous，表示以使用者名稱 anonymous 登入 FTP Server。
@@ -23,3 +27,4 @@ LIST
 RETR
 从server拿文件
 如：『RETE file1.dat』。
+MISSING-FILES
