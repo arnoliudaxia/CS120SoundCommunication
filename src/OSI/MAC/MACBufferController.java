@@ -197,9 +197,7 @@ public class MACBufferController {
                     ACKs.add(receivedFrame.seq);
                     //包没有问题就存下来
                     synchronized (upStreamQueue) {
-                        if(!upStreamQueue.contains(receivedFrame.seq)){
-                            upStreamQueue.add(receivedFrame);
-                        }
+                        upStreamQueue.add(receivedFrame);
                     }
                 }
             }
@@ -218,6 +216,7 @@ public class MACBufferController {
             if (DeviceSettings.stopPackageJudge.apply(receivedFrame.seq,receivedFrame.crc,receivedFrame.frame_type)) {
                 //终止包
                 DebugHelper.logColorful("收到终止包", DebugHelper.printColor.RED);
+                ACKs.clear();
                 synchronized (GlobalEvent.ALL_DATA_Recieved) {
                     GlobalEvent.ALL_DATA_Recieved.notifyAll();
                 }
