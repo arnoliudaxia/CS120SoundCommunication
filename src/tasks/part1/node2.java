@@ -21,16 +21,16 @@ public class node2 {
     }
     public static void main(String[] args) {
         AudioHw.initAudioHw();
-        AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
-        MACLayer.initMACLayer();
-        DeviceSettings.wakeupRef = 0.16f;
-        DeviceSettings.MACAddress = 1;
-        AudioHw.audioHwG.isRecording = true;
-        MessageSender messager = new MessageSender();
-        DebugHelper.logColorful("AudioNet is running", DebugHelper.printColor.GREEN);
-        try (ServerSocket serverSocket = new ServerSocket(46569)) {
-            Socket client = serverSocket.accept();
-            DebugHelper.logColorful("InterNet is running", DebugHelper.printColor.GREEN);
+            AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
+            MACLayer.initMACLayer();
+            DeviceSettings.wakeupRef = 0.16f;
+            DeviceSettings.MACAddress = 1;
+            AudioHw.audioHwG.isRecording = true;
+            MessageSender messager = new MessageSender();
+            DebugHelper.logColorful("AudioNet is running", DebugHelper.printColor.GREEN);
+            try (ServerSocket serverSocket = new ServerSocket(46569)) {
+                Socket client = serverSocket.accept();
+                DebugHelper.logColorful("InterNet is running", DebugHelper.printColor.GREEN);
                 //线程1，帮Node1发出去
                 new Thread(() -> {
                     DebugHelper.logColorful("线程1启动", DebugHelper.printColor.GREEN);
@@ -58,11 +58,11 @@ public class node2 {
                                     String sendMessage = new String(bytes, 0, read, Charset.defaultCharset());
                                     DebugHelper.logColorful("发送" + sendMessage, DebugHelper.printColor.CYAN);
                                     messager.sendMessage(sendMessage);
-                                    if (iptoping.contains("LIST")) {
+                                    if (iptoping.contains("LIST")||iptoping.contains("RETR")) {
                                         isMultiLines= !sendMessage.contains("end===");
                                     }
                                     MACLayer.macStateMachine.TxPending = true;
-                                    SystemController.threadBlockTime(500);
+                                    SystemController.threadBlockTime(50);
 
                                 } while (isMultiLines);
                             }
