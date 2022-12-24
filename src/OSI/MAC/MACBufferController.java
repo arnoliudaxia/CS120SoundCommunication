@@ -90,8 +90,9 @@ public class MACBufferController {
                 frame.crc = CRC.crc16(frame);
 
                 downStreamQueue.add(frame);
-                downStreamQueue.add(frame);
-                downStreamQueue.add(frame);
+//                downStreamQueue.add(frame);
+//                downStreamQueue.add(frame);
+                resendQueue.add(frame);
                 resendQueue.add(frame);
                 seq++;
                 data.subList(0, payloadLength).clear();
