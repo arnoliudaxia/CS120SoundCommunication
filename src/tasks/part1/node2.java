@@ -25,6 +25,9 @@ public class node2 {
             MACLayer.initMACLayer();
             DeviceSettings.wakeupRef = 0.16f;
             DeviceSettings.MACAddress = 1;
+            DeviceSettings.stopPackageJudge=(seq,crc,frame_type)->{
+                return frame_type == 3;
+            };
             AudioHw.audioHwG.isRecording = true;
             MessageSender messager = new MessageSender();
             DebugHelper.logColorful("AudioNet is running", DebugHelper.printColor.GREEN);
@@ -44,6 +47,10 @@ public class node2 {
                             }
                         }
                         String iptoping = MACLayer.macBufferController.getMessage();
+                        if(iptoping.equals(""))
+                        {
+                            continue;
+                        }
                         DebugHelper.logColorful("告诉python", DebugHelper.printColor.BLUE);
                         try {
                             client.getOutputStream().write(iptoping.getBytes(Charset.defaultCharset()));
