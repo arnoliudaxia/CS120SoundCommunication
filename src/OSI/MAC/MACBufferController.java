@@ -176,6 +176,7 @@ public class MACBufferController {
         }
         bitPacker.AppendData(sendTemp);
         bitPacker.padding();
+        SystemController.threadBlockTime(20);
         MACLayer.macStateMachine.TxDone = true;
     }
 
