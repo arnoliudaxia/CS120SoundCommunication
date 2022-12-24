@@ -3,31 +3,36 @@ package tasks.part5;
 import OSI.Application.DeviceSettings;
 import OSI.Application.GlobalEvent;
 import OSI.Application.MessageSender;
-import OSI.IP.IPv4;
 import OSI.MAC.MACLayer;
 import OSI.Physic.AudioHw;
 import dataAgent.StorgePolicy;
 import utils.DebugHelper;
+import utils.Tester;
 import utils.smartConvertor;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static utils.Lcs.LcsLength;
 import static utils.Lcs.s;
+import static utils.Tester.testlog;
+import static utils.Tester.testother;
 
 public class node1 {
     private static String[] commands={"USER", "PASS", "PWD", "CWD", "PASV", "LIST", "RETR"};
     private static String ss="";
     private static boolean isWriteFile=false;
+    public static boolean isWrite=false;
     private static String fileName="";
     private static String fileContent="";
     public static void main(String[] args) {
         AudioHw.initAudioHw();
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
         AudioHw.audioHwG.isRecording = true;
+        AtomicReference<String> command= new AtomicReference<>("");
         MACLayer.initMACLayer();
         DeviceSettings.wakeupRef = 0.06f;
         MessageSender messager = new MessageSender();
@@ -57,24 +62,23 @@ public class node1 {
                         Index.add(j);
                     }
                 }
-                String command="";
                 if(cnt==1){
-                    command=commands[Index.get(0)]+" "+content;
+                    command.set(commands[Index.get(0)] + " " + content);
                 } else if (cnt>1){
                     DebugHelper.logColorful("请选择", DebugHelper.printColor.BLUE);
                     for(int j=0;j<cnt;j++){
                         System.out.print(commands[Index.get(j)]+"  ");
                     }
                     DebugHelper.log("重新输入命令");
-                    command = scanner.nextLine();
+                    command.set(scanner.nextLine());
                 }else{
                     DebugHelper.logColorful("invalid command",DebugHelper.printColor.RED);
                 }
-                if(command.contains("RETR")){
+                if(command.get().contains("RETR")){
                     isWriteFile=true;
-                    fileName=command.substring(command.indexOf(" ")+1);
+                    fileName= command.get().substring(command.get().indexOf(" ")+1);
                 }
-                messager.sendMessage(command);
+                messager.sendMessage(command.get());
                 MACLayer.macStateMachine.TxPending = true;
             }
         }).start();
@@ -88,12 +92,14 @@ public class node1 {
                     }
                 }
                 while(!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
+                    isWriteFile=false;
                     String message = MACLayer.macBufferController.getMessage();
                     if(!message.contains("end==="))
                     {
                         fileContent+=message;
                     }else {
                         fileContent+=message.substring(0,message.indexOf("end==="));
+                        isWrite=true;
                         DebugHelper.logColorful(fileContent, DebugHelper.printColor.BLUE);
                         if (isWriteFile) {
                             isWriteFile = false;
@@ -106,6 +112,21 @@ public class node1 {
                             }
                         }
                     }
+                }
+            }
+        }).start();
+        new Thread(()->{
+            while(true) {
+                if(command.get().contains("DEST")){
+                    testlog(command.get().substring(command.get().indexOf(" ") + 1));
+                    break;
+                }
+            }
+            while(true){
+                try {
+                    testother(command.get());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         }).start();
