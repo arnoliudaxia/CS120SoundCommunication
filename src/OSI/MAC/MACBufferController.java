@@ -156,7 +156,7 @@ public class MACBufferController {
             frame = new MACFrame(527, new ArrayList<>(Collections.nCopies(170, 0)), -1, 3, DeviceSettings.MACAddress);
             isNeedResend=0;
             MACLayer.macStateMachine.TxPending = false;
-            seq=0;
+            seq=1;
             DebugHelper.logColorful("发送包序重设", DebugHelper.printColor.GREEN);
         }
         if (frame.frame_type == 0) {
