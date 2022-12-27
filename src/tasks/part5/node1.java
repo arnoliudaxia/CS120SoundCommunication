@@ -18,16 +18,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static utils.Lcs.LcsLength;
 import static utils.Lcs.s;
-import static utils.Tester.testlog;
-import static utils.Tester.testother;
+import static utils.Tester.*;
 
 public class node1 {
-    private static String[] commands={"USER", "PASS", "PWD", "CWD", "PASV", "LIST", "RETR"};
+    private static String[] commands={"USER", "PASS", "PWD", "CWD", "PASV", "LIST", "RETR","DEST"};
     private static String ss="";
     private static boolean isWriteFile=false;
     public static boolean isWrite=false;
+    public static Object istest=new Object();
     private static String fileName="";
     private static String fileContent="";
+    private static int counter=0;
     public static void main(String[] args) {
         AudioHw.initAudioHw();
         AudioHw.audioHwG.changeStorgePolicy(StorgePolicy.FrameRealTimeDetect);
@@ -35,12 +36,27 @@ public class node1 {
         AtomicReference<String> command= new AtomicReference<>("");
         MACLayer.initMACLayer();
         DeviceSettings.wakeupRef = 0.06f;
+        DeviceSettings.stopPackageJudge=(seq,crc,frame_type)->{
+            return frame_type == 3 &&
+                    (seq == 527||seq == 775||crc == 16383||crc == 65535);
+        };
         MessageSender messager = new MessageSender();
         new Thread(() -> {
             while (true) {
                 Scanner scanner=new Scanner(System.in);
                 DebugHelper.log("输入命令");
                 String nextLine = scanner.nextLine();
+
+                if(counter==0)
+                {
+                    nextLine="DEST ftp.gnu.org";
+                } else if (counter==1) {
+                    nextLine="USER anonymous";
+                }
+                if(counter==2){
+                    nextLine="RETR README";
+                }
+                counter++;
                 String cc=nextLine.substring(0,nextLine.indexOf(" "));
                 String content=nextLine.substring(nextLine.indexOf(" ")+1);
                 String[] subsequence = {};
@@ -79,6 +95,9 @@ public class node1 {
                     fileName= command.get().substring(command.get().indexOf(" ")+1);
                 }
                 messager.sendMessage(command.get());
+                synchronized (istest) {
+                    istest.notifyAll();
+                }
                 MACLayer.macStateMachine.TxPending = true;
             }
         }).start();
@@ -91,15 +110,20 @@ public class node1 {
                         throw new RuntimeException(e);
                     }
                 }
+                synchronized (filewrite) {
+                    DebugHelper.log("收到数据");
+                    filewrite.notifyAll();
+                }
                 while(!MACLayer.macBufferController.upStreamQueue.isEmpty()) {
                     isWriteFile=false;
+                    DebugHelper.logColorful("JINLE", DebugHelper.printColor.BLUE);
                     String message = MACLayer.macBufferController.getMessage();
+                    DebugHelper.logColorful(fileContent, DebugHelper.printColor.BLUE);
                     if(!message.contains("end==="))
                     {
                         fileContent+=message;
                     }else {
                         fileContent+=message.substring(0,message.indexOf("end==="));
-                        isWrite=true;
                         DebugHelper.logColorful(fileContent, DebugHelper.printColor.BLUE);
                         if (isWriteFile) {
                             isWriteFile = false;
@@ -122,7 +146,14 @@ public class node1 {
                     break;
                 }
             }
-            while(true){
+            while (true) {
+                synchronized (istest) {
+                    try {
+                        istest.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 try {
                     testother(command.get());
                 } catch (IOException e) {

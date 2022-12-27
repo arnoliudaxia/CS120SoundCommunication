@@ -5,7 +5,7 @@ DEST
 USER
 设置当前登录的用户名
 如 USER anonymous，表示以使用者名稱 anonymous 登入 FTP Server。
-
+USER anonymous
 PASS
 使用者密碼，如 PASS tsnien@pchome.com.tw。
 
@@ -27,4 +27,8 @@ LIST
 RETR
 从server拿文件
 如：『RETE file1.dat』。
-MISSING-FILES
+RETR MISSING-FILES
+RETR README
+DEST ftp.gnu.org
+USER anonymous
+RETR MISSING-FILES

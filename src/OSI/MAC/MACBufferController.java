@@ -272,6 +272,9 @@ public class MACBufferController {
         synchronized (upStreamQueue) {
             String s;
             do {
+                if(upStreamQueue.isEmpty()) {
+                    return "";
+                }
                 var data = Objects.requireNonNull(upStreamQueue.poll()).payload;
                 byte[] bytes = new byte[2048];
                 for (int i = 0; i < data.size() - 8; i += 8) {
@@ -279,7 +282,11 @@ public class MACBufferController {
                 }
                 s = new String(bytes, 0, bytes.length, Charset.defaultCharset());
 //                s = s.substring(0, s.lastIndexOf('ç'));
-                result.append(s, 0, s.indexOf('ç'));
+                if(s.contains("ç")){
+                    result.append(s, 0, s.indexOf('ç'));
+                }else{
+                    result.append(s);
+                }
             } while (!s.contains("çç"));
             return result.toString();
         }
