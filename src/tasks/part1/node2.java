@@ -47,6 +47,7 @@ public class node2 {
                             }
                         }
                         String iptoping = MACLayer.macBufferController.getMessage();
+                        DebugHelper.logColorful("收到数据：" + iptoping, DebugHelper.printColor.GREEN);
                         if(iptoping.equals(""))
                         {
                             continue;
@@ -69,7 +70,7 @@ public class node2 {
                                         isMultiLines= !sendMessage.contains("end===");
                                     }
                                     MACLayer.macStateMachine.TxPending = true;
-                                    SystemController.threadBlockTime(50);
+                                    SystemController.threadBlockTime(5);
 
                                 } while (isMultiLines);
                             }
